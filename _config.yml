@@ -16,7 +16,7 @@ timezone: Asia/Dushanbe
 
 title: Oxbyte Blog # the main title
 
-tagline: Cybersecurity Specialist # it will display as the subtitle
+tagline: Sharing CTF writeups, security projects, research notes, and career journey. # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   Personal blog of cybersecurity specialist, penetration tester, 

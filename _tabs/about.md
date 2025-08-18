@@ -6,7 +6,7 @@ order: 4
 
 20 years old junior cybersecurity specialist from Tajikistan. I focus on **penetration testing, server hardening, and threat detection** with a strong background in both **offensive and defensive security operations**.  
  
-## Eexperience
+## Experience
 
 **Babilon-T LLC — Junior Penetration Tester**  
 *Sep 2024 – Present*  

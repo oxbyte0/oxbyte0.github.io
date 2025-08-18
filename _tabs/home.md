@@ -1,0 +1,49 @@
+---
+icon: fas fa-home
+title: "Home"
+order: 1
+---
+
+# Welcome to Oxbyte Blog
+
+This site is a collection of my **notes, research, and CTF writeups**.  
+The focus is on **penetration testing, defensive security, system hardening, and threat detection**.  
+
+## Advanced Description
+
+The blog is structured as a **technical knowledge base**, covering both **offensive and defensive security practices**.  
+Posts range from **in-depth attack simulations and exploitation walkthroughs** to **blue team methodologies such as log analysis, detection engineering, and incident response**.  
+
+Every article is designed to:  
+- Provide **clear technical steps and methodology**.  
+- Highlight **real-world applications and mitigation strategies**.  
+- Serve as a **reference for security professionals, researchers, and learners**.  
+
+The long-term goal is to maintain a repository of **field-tested techniques, tools, and processes** that can help strengthen both personal skills and organizational security posture.  
+
+
+## Topics Covered
+
+- Red/Blue team techniques  
+- Linux/Windows server administration & hardening  
+- Networking protocols, misconfigurations, and exploitation  
+- Tooling, scripts, and automation for security operations  
+- Capture The Flag (CTF) and hands-on security labs  
+
+## Disclaimer
+
+All material on this site is published **for educational and research purposes only**.  
+The author does **not endorse or promote malicious activity**.  
+Any tools, scripts, or methods discussed should only be used:  
+
+- In **controlled environments** (labs, simulations, CTFs).  
+- With **explicit permission** from the system owner.  
+
+Misuse of the information provided here may violate laws and regulations.  
+The author assumes **no liability** for the actions of others who apply this content outside of a legal and ethical context.  
+
+
+## Latest Posts
+
+Below you will find the most recent blog entries.  
+Use the **search** or **categories/tags** in the sidebar to navigate specific topics.  

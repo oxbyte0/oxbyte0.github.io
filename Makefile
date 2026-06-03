@@ -23,7 +23,7 @@ serve:
 
 deploy:
 	@if [ -z "$(MSG)" ]; then bash scripts/blog deploy; else \
-	  git add -A && git commit -m "$(MSG)" && git push origin main; fi
+	  git add -A && git commit -m "$(MSG)" && git push origin main --force; fi
 
 open:
 	@bash scripts/blog open

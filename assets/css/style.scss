@@ -16,7 +16,7 @@
   --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
   --r-sm:3px; --r-md:6px; --r-lg:10px; --r-xl:16px;
   --t-fast:90ms ease; --t-base:160ms ease; --t-slow:280ms ease;
-  --nav-w:224px; --content-max:760px;
+  --nav-w:224px; --content-max: clamp(680px, 55vw, 920px);
 }
 
 @supports (color: light-dark(#000, #fff)) {
@@ -57,7 +57,7 @@ td.rouge-gutter pre.lineno {
 td.rouge-code { padding: 5px 10px 7px 8px; }
 td.rouge-code pre {
   padding: 0; margin: 0; background: none; border: none;
-  overflow: visible; min-width: 0; white-space: pre; font-size: 12px; line-height: 1.6;
+  overflow: visible; min-width: 0; white-space: pre; font-size: clamp(12px, 0.75vw + 7px, 14px); line-height: 1.6;
 }
 
 .highlight .cm, .highlight .cp, .highlight .c1, .highlight .cs,
@@ -109,7 +109,7 @@ html {
 body {
   background: var(--c-bg); margin: 0; padding: 0;
   font-family: 'Onest', system-ui, -apple-system, sans-serif;
-  font-size: 15px; line-height: 1.78; color: var(--c-text);
+  font-size: clamp(15px, calc(10px + 0.67vw), 19px); line-height: 1.78; color: var(--c-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-feature-settings: "kern" 1;
@@ -137,10 +137,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600; margin: 0 0 var(--sp-3); line-height: 1.25;
   letter-spacing: -0.01em; text-wrap: balance;
 }
-h1 { font-size: 24px; }
-h2 { font-size: 20px; }
-h3 { font-size: 16px; }
-h4, h5, h6 { font-size: 15px; }
+h1 { font-size: clamp(22px, calc(14px + 1.05vw), 30px); }
+h2 { font-size: clamp(18px, calc(12px + 0.88vw), 26px); }
+h3 { font-size: clamp(15px, calc(10px + 0.70vw), 22px); }
+h4, h5, h6 { font-size: clamp(14px, calc(10px + 0.50vw), 18px); }
 section h1, section h2, section h3 { margin-top: var(--sp-6); margin-bottom: var(--sp-3); }
 section h1:first-child, section h2:first-child, section h3:first-child { margin-top: 0; }
 strong { font-weight: 600; color: var(--c-head); }
@@ -155,7 +155,7 @@ h1 a:hover, h2 a:hover { color: var(--c-accent); text-decoration: none; }
 a small { font-size: 11px; color: var(--c-muted); margin-top: -0.3em; display: block; }
 a:hover small { color: var(--c-muted); }
 
-.wrapper { display: flex; align-items: flex-start; gap: var(--sp-5); max-width: 1080px; margin: 0 auto; padding: var(--sp-6) var(--sp-5); }
+.wrapper { display: flex; align-items: flex-start; gap: var(--sp-5); max-width: clamp(900px, 88vw, 1320px); margin: 0 auto; padding: var(--sp-6) clamp(16px, 2.5vw, 48px); }
 
 nav {
   width: var(--nav-w); min-width: var(--nav-w); flex-shrink: 0;
@@ -266,7 +266,7 @@ section { background: var(--c-surface); border: 1px solid var(--c-border); borde
 :root[style*="light"] .badge-insane { color: rgba(0,0,0,0.82); background: rgba(0,0,0,0.11); }
 :root[style*="light"] .badge-os     { color: rgba(0,0,0,0.52); background: rgba(0,0,0,0.08); }
 
-.post-card-title { font-size: 14px; font-weight: 600; margin: 0 0 3px; line-height: 1.3; text-wrap: balance; }
+.post-card-title { font-size: clamp(14px, calc(10px + 0.30vw), 17px); font-weight: 600; margin: 0 0 3px; line-height: 1.3; text-wrap: balance; }
 .post-card-title a { color: var(--c-head); text-decoration: none; }
 .post-card:hover .post-card-title a { color: var(--c-accent); }
 .post-card-creator { font-size: 11px; color: var(--c-muted); margin: 0 0 3px; }
@@ -327,7 +327,7 @@ pre.highlight.collapsed::before {
     radial-gradient(circle 3.5px at 40px 12px, rgba(255,255,255,0.07) 100%, transparent 100%);
 }
 
-pre.highlight code { display: block; padding: 0 0 7px; font-size: 12px; background: none; border: none; color: #e0e0e0; overflow-x: visible; }
+pre.highlight code { display: block; padding: 0 0 7px; font-size: clamp(12px, 0.75vw + 7px, 14px); background: none; border: none; color: #e0e0e0; overflow-x: visible; }
 pre.highlight.collapsed code { display: none; }
 
 div[filename] { position: relative; }
@@ -543,14 +543,6 @@ li { margin-bottom: var(--sp-1); }
   .share-btn { transition: transform 80ms ease, color 80ms ease, border-color 80ms ease; }
   .share-btn:hover { transform: translateY(-1px); }
   .share-btn:active { transform: translateY(0) scale(0.97); }
-}
-
-@media screen and (min-width: 1280px) {
-  .wrapper { max-width: 1200px; padding: var(--sp-7) var(--sp-6); }
-  body { font-size: 16px; }
-  h1 { font-size: 26px; }
-  h2 { font-size: 21px; }
-  h3 { font-size: 17px; }
 }
 
 @media screen and (max-width: 900px) {

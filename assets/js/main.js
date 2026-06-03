@@ -496,3 +496,25 @@ if ('serviceWorker' in navigator) {
     nb.appendChild(btn);
   });
 }());
+
+(function () {
+  function syncGiscusTheme() {
+    var frame = document.querySelector('iframe.giscus-frame');
+    if (!frame) return;
+    var light = document.documentElement.style.colorScheme === 'light';
+    var theme = light
+      ? 'https://oxbyte.blog/assets/css/giscus-light.css'
+      : 'https://oxbyte.blog/assets/css/giscus.css';
+    frame.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: theme } } },
+      'https://giscus.app'
+    );
+  }
+
+  var themeBtn = document.getElementById('themeToggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      setTimeout(syncGiscusTheme, 200);
+    });
+  }
+}());

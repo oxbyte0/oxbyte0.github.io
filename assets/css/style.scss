@@ -450,7 +450,19 @@ li { margin-bottom: var(--sp-1); }
 
 .related-posts { margin-top: var(--sp-6); }
 
-.giscus-wrapper { margin-top: var(--sp-6); }
+.giscus-wrapper {
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--c-border);
+}
+.giscus-wrapper .posts-category { margin-bottom: var(--sp-4); }
+.giscus, .giscus-frame {
+  width: 100%;
+  border: none;
+  border-radius: var(--r-lg);
+  min-height: 120px;
+  color-scheme: dark;
+}
 
 .install-btn {
   display: flex; align-items: center; gap: 6px;

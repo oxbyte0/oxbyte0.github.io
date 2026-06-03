@@ -1,0 +1,46 @@
+/* Custom giscus theme — oxbyte.blog light mode */
+
+* { font-family: 'Onest', system-ui, -apple-system, sans-serif !important; }
+code, pre, kbd { font-family: 'Martian Mono', 'JetBrains Mono', monospace !important; }
+
+--color-canvas-default:    #ffffff;
+--color-canvas-subtle:     #f0f0f0;
+--color-canvas-inset:      #f6f6f6;
+--color-canvas-overlay:    #ffffff;
+
+--color-fg-default:        #111111;
+--color-fg-muted:          #5a5a5a;
+--color-fg-subtle:         #717171;
+
+--color-border-default:    rgba(0,0,0,0.09);
+--color-border-muted:      rgba(0,0,0,0.06);
+--color-border-subtle:     rgba(0,0,0,0.04);
+
+--color-accent-fg:             #000000;
+--color-accent-emphasis:       rgba(0,0,0,0.08);
+--color-accent-muted:          rgba(0,0,0,0.05);
+--color-accent-subtle:         rgba(0,0,0,0.04);
+
+--color-btn-text:              #111111;
+--color-btn-bg:                #f0f0f0;
+--color-btn-border:            rgba(0,0,0,0.09);
+--color-btn-hover-bg:          #e8e8e8;
+--color-btn-hover-border:      rgba(0,0,0,0.14);
+
+--color-btn-primary-text:      #ffffff;
+--color-btn-primary-bg:        #111111;
+--color-btn-primary-border:    rgba(0,0,0,0.20);
+--color-btn-primary-hover-bg:  #2a2a2a;
+
+--color-input-bg:              #ffffff;
+--color-input-border:          rgba(0,0,0,0.09);
+--color-input-placeholder:     #a0a0a0;
+
+--color-neutral-muted:         rgba(0,0,0,0.06);
+--color-neutral-emphasis:      rgba(0,0,0,0.09);
+--color-neutral-emphasis-plus: rgba(0,0,0,0.12);
+
+--color-link-fg:               #000000;
+--color-reactions-btn-text:    #717171;
+--color-timeline-badge-bg:     #f0f0f0;
+--color-header-bg:             #f0f0f0;

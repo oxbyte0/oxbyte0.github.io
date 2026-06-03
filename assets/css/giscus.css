@@ -1,118 +1,248 @@
-/* Custom giscus theme — oxbyte.blog monochrome dark */
-/* Overrides GitHub Primer CSS variables used by giscus */
+/* giscus dark theme — oxbyte.blog */
+@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&family=Onest:wght@400;500;600&display=swap');
 
-* { font-family: 'Onest', system-ui, -apple-system, sans-serif !important; }
-code, pre, kbd, samp { font-family: 'Martian Mono', 'JetBrains Mono', monospace !important; }
+*, *::before, *::after { box-sizing: border-box; }
 
-/* Canvas */
---color-canvas-default:    #0c0c0c;
---color-canvas-subtle:     #131313;
---color-canvas-inset:      #060606;
---color-canvas-overlay:    #0c0c0c;
+:root {
+  --color-canvas-default:           #0c0c0c;
+  --color-canvas-subtle:            #131313;
+  --color-canvas-inset:             #060606;
+  --color-canvas-overlay:           #0c0c0c;
 
-/* Foreground */
---color-fg-default:        #d8d8d8;
---color-fg-muted:          #909090;
---color-fg-subtle:         #787878;
---color-fg-on-emphasis:    #060606;
+  --color-fg-default:               #d8d8d8;
+  --color-fg-muted:                 #909090;
+  --color-fg-subtle:                #787878;
+  --color-fg-on-emphasis:           #060606;
 
-/* Borders */
---color-border-default:    rgba(255,255,255,0.08);
---color-border-muted:      rgba(255,255,255,0.05);
---color-border-subtle:     rgba(255,255,255,0.04);
+  --color-border-default:           rgba(255,255,255,0.10);
+  --color-border-muted:             rgba(255,255,255,0.06);
+  --color-border-subtle:            rgba(255,255,255,0.04);
 
-/* Accent */
---color-accent-fg:             #f4f4f4;
---color-accent-emphasis:       rgba(255,255,255,0.10);
---color-accent-muted:          rgba(255,255,255,0.07);
---color-accent-subtle:         rgba(255,255,255,0.05);
+  --color-accent-fg:                #f4f4f4;
+  --color-accent-emphasis:          rgba(255,255,255,0.12);
+  --color-accent-muted:             rgba(255,255,255,0.07);
+  --color-accent-subtle:            rgba(255,255,255,0.04);
 
-/* Buttons — default */
---color-btn-text:              #d8d8d8;
---color-btn-bg:                #131313;
---color-btn-border:            rgba(255,255,255,0.08);
---color-btn-shadow:            none;
---color-btn-inset-shadow:      none;
---color-btn-hover-bg:          #1a1a1a;
---color-btn-hover-border:      rgba(255,255,255,0.13);
---color-btn-active-bg:         #0c0c0c;
---color-btn-active-border:     rgba(255,255,255,0.13);
---color-btn-selected-bg:       #0c0c0c;
---color-btn-focus-bg:          #131313;
+  --color-btn-text:                 #d8d8d8;
+  --color-btn-bg:                   #131313;
+  --color-btn-border:               rgba(255,255,255,0.10);
+  --color-btn-shadow:               none;
+  --color-btn-inset-shadow:         none;
+  --color-btn-hover-bg:             #1a1a1a;
+  --color-btn-hover-border:         rgba(255,255,255,0.15);
+  --color-btn-active-bg:            #0c0c0c;
+  --color-btn-selected-bg:          #0c0c0c;
 
-/* Buttons — primary */
---color-btn-primary-text:         #060606;
---color-btn-primary-bg:           #f4f4f4;
---color-btn-primary-border:       rgba(255,255,255,0.20);
---color-btn-primary-hover-bg:     #e8e8e8;
---color-btn-primary-hover-border: rgba(255,255,255,0.25);
---color-btn-primary-selected-bg:  #d8d8d8;
+  --color-btn-primary-text:         #060606;
+  --color-btn-primary-bg:           #f4f4f4;
+  --color-btn-primary-border:       rgba(255,255,255,0.20);
+  --color-btn-primary-hover-bg:     #e8e8e8;
+  --color-btn-primary-hover-border: rgba(255,255,255,0.25);
+  --color-btn-primary-selected-bg:  #d8d8d8;
 
-/* Neutral */
---color-neutral-muted:         rgba(255,255,255,0.06);
---color-neutral-emphasis:      rgba(255,255,255,0.09);
---color-neutral-emphasis-plus: rgba(255,255,255,0.12);
---color-neutral-subtle:        rgba(255,255,255,0.04);
+  --color-input-bg:                 #0c0c0c;
+  --color-input-disabled-bg:        #131313;
+  --color-input-border:             rgba(255,255,255,0.10);
+  --color-input-shadow:             none;
+  --color-input-placeholder:        #787878;
+
+  --color-neutral-muted:            rgba(255,255,255,0.06);
+  --color-neutral-emphasis:         rgba(255,255,255,0.09);
+  --color-neutral-emphasis-plus:    rgba(255,255,255,0.12);
+  --color-neutral-subtle:           rgba(255,255,255,0.04);
+
+  --color-link-fg:                  #f4f4f4;
+  --color-link-hover-fg:            #ffffff;
+
+  --color-reactions-btn-text:       #787878;
+  --color-timeline-badge-bg:        #0c0c0c;
+  --color-header-bg:                #0c0c0c;
+
+  --color-prettylights-syntax-comment:              #787878;
+  --color-prettylights-syntax-constant:             #e8e8e8;
+  --color-prettylights-syntax-entity:               #d8d8d8;
+  --color-prettylights-syntax-keyword:              #f4f4f4;
+  --color-prettylights-syntax-string:               #b8b8b8;
+  --color-prettylights-syntax-variable:             #d0d0d0;
+  --color-prettylights-syntax-markup-heading:       #f4f4f4;
+  --color-prettylights-syntax-markup-italic:        #d8d8d8;
+  --color-prettylights-syntax-markup-bold:          #f4f4f4;
+  --color-prettylights-syntax-markup-deleted-bg:    #2a2a2a;
+  --color-prettylights-syntax-markup-inserted-text: #060606;
+  --color-prettylights-syntax-markup-inserted-bg:   #d8d8d8;
+}
+
+body {
+  font-family: 'Onest', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.75;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-muted);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, strong, b { color: var(--color-fg-default) !important; }
+
+code, pre, kbd, samp, tt {
+  font-family: 'Martian Mono', 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+a { color: var(--color-link-fg) !important; text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Comment container */
+.gsc-comment {
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.gsc-comment-header {
+  background: #131313 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  padding: 10px 14px !important;
+}
+
+.gsc-comment-content {
+  background: #0c0c0c !important;
+  padding: 12px 14px !important;
+  color: #d8d8d8 !important;
+}
+
+/* Reply box */
+.gsc-reply {
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 6px !important;
+  margin-top: 4px !important;
+}
+
+.gsc-reply-box {
+  background: #0c0c0c !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+}
+
+textarea {
+  background: #0c0c0c !important;
+  color: #d8d8d8 !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 6px !important;
+  font-family: 'Onest', system-ui, sans-serif !important;
+  font-size: 14px !important;
+  resize: vertical;
+}
+
+textarea:focus {
+  border-color: rgba(255,255,255,0.25) !important;
+  outline: none !important;
+}
+
+textarea::placeholder { color: #787878 !important; }
+
+/* Buttons */
+.btn {
+  background: #131313 !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: #d8d8d8 !important;
+  border-radius: 6px !important;
+  font-family: 'Martian Mono', monospace !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  transition: background 0.1s ease, border-color 0.1s ease !important;
+}
+
+.btn:hover {
+  background: #1a1a1a !important;
+  border-color: rgba(255,255,255,0.18) !important;
+}
+
+.btn-primary {
+  background: #f4f4f4 !important;
+  border-color: rgba(255,255,255,0.20) !important;
+  color: #060606 !important;
+}
+
+.btn-primary:hover {
+  background: #e8e8e8 !important;
+}
+
+.btn-primary:disabled {
+  background: #2a2a2a !important;
+  color: #787878 !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Tab buttons (write/preview) */
+.BtnGroup-item {
+  background: #131313 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #909090 !important;
+  font-family: 'Martian Mono', monospace !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+.BtnGroup-item.selected, .BtnGroup-item[aria-selected="true"] {
+  background: #1a1a1a !important;
+  color: #d8d8d8 !important;
+  border-bottom-color: transparent !important;
+}
 
 /* Reactions */
---color-reactions-btn-text:       #787878;
+.gsc-reactions-menu {
+  background: #131313 !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important;
+}
 
-/* Inputs */
---color-input-bg:              #0c0c0c;
---color-input-disabled-bg:     #131313;
---color-input-border:          rgba(255,255,255,0.08);
---color-input-shadow:          none;
---color-input-placeholder:     #787878;
+.gsc-reactions-button {
+  background: none !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 20px !important;
+  color: #787878 !important;
+  transition: all 0.1s ease !important;
+}
 
-/* Header */
---color-header-bg:             #0c0c0c;
---color-header-logo:           #d8d8d8;
+.gsc-reactions-button:hover {
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #d8d8d8 !important;
+}
 
-/* Timeline */
---color-timeline-badge-bg:     #0c0c0c;
+/* Header with comment count */
+.gsc-header {
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 16px !important;
+  color: #909090 !important;
+  font-family: 'Martian Mono', monospace !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
 
-/* Links */
---color-link-fg:               #f4f4f4;
+/* Login prompt */
+.gsc-login {
+  text-align: center;
+  padding: 16px;
+  color: #787878 !important;
+  font-size: 13px !important;
+}
 
-/* Prettylights syntax — keep minimal grey tones */
---color-prettylights-syntax-comment:              #787878;
---color-prettylights-syntax-constant:             #d8d8d8;
---color-prettylights-syntax-entity:               #c8c8c8;
---color-prettylights-syntax-storage-modifier-import: #d8d8d8;
---color-prettylights-syntax-entity-tag:           #c8c8c8;
---color-prettylights-syntax-keyword:              #e8e8e8;
---color-prettylights-syntax-string:               #b8b8b8;
---color-prettylights-syntax-variable:             #d0d0d0;
---color-prettylights-syntax-brackethighlighter-unmatched: #f0f0f0;
---color-prettylights-syntax-invalid-illegal-text:  #060606;
---color-prettylights-syntax-invalid-illegal-bg:    #f0f0f0;
---color-prettylights-syntax-carriage-return-text:  #060606;
---color-prettylights-syntax-carriage-return-bg:    #f0f0f0;
---color-prettylights-syntax-string-regexp:         #c8c8c8;
---color-prettylights-syntax-markup-list:           #d8d8d8;
---color-prettylights-syntax-markup-heading:        #f4f4f4;
---color-prettylights-syntax-markup-italic:         #d8d8d8;
---color-prettylights-syntax-markup-bold:           #f4f4f4;
---color-prettylights-syntax-markup-deleted-text:   #f4f4f4;
---color-prettylights-syntax-markup-deleted-bg:     #2a2a2a;
---color-prettylights-syntax-markup-inserted-text:  #060606;
---color-prettylights-syntax-markup-inserted-bg:    #d8d8d8;
---color-prettylights-syntax-markup-changed-text:   #f4f4f4;
---color-prettylights-syntax-markup-changed-bg:     #1a1a1a;
---color-prettylights-syntax-markup-ignored-text:   #787878;
---color-prettylights-syntax-markup-ignored-bg:     #0c0c0c;
---color-prettylights-syntax-meta-diff-range:       #d8d8d8;
---color-prettylights-syntax-brackethighlighter-angle: #787878;
---color-prettylights-syntax-sublimelinter-gutter-mark: #787878;
---color-prettylights-syntax-constant-other-reference-link: #c8c8c8;
+/* Avatar */
+img.avatar, .avatar {
+  border-radius: 50% !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
 
-/* Component-level overrides */
-.gsc-header { border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
-.gsc-comment { border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 6px !important; }
-.gsc-comment-header { background: #131313 !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
-.gsc-comment-content { background: #0c0c0c !important; }
-.gsc-reply { border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 6px !important; margin-top: 6px !important; }
-.gsc-reactions-menu { background: #131313 !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 6px !important; }
-.gsc-reply-box { background: #0c0c0c !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 6px !important; }
-.BtnGroup-item { background: #131313 !important; border-color: rgba(255,255,255,0.08) !important; color: #909090 !important; }
-.BtnGroup-item.selected { background: #1a1a1a !important; color: #d8d8d8 !important; }
+/* Timestamp */
+relative-time, time-ago {
+  color: #787878 !important;
+  font-family: 'Martian Mono', monospace !important;
+  font-size: 11px !important;
+}

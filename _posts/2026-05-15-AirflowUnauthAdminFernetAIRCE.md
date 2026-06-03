@@ -13,7 +13,10 @@ tags:
 category:
   - Work
 description: "A single misconfigured Airflow parameter hands out ADMIN JWTs to anyone. That foothold chains into Fernet key extraction, plaintext credential recovery, and full root RCE on an internal AI platform via LLM filter function abuse. CVSS 9.8."
+image: /assets/img/img_airflow-rce/cover.jpg
 ---
+
+![Airflow → AI RCE](/assets/img/img_airflow-rce/cover.jpg)
 
 **Severity:** Critical — CVSS 3.1: 9.8 (AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:N) · **Scope:** Internal enterprise, isolated network segment
 

@@ -1,0 +1,103 @@
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" id="themeColor" content="#060606">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+{% if page.layout == 'post' or page.date %}
+  {% if page.author or site.author %}
+  <meta property="article:author" content="{{ page.author | default: site.author }}">
+  {% endif %}
+
+  {% for cat in page.categories %}
+  <meta property="article:section" content="{{ cat }}">
+  {% endfor %}
+
+  {% for tag in page.tags %}
+    {% if tag contains 'os/' %}
+      {% assign os_val = tag | remove: 'os/' %}
+  <meta property="article:tag" content="{{ os_val }}">
+  <meta property="article:tag" content="{{ os_val }} hackthebox">
+    {% elsif tag contains 'diff/' %}
+      {% assign diff_val = tag | remove: 'diff/' %}
+  <meta property="article:tag" content="{{ diff_val }}">
+    {% elsif tag contains 'type/' %}
+  <meta property="article:tag" content="{{ tag | remove: 'type/' }} writeup">
+    {% elsif tag != 'boxes' %}
+  <meta property="article:tag" content="{{ tag }}">
+    {% endif %}
+  {% endfor %}
+  <meta property="article:tag" content="hackthebox">
+  <meta property="article:tag" content="htb writeup">
+  <meta property="article:tag" content="cybersecurity">
+  <meta property="article:tag" content="penetration testing">
+  {% if page.title %}
+  <meta property="article:tag" content="{{ page.title | downcase }} writeup">
+  <meta property="article:tag" content="{{ page.title | downcase }} hackthebox">
+  <meta property="article:tag" content="htb {{ page.title | downcase }}">
+  {% endif %}
+
+  {% if page.released %}
+  <meta property="article:published_time" content="{{ page.released }}T00:00:00+00:00">
+  {% endif %}
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type":"ListItem","position":1,"name":{{ site.title | jsonify }},"item":{{ site.url | jsonify }}}{% if page.categories.size > 0 %},
+      {"@type":"ListItem","position":2,"name":{{ page.categories | first | jsonify }},"item":{{ site.url | append: '/archive' | jsonify }}},
+      {"@type":"ListItem","position":3,"name":{{ page.title | jsonify }},"item":{{ page.url | absolute_url | jsonify }}}
+      {% else %},
+      {"@type":"ListItem","position":2,"name":{{ page.title | jsonify }},"item":{{ page.url | absolute_url | jsonify }}}
+      {% endif %}
+    ]
+  }
+  </script>
+
+  {% assign word_count = content | number_of_words %}
+  {% assign clean_tags = "" %}
+  {% for tag in page.tags %}
+    {% unless tag contains 'os/' or tag == 'boxes' or tag contains 'type/' %}
+      {% assign clean_tag = tag | remove: 'diff/' %}
+      {% assign clean_tags = clean_tags | append: clean_tag | append: "," %}
+    {% endunless %}
+  {% endfor %}
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": {{ page.title | jsonify }},
+    "description": {{ page.description | default: site.description | jsonify }},
+    "url": {{ page.url | absolute_url | jsonify }},
+    "mainEntityOfPage": {"@type":"WebPage","@id":{{ page.url | absolute_url | jsonify }}},
+    "author": {"@type":"Person","name":{{ page.author | default: site.author | jsonify }},"url":{{ site.url | jsonify }}},
+    "publisher": {"@type":"Organization","name":{{ site.title | jsonify }},"url":{{ site.url | jsonify }}},
+    "datePublished": {{ page.released | default: page.date | date: "%Y-%m-%d" | jsonify }},
+    "dateModified": {{ page.date | date: "%Y-%m-%d" | jsonify }}{% if page.image %},
+    "image": {"@type":"ImageObject","url":{{ page.image | absolute_url | jsonify }}}{% endif %}{% if clean_tags != "" %},
+    "keywords": {{ clean_tags | remove_last: "," | split: "," | join: ", " | jsonify }}{% endif %}{% if word_count > 0 %},
+    "wordCount": {{ word_count }}{% endif %}{% if page.categories.size > 0 %},
+    "articleSection": {{ page.categories | first | jsonify }}{% endif %}{% if page.creators %},
+    "mentions": {"@type":"Person","name":{{ page.creators | jsonify }}}{% endif %}
+  }
+  </script>
+{% else %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": {{ site.title | jsonify }},
+    "description": {{ site.description | jsonify }},
+    "url": {{ site.url | jsonify }},
+    "author": {"@type":"Person","name":{{ site.author | jsonify }}},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {"@type":"EntryPoint","urlTemplate":"https://oxbyte.blog/archive/"},
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+{% endif %}

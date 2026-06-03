@@ -1,0 +1,646 @@
+#!/usr/bin/env bash
+# oxbyte blog CLI
+set -euo pipefail
+
+BLOG_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+POSTS_DIR="${BLOG_DIR}/_posts"
+DRAFTS_DIR="${BLOG_DIR}/_drafts"
+SCRIPTS_DIR="${BLOG_DIR}/scripts"
+BLOG_EDITOR="${EDITOR:-nano}"
+
+# load .env
+[[ -f "${BLOG_DIR}/.env" ]] && set -a && source "${BLOG_DIR}/.env" && set +a
+
+TODAY=$(date +%Y-%m-%d)
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+die()  { echo "error: $*" >&2; exit 1; }
+info() { echo "  $*" >&2; }
+
+check_dep() {
+    command -v "$1" &>/dev/null || die "'$1' not found — run: blog setup"
+}
+
+# url-encode a string
+urlencode() {
+    python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$1"
+}
+
+# resolve registered Obsidian vault name for BLOG_DIR by reading obsidian.json
+_obsidian_vault_name() {
+    python3 - "$BLOG_DIR" <<'PY'
+import json, os, sys
+blog = sys.argv[1]
+cfg_path = os.path.expanduser("~/.config/obsidian/obsidian.json")
+try:
+    with open(cfg_path) as f:
+        cfg = json.load(f)
+    for v in cfg.get("vaults", {}).values():
+        p = v.get("path", "")
+        if p == blog or blog.startswith(p + os.sep):
+            print(os.path.basename(p))
+            sys.exit(0)
+except Exception:
+    pass
+# fallback: use directory name
+print(os.path.basename(blog))
+PY
+}
+
+open_in_obsidian() {
+    local file="$1"
+    local rel_path="${file#${BLOG_DIR}/}"
+
+    if command -v obsidian &>/dev/null; then
+        local vault_name enc_vault enc_file
+        vault_name=$(_obsidian_vault_name)
+        enc_vault=$(urlencode "$vault_name")
+        enc_file=$(urlencode "$rel_path")
+        # call obsidian binary directly (xdg-open doesn't handle obsidian:// on XFCE)
+        obsidian "obsidian://open?vault=${enc_vault}&file=${enc_file}" \
+            >/dev/null 2>&1 &
+        disown
+        info "opening ${rel_path} in Obsidian (vault: ${vault_name})"
+    elif command -v xdg-open &>/dev/null; then
+        xdg-open "$file" >/dev/null 2>&1 &
+        disown
+    else
+        "${BLOG_EDITOR}" "$file"
+    fi
+}
+
+# pick a post with fzf (with preview) or whiptail fallback
+fzf_pick_post() {
+    local dir="${1:-$POSTS_DIR}"
+    local label="${2:-post}"
+
+    local files=()
+    while IFS= read -r f; do
+        [[ -f "$f" ]] && files+=("$(basename "$f" .md)")
+    done < <(ls -t "${dir}"/*.md 2>/dev/null || true)
+
+    [[ ${#files[@]} -eq 0 ]] && { info "no posts found in ${dir}"; echo ""; return; }
+
+    if command -v fzf &>/dev/null; then
+        printf '%s\n' "${files[@]}" \
+            | fzf --prompt="pick ${label}: " \
+                  --preview="head -30 \"${dir}/{}.md\" 2>/dev/null" \
+                  --preview-window=right:55%:wrap \
+                  --height=80% \
+                  --border
+    else
+        local items=()
+        for f in "${files[@]}"; do
+            items+=("$f" "")
+        done
+        whiptail --title "pick ${label}" --menu "" 22 78 14 "${items[@]}" 3>&1 1>&2 2>&3 || echo ""
+    fi
+}
+
+slug_from_title() {
+    echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-'
+}
+
+# whiptail wrappers — return empty string on cancel instead of failing
+wt_input() {
+    local title="$1" prompt="$2" default="${3:-}"
+    whiptail --title "$title" --inputbox "$prompt" 8 60 "$default" 3>&1 1>&2 2>&3 || echo ""
+}
+
+wt_menu() {
+    local title="$1" prompt="$2"; shift 2
+    whiptail --title "$title" --menu "$prompt" 16 50 8 "$@" 3>&1 1>&2 2>&3 || echo ""
+}
+
+wt_msg() {
+    whiptail --msgbox "$1" 10 65 3>&1 1>&2 2>&3 || true
+}
+
+# ── commands ──────────────────────────────────────────────────────────────────
+
+cmd_menu() {
+    while true; do
+        local choice
+        choice=$(whiptail --title "oxbyte blog" --menu "" 22 60 12 \
+            "new"     "create new post" \
+            "htb"     "new HTB post (auto-fetch metadata)" \
+            "draft"   "AI-draft from notes (Claude API)" \
+            "import"  "import existing writeup.md" \
+            "write"   "open existing post in Obsidian" \
+            "list"    "browse all posts" \
+            "publish" "promote draft → posts" \
+            "serve"   "local preview  (localhost:4000)" \
+            "deploy"  "commit + push to GitHub" \
+            "open"    "open blog in browser" \
+            "setup"   "first-time setup" \
+            "quit"    "exit" \
+            3>&1 1>&2 2>&3) || break
+        case "$choice" in
+            new)     cmd_new ;;
+            htb)     cmd_htb ;;
+            draft)   cmd_draft ;;
+            import)  cmd_import ;;
+            write)   cmd_write ;;
+            list)    cmd_list ;;
+            publish) cmd_publish ;;
+            serve)   cmd_serve ;;
+            deploy)  cmd_deploy ;;
+            open)    cmd_open ;;
+            setup)   cmd_setup ;;
+            quit|"") break ;;
+        esac
+    done
+}
+
+cmd_new() {
+    local title category creators os diff released slug filepath
+    local tags cssclass creators_line released_line image image_line desc
+
+    title=$(wt_input "new post" "box / post title")
+    [[ -z "$title" ]] && return
+
+    category=$(wt_menu "category" "type" \
+        "HTB"     "HackTheBox writeup" \
+        "article" "general article" \
+        "other"   "other")
+    [[ -z "$category" ]] && return
+
+    if [[ "$category" == "HTB" ]]; then
+        creators=$(wt_input "new post" "creators (e.g. TheCyberGeek & Kavigihan)")
+        [[ -z "$creators" ]] && return
+        os=$(wt_menu "new post" "OS" \
+            "linux" "" "windows" "" "freebsd" "" "other" "")
+        [[ -z "$os" ]] && return
+        diff=$(wt_menu "new post" "difficulty" \
+            "easy" "" "medium" "" "hard" "" "insane" "")
+        [[ -z "$diff" ]] && return
+        released=$(wt_input "new post" "release date (YYYY-MM-DD)" "$TODAY")
+
+        slug=$(slug_from_title "$title")
+        image="/assets/img/img_${slug}/${slug}.png"
+        tags="  - boxes\n  - os/${os}\n  - diff/${diff}"
+        cssclass="custom_htb"
+        creators_line="creators: ${creators}"
+        released_line="released: ${released}"
+        image_line="image: ${image}"
+    else
+        tags="  - article"
+        cssclass="blog"
+        creators_line="" released_line="" image="" image_line=""
+    fi
+
+    desc=$(wt_input "new post" "one-line description")
+    slug=$(slug_from_title "$title")
+    filepath="${POSTS_DIR}/${TODAY}-${slug}.md"
+
+    if [[ -f "$filepath" ]]; then
+        wt_msg "file already exists:\n${filepath}"
+        return
+    fi
+
+    mkdir -p "${POSTS_DIR}"
+    {
+        echo "---"
+        echo "title: ${title}"
+        echo "layout: post"
+        [[ -n "${released_line:-}" ]] && echo "$released_line"
+        [[ -n "${creators_line:-}" ]] && echo "$creators_line"
+        echo "pwned: true"
+        echo "tags:"
+        printf "%b\n" "$tags"
+        echo "category:"
+        echo "  - ${category}"
+        echo "description: ${desc}"
+        [[ -n "${image_line:-}" ]] && echo "$image_line"
+        echo "cssclasses:"
+        echo "  - ${cssclass}"
+        echo "---"
+        if [[ "$category" == "HTB" ]]; then
+            printf '\n![HTB](%s)\n\n# Enumeration\n## Scans\n' "$image"
+            printf 'As usual we start off with an `nmap` port scan\n'
+            printf '```\n# nmap -sCV -p- --min-rate 5000 <IP>\n```\n'
+            printf '{:filename="nmap.txt"}\n\n# Foothold\n\n# Privilege Escalation\n\n# Root\n'
+        else
+            printf '\n# Introduction\n\n# Body\n\n# Conclusion\n'
+        fi
+    } > "$filepath"
+
+    clear
+    echo "created: $filepath"
+    open_in_obsidian "$filepath"
+}
+
+cmd_draft() {
+    check_dep python3
+
+    local apikey="${ANTHROPIC_API_KEY:-}"
+    if [[ -z "$apikey" ]] || [[ "$apikey" == sk-ant-your* ]]; then
+        wt_msg "ANTHROPIC_API_KEY not set.\n\nEdit .env in your blog directory."
+        return
+    fi
+
+    local title creators os diff released desc
+
+    wt_msg "AI draft wizard.\n\nYou'll fill in details, then write bullet-point notes.\nClaude generates the full writeup."
+
+    title=$(wt_input "AI draft" "machine name")
+    [[ -z "$title" ]] && return
+    creators=$(wt_input "AI draft" "creators")
+    os=$(wt_menu "AI draft" "OS" "linux" "" "windows" "" "freebsd" "" "other" "")
+    [[ -z "$os" ]] && return
+    diff=$(wt_menu "AI draft" "difficulty" "easy" "" "medium" "" "hard" "" "insane" "")
+    [[ -z "$diff" ]] && return
+    released=$(wt_input "AI draft" "release date (YYYY-MM-DD)" "$TODAY")
+    desc=$(wt_input "AI draft" "one-line description for frontmatter")
+
+    # notes: open editor → user writes bullet points → save → pass file to python
+    local tmpnotes
+    tmpnotes=$(mktemp /tmp/blog-notes-XXXXXX.txt)
+    cat > "$tmpnotes" <<'EOF'
+# Write your notes below. Lines starting with # are ignored.
+# Include: key steps, CVEs used, creds found, tool output snippets, paths, etc.
+# Save and quit when done.
+
+EOF
+    clear
+    echo "opening editor for notes — save and quit when done..."
+    "${BLOG_EDITOR}" "$tmpnotes"
+
+    local notes
+    notes=$(grep -v '^#' "$tmpnotes" | sed '/^[[:space:]]*$/d' || true)
+    rm -f "$tmpnotes"
+
+    if [[ -z "$notes" ]]; then
+        wt_msg "no notes entered — aborting"
+        return
+    fi
+
+    local slug filepath
+    slug=$(slug_from_title "$title")
+    filepath="${POSTS_DIR}/${TODAY}-${slug}.md"
+
+    mkdir -p "${POSTS_DIR}"
+
+    # pass metadata as JSON, notes via temp file (safe for multiline)
+    local tmpnotes2
+    tmpnotes2=$(mktemp /tmp/blog-notes2-XXXXXX.txt)
+    echo "$notes" > "$tmpnotes2"
+
+    local meta
+    meta=$(python3 - "$title" "$os" "$diff" "$creators" "$released" "$desc" <<'PY'
+import json, sys
+keys = ["title","os","diff","creators","released","description"]
+print(json.dumps(dict(zip(keys, sys.argv[1:]))))
+PY
+)
+
+    clear
+    echo "drafting '${title}' with Claude — this takes ~30s..."
+    echo ""
+    python3 "${SCRIPTS_DIR}/ai_draft.py" \
+        --json "$meta" \
+        --notes-file "$tmpnotes2" \
+        --out "$filepath"
+    rm -f "$tmpnotes2"
+
+    echo ""
+    echo "saved: $filepath"
+    sleep 1
+    open_in_obsidian "$filepath"
+}
+
+cmd_write() {
+    local pick
+    pick=$(fzf_pick_post "$POSTS_DIR" "post to edit")
+    [[ -z "$pick" ]] && return
+    open_in_obsidian "${POSTS_DIR}/${pick}.md"
+}
+
+cmd_list() {
+    local pick
+    pick=$(fzf_pick_post "$POSTS_DIR" "post")
+    [[ -z "$pick" ]] && return
+    # ask what to do with it
+    local action
+    action=$(wt_menu "post action" "$pick" \
+        "open"   "open in Obsidian" \
+        "view"   "view in terminal (less)")
+    case "$action" in
+        open) open_in_obsidian "${POSTS_DIR}/${pick}.md" ;;
+        view) less "${POSTS_DIR}/${pick}.md" ;;
+    esac
+}
+
+cmd_publish() {
+    mkdir -p "$DRAFTS_DIR"
+
+    local drafts=()
+    while IFS= read -r f; do
+        [[ -f "$f" ]] && drafts+=("$f")
+    done < <(ls -t "${DRAFTS_DIR}"/*.md 2>/dev/null || true)
+
+    if [[ ${#drafts[@]} -eq 0 ]]; then
+        wt_msg "no drafts in _drafts/"
+        return
+    fi
+
+    local pick
+    pick=$(fzf_pick_post "$DRAFTS_DIR" "draft to publish")
+    [[ -z "$pick" ]] && return
+
+    # strip leading date if present, prepend today
+    local bare="${pick#????-??-??-}"
+    local dest="${POSTS_DIR}/${TODAY}-${bare}.md"
+    mv "${DRAFTS_DIR}/${pick}.md" "$dest"
+    wt_msg "published:\n${dest}"
+}
+
+cmd_serve() {
+    cd "$BLOG_DIR"
+    if [[ ! -d vendor/bundle ]]; then
+        echo "gems not installed — running bundle install..."
+        bundle install
+    fi
+    clear
+    echo "starting jekyll at http://localhost:4000"
+    echo "press Ctrl+C to stop"
+    echo ""
+    bundle exec jekyll serve --livereload --incremental
+}
+
+cmd_deploy() {
+    cd "$BLOG_DIR"
+    local status
+    status=$(git status --short)
+    if [[ -z "$status" ]]; then
+        wt_msg "nothing to commit — already up to date"
+        return
+    fi
+
+    # show summary of changes
+    local summary
+    summary=$(git status --short | head -20)
+    wt_msg "changes to commit:\n\n${summary}"
+
+    local msg
+    msg=$(wt_input "deploy" "commit message")
+    [[ -z "$msg" ]] && return
+
+    clear
+    echo "running build check before deploy..."
+    if ! bundle exec jekyll build --quiet 2>&1; then
+        wt_msg "build FAILED — fix errors before deploying"
+        return
+    fi
+    echo "build OK"
+
+    git add -A -- ':!.env' ':!.env.*' ':!*.key' ':!*.pem' ':!_site'
+    git commit -m "$msg" || { wt_msg "commit failed"; return; }
+    git push origin main || { wt_msg "push failed — check remote and auth"; return; }
+    echo ""
+    echo "pushed — deploying to https://oxbyte.blog (~60s)"
+}
+
+cmd_open() {
+    xdg-open "http://localhost:4000" 2>/dev/null \
+        || python3 -m webbrowser "http://localhost:4000" \
+        || echo "open http://localhost:4000 in your browser"
+}
+
+cmd_htb() {
+    check_dep python3
+    check_dep curl
+
+    local machine slug filepath
+    machine=$(wt_input "htb" "machine name (exact, case-sensitive)")
+    [[ -z "$machine" ]] && return
+
+    slug=$(slug_from_title "$machine")
+    filepath="${POSTS_DIR}/${TODAY}-${machine}.md"
+
+    if [[ -f "$filepath" ]]; then
+        wt_msg "already exists:\n${filepath}"
+        return
+    fi
+
+    info "fetching HTB metadata for '${machine}'..."
+
+    local meta
+    meta=$(python3 - "$machine" <<'PYEOF'
+import sys, json, urllib.request, urllib.error
+
+name = sys.argv[1]
+result = {"title": name, "image": "", "description": "", "os": "linux",
+          "diff": "medium", "creators": "", "released": ""}
+
+# HTB search API (public, no auth)
+try:
+    url = f"https://www.hackthebox.com/api/v4/search/fetch?query={urllib.parse.quote(name)}&tags[]=machine"
+    import urllib.parse
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        data = json.loads(r.read())
+    machines = data.get("machines", [])
+    if machines:
+        m = machines[0]
+        result["image"] = m.get("avatar", "") or ""
+        result["description"] = m.get("description", "") or ""
+        result["os"] = (m.get("os") or "linux").lower()
+        result["diff"] = (m.get("difficultyText") or "medium").lower()
+        released = m.get("release", "") or ""
+        result["released"] = released[:10] if released else ""
+        authors = m.get("machine_authors") or m.get("authors") or []
+        if authors:
+            result["creators"] = " & ".join(a.get("name","") for a in authors if a.get("name"))
+except Exception as e:
+    sys.stderr.write(f"[warn] HTB API: {e}\n")
+
+print(json.dumps(result))
+PYEOF
+)
+
+    local title os diff creators released image description
+    title=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['title'])")
+    os=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['os'])")
+    diff=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['diff'])")
+    creators=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['creators'])")
+    released=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['released'])")
+    image=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['image'])")
+    description=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['description'])")
+
+    # Let user confirm/override
+    title=$(wt_input   "htb" "title"       "$title")
+    [[ -z "$title" ]] && return
+    creators=$(wt_input "htb" "creators"   "$creators")
+    os=$(wt_menu "htb" "OS" "linux" "" "windows" "" "freebsd" "" "other" "")
+    [[ -z "$os" ]] && return
+    diff=$(wt_menu "htb" "difficulty" "easy" "" "medium" "" "hard" "" "insane" "")
+    [[ -z "$diff" ]] && return
+    [[ -z "$released" ]] && released=$(wt_input "htb" "release date (YYYY-MM-DD)" "$TODAY")
+    description=$(wt_input "htb" "description" "$description")
+
+    mkdir -p "${POSTS_DIR}"
+    {
+        echo "---"
+        echo "title: ${title}"
+        echo "layout: post"
+        [[ -n "$released"    ]] && echo "released: ${released}"
+        [[ -n "$creators"    ]] && echo "creators: ${creators}"
+        echo "pwned: true"
+        echo "tags:"
+        echo "  - boxes"
+        echo "  - os/${os}"
+        echo "  - diff/${diff}"
+        echo "  - type/machine"
+        echo "category:"
+        echo "  - HTB"
+        echo "description: \"${description}\""
+        if [[ -n "$image" ]]; then
+            echo "image: ${image}"
+        else
+            echo "image: https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/"
+        fi
+        echo "cssclasses:"
+        echo "  - custom_htb"
+        echo "---"
+        if [[ -n "$image" ]]; then
+            printf '\n![%s](%s)\n\n' "$title" "$image"
+        fi
+        printf '# Enumeration\n## Scans\n\nAs usual we start off with an `nmap` port scan\n'
+        printf '```\n# nmap -sCV -p- --min-rate 5000 <IP>\n```\n'
+        printf '{:filename="nmap.txt"}\n\n# Foothold\n\n# Privilege Escalation\n\n# Root\n'
+    } > "$filepath"
+
+    clear
+    echo "created: $filepath"
+    open_in_obsidian "$filepath"
+}
+
+cmd_batch_import() {
+    local src_dir="${HOME}/work/ctf/htb"
+    [[ -d "$src_dir" ]] || { wt_msg "directory not found:\n${src_dir}"; return; }
+
+    local imports=()
+    while IFS= read -r f; do
+        local name
+        name=$(basename "$(dirname "$f")")
+        local lower
+        lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+        ls "${POSTS_DIR}" 2>/dev/null | grep -qi "$lower" && continue
+        local size
+        size=$(wc -c < "$f" 2>/dev/null || echo 0)
+        [[ "$size" -lt 300 ]] && continue
+        imports+=("$f")
+    done < <(find "$src_dir" -name "writeup.md" -o -name "writeup_en.md" 2>/dev/null | sort)
+
+    [[ ${#imports[@]} -eq 0 ]] && { wt_msg "no new writeups found in ${src_dir}"; return; }
+
+    local summary=""
+    for f in "${imports[@]}"; do
+        summary+="$(basename "$(dirname "$f")"): $f\n"
+    done
+    wt_msg "found ${#imports[@]} importable writeup(s):\n\n${summary}"
+
+    local mode
+    mode=$(wt_menu "batch import" "mode" \
+        "all"    "import all automatically" \
+        "pick"   "review each individually")
+    [[ -z "$mode" ]] && return
+
+    for f in "${imports[@]}"; do
+        if [[ "$mode" == "all" ]]; then
+            cmd_import "$f"
+        else
+            local n
+            n=$(basename "$(dirname "$f")")
+            local pick
+            pick=$(wt_menu "import?" "$n" "yes" "import" "no" "skip")
+            [[ "$pick" == "yes" ]] && cmd_import "$f"
+        fi
+    done
+}
+
+cmd_setup() {
+    bash "${SCRIPTS_DIR}/setup.sh"
+}
+
+cmd_import() {
+    local src="${1:-}"
+
+    if [[ -z "$src" ]]; then
+        src=$(wt_input "import writeup" "path to .md file (e.g. ~/work/ctf/htb/machine/writeup.md)")
+    fi
+
+    src="${src/#\~/$HOME}"
+    [[ -z "$src" ]]   && return
+    [[ ! -f "$src" ]] && { wt_msg "file not found:\n${src}"; return; }
+
+    local name slug filepath
+    name=$(basename "$src" .md)
+    slug=$(slug_from_title "$name")
+    filepath="${POSTS_DIR}/${TODAY}-${slug}.md"
+
+    if [[ -f "$filepath" ]]; then
+        wt_msg "already exists:\n${filepath}"
+        return
+    fi
+
+    if grep -q "^---" "$src"; then
+        cp "$src" "$filepath"
+    else
+        local category os diff
+        category=$(wt_menu "import" "category" "HTB" "" "Work" "" "other" "")
+        [[ -z "$category" ]] && return
+        os=$(wt_menu "import" "OS" "linux" "" "windows" "" "other" "")
+        [[ -z "$os" ]] && return
+        diff=$(wt_menu "import" "difficulty" "easy" "" "medium" "" "hard" "" "insane" "")
+        [[ -z "$diff" ]] && return
+        {
+            echo "---"
+            echo "title: ${name}"
+            echo "layout: post"
+            echo "released: ${TODAY}"
+            echo "pwned: true"
+            echo "tags:"
+            echo "  - boxes"
+            echo "  - os/${os}"
+            echo "  - diff/${diff}"
+            echo "category:"
+            echo "  - ${category}"
+            echo "description: "
+            echo "image: "
+            echo "---"
+            cat "$src"
+        } > "$filepath"
+    fi
+
+    clear
+    echo "imported: ${filepath}"
+    open_in_obsidian "$filepath"
+}
+
+# ── entrypoint ────────────────────────────────────────────────────────────────
+
+CMD="${1:-menu}"
+shift 2>/dev/null || true
+
+case "$CMD" in
+    menu|"")        cmd_menu ;;
+    new)            cmd_new ;;
+    htb)            cmd_htb ;;
+    draft)          cmd_draft ;;
+    write)          cmd_write ;;
+    list)           cmd_list ;;
+    publish)        cmd_publish ;;
+    import)         cmd_import "$@" ;;
+    batch-import)   cmd_batch_import ;;
+    serve)          cmd_serve ;;
+    deploy)         cmd_deploy ;;
+    open)           cmd_open ;;
+    setup)          cmd_setup ;;
+    *)
+        echo "usage: blog [menu|new|htb|draft|write|list|publish|serve|deploy|import|batch-import|open|setup]"
+        exit 1
+        ;;
+esac

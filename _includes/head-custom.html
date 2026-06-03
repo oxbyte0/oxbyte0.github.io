@@ -1,0 +1,30 @@
+
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-XSS-Protection" content="1; mode=block">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://kit.fontawesome.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://ka-f.fontawesome.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://gc.zgo.at https://ka-f.fontawesome.com; frame-src https://giscus.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
+
+
+{% include head-custom-google-analytics.html %}
+
+
+{% if site.goatcounter and site.goatcounter != "" %}
+<script data-goatcounter="https://{{ site.goatcounter }}.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+{% endif %}
+
+
+{% include seo-extra.html %}
+
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/x-icon" href="{{ "/favicon.ico" | absolute_url }}">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style"
+  href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Martian+Mono:wght@300;400&family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+  onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Martian+Mono:wght@300;400&family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap"></noscript>

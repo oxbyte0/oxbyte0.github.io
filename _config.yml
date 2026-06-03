@@ -1,0 +1,72 @@
+title: oxbyte
+logo:
+description: "HackTheBox machine writeups, CTF solutions, and offensive security research — retired boxes, AD attacks, web exploitation."
+show_downloads: false
+google_analytics:
+goatcounter:
+author: "oxbyte"
+url: "https://oxbyte.blog"
+image:
+lang: en-US
+timezone: UTC
+
+permalink: "/:title/"
+
+social:
+  name: oxbyte
+  links:
+    - https://github.com/oxbyte0
+
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+  - jekyll-seo-tag
+excerpt_separator: "<!--more-->"
+
+sass:
+  style: compressed
+  silence_deprecations:
+    - import
+
+markdown: kramdown
+kramdown:
+    highlighter: rouge
+    syntax_highlighter_opts:
+        block:
+            line_numbers: true
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: oxbyte
+
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - .obsidian/
+  - .github/
+  - .bundle/
+  - .env
+  - .env.example
+  - Gemfile
+  - Gemfile.lock
+  - Makefile
+  - README.md
+  - scripts/
+  - script/
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+giscus:
+  repo: "oxbyte0/oxbyte0.github.io"
+  repo_id: "R_kgDOSv4Z5w"
+  category: "Announcements"
+  category_id: "DIC_kwDOSv4Z584C-ahT"
+  mapping: "pathname"
+  theme: "noborder_dark"

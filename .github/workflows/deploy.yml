@@ -1,0 +1,50 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Inject secrets into config
+        run: |
+          [ -n "$GOATCOUNTER" ] && sed -i "s/^goatcounter:$/goatcounter: $GOATCOUNTER/" _config.yml || true
+          [ -n "$GA_ID" ] && sed -i "s/^google_analytics:$/google_analytics: $GA_ID/" _config.yml || true
+        env:
+          GOATCOUNTER: ${{ secrets.GOATCOUNTER_CODE }}
+          GA_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+
+      - name: Build site
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+
+      - uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /assets/js/
+Disallow: /assets/css/
+Sitemap: https://oxbyte.blog/sitemap.xml
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /

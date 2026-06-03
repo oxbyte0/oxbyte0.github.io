@@ -1,0 +1,34 @@
+name: Validate Posts
+
+on:
+  push:
+    paths:
+      - '_posts/**'
+      - 'scripts/validate_posts.py'
+  pull_request:
+    paths:
+      - '_posts/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate post frontmatter
+        run: python3 scripts/validate_posts.py
+
+      - name: Check for broken local image refs
+        run: |
+          errors=0
+          for f in _posts/*.md; do
+            while IFS= read -r line; do
+              if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
+                path=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))')
+                if [[ -n "$path" && ! -f "${path#/}" ]]; then
+                  echo "WARN broken image: $path in $(basename $f)"
+                fi
+              fi
+            done < "$f"
+          done
+          exit 0

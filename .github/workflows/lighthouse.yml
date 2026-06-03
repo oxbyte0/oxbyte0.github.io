@@ -1,0 +1,26 @@
+name: Lighthouse CI
+
+on:
+  workflow_run:
+    workflows: ['Build & Deploy']
+    types: [completed]
+
+jobs:
+  lighthouse:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: |
+            https://oxbyte.blog/
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: true
+
+      - name: Lighthouse scores summary
+        if: always()
+        run: echo "Lighthouse results uploaded as artifact"

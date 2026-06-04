@@ -1,25 +1,40 @@
+---
+layout: compress
+---
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: "en-US" }}">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
-      (function(){
+      (function(){try{
         var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
         document.documentElement.style.colorScheme=t;
         var a=localStorage.getItem('a11y');
         if(a){a.split(' ').forEach(function(c){if(c)document.documentElement.classList.add(c);});}
-      }());
+      }catch(e){}}());
     </script>
 {% seo %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | default: site.time | date: "%s" | relative_url }}">
-    <script src="https://kit.fontawesome.com/848cf172bf.js" crossorigin="anonymous" defer></script>
-    <script src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}" defer></script>
-    <script src="/assets/js/mermaid.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}" type="module"></script>
+    <script type="module" src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}"></script>
     {% include head-custom.html %}
   </head>
   <body>
+    <!-- SVG sprite sheet — replaces Font Awesome CDN, no external request -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+      <symbol id="icon-list" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+      </symbol>
+      <symbol id="icon-xmark" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+      </symbol>
+      <symbol id="icon-copy" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h-1v1H2V6h1V5H2z"/>
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 16 16">
+        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+      </symbol>
+    </svg>
     <div id="progress" aria-hidden="true"></div>
     <div id="navOverlay" class="nav-overlay" aria-hidden="true"></div>
 
@@ -107,7 +122,7 @@
             <span class="theme-icon">☀</span>
             <span class="theme-label">light mode</span>
           </button>
-          <div class="a11y-row" aria-label="Accessibility options">
+          <div class="a11y-row" role="group" aria-label="Accessibility options">
             <button class="a11y-btn" data-a11y="reduce-motion" role="switch" aria-pressed="false" title="Reduce animations">no motion</button>
             <button class="a11y-btn" data-a11y="high-contrast"  role="switch" aria-pressed="false" title="High contrast">contrast</button>
             <button class="a11y-btn" data-a11y="focus-mode"    role="switch" aria-pressed="false" title="ADHD focus mode">focus</button>
@@ -117,7 +132,7 @@
       </nav>
 
       <button class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false">
-        <i class="fa-solid fa-list"></i>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><use href="#icon-list"></use></svg>
       </button>
 
       <main id="main-content">
@@ -129,5 +144,8 @@
         </section>
       </main>
     </div>
+    <a href="/trap" class="h-trap" tabindex="-1" aria-hidden="true" rel="nofollow noopener">.</a>
+    <noscript><form action="/trap-ns" method="post" aria-hidden="true" style="display:none"><input type="text" name="url"><input type="submit" value="go"></form></noscript>
+    <!-- mermaid injected by main.js (ES module) — removed duplicate inline script -->
   </body>
 </html>

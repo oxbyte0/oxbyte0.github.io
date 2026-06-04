@@ -1,0 +1,107 @@
+@layer code {
+  /* ── Rouge syntax highlighting ── */
+  .highlight table td { padding: 0; }
+  .highlight table pre { margin: 0; overflow: visible; }
+  .rouge-table { border-collapse: collapse; margin: 0; min-width: 100%; width: max-content; }
+  .rouge-table td { padding: 0; border: none; vertical-align: top; }
+  td.rouge-gutter.gl { padding: 5px 8px 5px 10px; width: 1%; white-space: nowrap; text-align: right; position: sticky; left: 0; z-index: 2; background: var(--c-code-bg); }
+  td.rouge-gutter pre.lineno { padding: 0; margin: 0; background: none; border: none; font-size: 11px; line-height: 1.6; color: var(--c-muted); user-select: none; -webkit-user-select: none; }
+  td.rouge-code { padding: 5px 10px 7px 8px; }
+  td.rouge-code pre { padding: 0; margin: 0; background: none; border: none; overflow: visible; min-width: 0; white-space: pre; font-size: clamp(12px, 0.75vw + 7px, 14px); line-height: 1.6; }
+
+  /* Token colors */
+  .highlight .cm, .highlight .cp, .highlight .c1, .highlight .cs, .highlight .c, .highlight .cd { color: #484848; font-style: italic; }
+  .highlight .err { color: #cccccc; }
+  .highlight .gd  { color: #e0e0e0; background-color: #2a2a2a; }
+  .highlight .ge  { color: #e0e0e0; font-style: italic; }
+  .highlight .gr, .highlight .gh, .highlight .gu, .highlight .gt { color: #686868; }
+  .highlight .gi  { color: #e0e0e0; background-color: #1a1a1a; }
+  .highlight .go  { color: #686868; }
+  .highlight .gp  { color: #b0b0b0; }
+  .highlight .gs  { font-weight: bold; }
+  .highlight .kc, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .k, .highlight .kv { color: #e8e8e8; font-weight: bold; }
+  .highlight .kt  { color: #d0d0d0; font-weight: bold; }
+  .highlight .mf, .highlight .mh, .highlight .il, .highlight .mo, .highlight .m, .highlight .mb, .highlight .mx, .highlight .mi { color: #d8d8d8; }
+  .highlight .sb, .highlight .sc, .highlight .sd, .highlight .sh, .highlight .si, .highlight .sx, .highlight .s2, .highlight .se, .highlight .s1, .highlight .s { color: #b8b8b8; }
+  .highlight .sr  { color: #c8c8c8; }
+  .highlight .ss  { color: #c0c0c0; }
+  .highlight .na, .highlight .nb, .highlight .nv, .highlight .no { color: #d0d0d0; }
+  .highlight .nc, .highlight .nd { color: #d8d8d8; font-weight: bold; }
+  .highlight .ne, .highlight .nf, .highlight .nl { color: #f0f0f0; font-weight: bold; }
+  .highlight .nn  { color: #c8c8c8; }
+  .highlight .nt  { color: #d8d8d8; }
+  .highlight .ni  { color: #b0b0b0; }
+  .highlight .vc, .highlight .vg, .highlight .vi { color: #c8c8c8; }
+  .highlight .bp  { color: #888888; }
+  .highlight .ow, .highlight .o  { color: #a8a8a8; font-weight: bold; }
+  .highlight .w   { color: #606060; }
+
+  /* ── Monospace + inline code ── */
+  code, pre { font-family: 'Martian Mono', 'JetBrains Mono', Monaco, monospace; color: #e0e0e0; }
+  code { font-size: 12px; background: var(--c-code-bg); padding: 0 4px; border-radius: var(--r-sm); border: 1px solid var(--c-border-2); }
+  :root[style*="light"] code { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.12); color: #111111; }
+  pre { background: var(--c-code-bg); border: 1px solid var(--c-border); border-radius: var(--r-md); padding: 8px 10px; overflow-x: auto; margin: var(--sp-2) 0; scrollbar-width: thin; scrollbar-color: var(--c-muted) transparent; white-space: pre; font-size: 12px; }
+  pre code { background: none; border: none; padding: 0; font-size: 12px; color: #e0e0e0; }
+  pre.lineno { color: var(--c-muted); }
+
+  /* ── Highlight block ── */
+  pre.highlight {
+    margin: var(--sp-2) 0; background: var(--c-code-bg); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); position: relative; padding: 0;
+    overflow-x: auto; overflow-y: auto; max-height: 32em;
+    scrollbar-width: thin; scrollbar-color: var(--c-muted) transparent;
+
+    &::before {
+      content: ''; display: block; height: 24px;
+      background-color: #090909;
+      background-image:
+        radial-gradient(circle 3.5px at 12px 12px, rgba(255,255,255,0.20) 100%, transparent 100%),
+        radial-gradient(circle 3.5px at 26px 12px, rgba(255,255,255,0.20) 100%, transparent 100%),
+        radial-gradient(circle 3.5px at 40px 12px, rgba(255,255,255,0.20) 100%, transparent 100%);
+      background-repeat: no-repeat; background-size: 100% 100%;
+      position: sticky; top: 0; left: 0; width: 100%;
+      border-radius: var(--r-md) var(--r-md) 0 0;
+      cursor: pointer; user-select: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    &.collapsed::before {
+      background-image:
+        radial-gradient(circle 3.5px at 12px 12px, rgba(255,255,255,0.07) 100%, transparent 100%),
+        radial-gradient(circle 3.5px at 26px 12px, rgba(255,255,255,0.07) 100%, transparent 100%),
+        radial-gradient(circle 3.5px at 40px 12px, rgba(255,255,255,0.07) 100%, transparent 100%);
+    }
+
+    code { display: block; padding: 0 0 7px; font-size: clamp(12px, 0.75vw + 7px, 14px); background: none; border: none; color: #e0e0e0; overflow-x: visible; }
+    &.collapsed code { display: none; }
+  }
+
+  div[filename] {
+    position: relative;
+    &::before { content: attr(filename); color: rgba(255,255,255,0.38); position: absolute; top: 7px; left: 56px; z-index: 3; font-size: 10px; font-family: 'Martian Mono', monospace; pointer-events: none; white-space: nowrap; line-height: 1; }
+  }
+
+  .highlight { border-radius: var(--r-md); width: auto; }
+  .language-shell { flex-basis: 100%; }
+
+  .copy-btn {
+    position: absolute; top: 3px; right: 6px; background: none; border: none;
+    color: rgba(255,255,255,0.18); cursor: pointer;
+    padding: 6px 8px; /* expanded hit area — was 2px 5px / 18px height (untappable on touch) */
+    border-radius: var(--r-sm); font-size: 10px; line-height: 1; z-index: 2;
+    &:hover { color: rgba(255,255,255,0.55); }
+    &.copied { color: #d0d0d0; }
+  }
+
+  /* ── Mermaid ── */
+  .mermaid { text-align: center; }
+  .mermaid svg { max-width: none !important; }
+  .mermaid rect { stroke: none !important; }
+  .edgeLabel { border-radius: 0.5em !important; padding: 0.1em 0 !important; }
+
+  @media screen and (max-width: 900px) {
+    code, pre, td.rouge-code pre { font-size: 11.5px !important; }
+    pre.highlight code { font-size: 11.5px !important; }
+    pre { font-size: 11.5px; }
+  }
+}

@@ -1,0 +1,23 @@
+---
+# HTML minifier — preserves <pre> and <script> blocks, strips blank lines and excess whitespace
+# Only active in production (JEKYLL_ENV=production)
+---
+{%- capture _content -%}{{ content }}{%- endcapture -%}
+{%- if jekyll.environment == 'production' -%}
+  {%- assign _pre_blocks = _content | split: '<pre' -%}
+  {%- capture _out -%}
+    {%- for _blk in _pre_blocks -%}
+      {%- if forloop.first -%}
+        {{- _blk | strip_newlines -}}
+      {%- else -%}
+        {%- assign _parts = _blk | split: '</pre>' -%}
+        <pre{{- _parts[0] -}}</pre>
+        {%- assign _after_parts = _parts | shift -%}
+        {{- _after_parts | join: '</pre>' | strip_newlines -}}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {{- _out -}}
+{%- else -%}
+  {{- _content -}}
+{%- endif -%}

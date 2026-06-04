@@ -1,0 +1,166 @@
+@layer skeleton {
+
+  /* ── Keyframes ─────────────────────────────────────────────────────────── */
+
+  /* Pulsing shimmer — moves gradient left→right continuously (thumbnails) */
+  @keyframes sk-pulse {
+    0%   { background-position:  200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* One-shot light stripe — sweeps across card once on entry */
+  @keyframes sk-shine {
+    0%   { transform: translateX(-180%) skewX(-12deg); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateX(280%)  skewX(-12deg); opacity: 0; }
+  }
+
+  /* ── 1. Thumbnail skeleton — REMOVED
+   * HTB logos have their own colored backgrounds; a grey shimmer disc
+   * behind them bleeds through the semi-transparent img and looks wrong.
+   * No skeleton on thumbnails — card-shine (step 2) covers the load gap.
+   */
+
+  /* ── 2. Card entry shine ───────────────────────────────────────────────
+   * One-shot light stripe sweeps across each card as it first renders.
+   * Staggered delays for above-fold cards; below-fold cards fire when
+   * content-visibility renders them as user scrolls.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .post-card {
+      position: relative;
+      /* overflow:hidden only during shine (1s); afterwards removed via animation-fill-mode */
+      /* Use clip-path on ::after instead of overflow to preserve hover box-shadow */
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 50px; height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent              0%,
+          rgba(255,255,255,0.055) 50%,
+          transparent            100%
+        );
+        /* clip-path constrains the stripe to card bounds without overflow:hidden
+           (preserves the hover box-shadow that lives outside the card) */
+        clip-path: inset(0);
+        transform: translateX(-180%) skewX(-12deg);
+        animation: sk-shine 0.9s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      /* Staggered entry for above-fold cards */
+      &:nth-child(1)::after  { animation-delay:  80ms; }
+      &:nth-child(2)::after  { animation-delay: 120ms; }
+      &:nth-child(3)::after  { animation-delay: 160ms; }
+      &:nth-child(4)::after  { animation-delay: 200ms; }
+      &:nth-child(5)::after  { animation-delay: 240ms; }
+      /* Below-fold: fire immediately when content-visibility renders them */
+      &:nth-child(n+6)::after { animation-delay: 40ms; }
+    }
+
+    /* Archive items — same shine on entry */
+    .archive-item {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 40px; height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent             0%,
+          rgba(255,255,255,0.04) 50%,
+          transparent           100%
+        );
+        clip-path: inset(0);
+        transform: translateX(-160%) skewX(-10deg);
+        animation: sk-shine 0.7s ease-out forwards;
+        animation-delay: calc(var(--row-idx, 0) * 20ms + 100ms);
+        pointer-events: none;
+        z-index: 2;
+      }
+    }
+  }
+
+  /* ── 3. Text skeleton via @starting-style ──────────────────────────────
+   * Titles + descriptions start as block placeholders and transition to
+   * real content as the element is first painted.
+   * Falls back gracefully in unsupported browsers (content shows normally).
+   */
+  .post-card-title a {
+    display: block;
+    border-radius: var(--r-sm);
+    transition: color 0.35s ease 0.05s, background-color 0.35s ease 0.05s;
+  }
+  @starting-style {
+    .post-card-title a {
+      color: transparent;
+      background-color: var(--c-surface-3);
+    }
+  }
+
+  .post-card-creator,
+  .post-card-desc {
+    transition: opacity 0.4s ease 0.1s;
+  }
+  @starting-style {
+    .post-card-creator,
+    .post-card-desc { opacity: 0; }
+  }
+
+  .post-card-meta time,
+  .post-card-meta .badge {
+    transition: opacity 0.3s ease 0.08s;
+  }
+  @starting-style {
+    .post-card-meta time,
+    .post-card-meta .badge { opacity: 0; }
+  }
+
+  /* Archive items */
+  .archive-item a {
+    border-radius: var(--r-sm);
+    transition: color 0.3s ease 0.06s, background-color 0.3s ease 0.06s;
+  }
+  @starting-style {
+    .archive-item a {
+      color: transparent;
+      background-color: var(--c-surface-2);
+    }
+  }
+
+  /* ── 4. Section-level reveal ────────────────────────────────────────────
+   * Section heading appears with skeleton underline that expands to real border
+   */
+  .posts-category {
+    transition: border-color 0.5s ease, color 0.4s ease;
+  }
+  @starting-style {
+    .posts-category {
+      border-color: var(--c-surface-3);
+      color: transparent;
+    }
+  }
+
+  /* ── 5. Respect reduced motion ─────────────────────────────────────────
+   * Kill all skeleton animations immediately for users who prefer it.
+   */
+  .reduce-motion .post-card-thumb::before,
+  .reduce-motion .post-card::after,
+  .reduce-motion .archive-item::after {
+    animation: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-card-thumb::before,
+    .post-card::after,
+    .archive-item::after {
+      animation: none;
+    }
+  }
+}

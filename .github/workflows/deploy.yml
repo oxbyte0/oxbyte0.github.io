@@ -14,8 +14,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+
+  # ── Stage 1: Validate (fast gate — must pass before build) ──────────────
+  validate:
+    name: Validate Posts
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate post frontmatter
+        run: python3 scripts/validate_posts.py
+
+      - name: Check broken local image references
+        run: |
+          errors=0
+          for f in _posts/*.md; do
+            grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' "$f" 2>/dev/null | while read path; do
+              [ -f "${path#/}" ] || echo "BROKEN: $path in $(basename $f)"
+            done
+          done
+
+  # ── Stage 2: Build ──────────────────────────────────────────────────────
+  build:
+    name: Build Site
+    runs-on: ubuntu-latest
+    needs: validate
     steps:
       - uses: actions/checkout@v4
 
@@ -24,22 +47,114 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      - name: Inject secrets into config
+      # Cache image conversion tools
+      - name: Cache apt packages
+        uses: actions/cache@v4
+        id: apt-cache
+        with:
+          path: /usr/local/bin/cwebp
+          key: apt-webp-${{ runner.os }}-v1
+
+      - name: Install image tools
+        if: steps.apt-cache.outputs.cache-hit != 'true'
         run: |
-          [ -n "$GOATCOUNTER" ] && sed -i "s/^goatcounter:$/goatcounter: $GOATCOUNTER/" _config.yml || true
-          [ -n "$GA_ID" ] && sed -i "s/^google_analytics:$/google_analytics: $GA_ID/" _config.yml || true
+          sudo apt-get install -y webp
+          # Copy to cacheable location
+          cp /usr/bin/cwebp /usr/local/bin/cwebp 2>/dev/null || true
+
+      # Cache npm tools (PurgeCSS)
+      - name: Cache npm tools
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: ~/.npm-global
+          key: npm-purgecss-v5
+
+      - name: Install PurgeCSS
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: |
+          npm config set prefix ~/.npm-global
+          npm install -g purgecss
+
+      - name: Convert images to WebP
+        run: |
+          export PATH=~/.npm-global/bin:$PATH
+          # Use cwebp if available, fall back to ImageMagick (always on ubuntu-latest)
+          if command -v cwebp &>/dev/null; then
+            find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+              out="${img%.*}.webp"
+              [ -f "$out" ] || cwebp -q 82 -mt -quiet "$img" -o "$out"
+            done
+          else
+            find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+              out="${img%.*}.webp"
+              [ -f "$out" ] || convert "$img" -quality 82 "$out" 2>/dev/null
+            done
+          fi
+          echo "WebP: $(find assets/img -name '*.webp' | wc -l) files"
+
+      # Phase 1.4: Secure, robust secret injection (Python-based, fails loudly)
+      - name: Inject secrets into config
         env:
           GOATCOUNTER: ${{ secrets.GOATCOUNTER_CODE }}
           GA_ID: ${{ secrets.GA_MEASUREMENT_ID }}
+        run: |
+          python3 - <<'EOF'
+          import os, re, sys
+
+          path = '_config.yml'
+          with open(path) as f:
+              content = f.read()
+
+          replacements = {
+              'goatcounter':    os.environ.get('GOATCOUNTER', ''),
+              'google_analytics': os.environ.get('GA_ID', ''),
+          }
+
+          for key, value in replacements.items():
+              if not value:
+                  continue
+              pattern = rf'^({re.escape(key)}:\s*)("?[^"\n]*"?)?\s*$'
+              replacement = rf'\g<1>{value}'
+              new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+              if new_content == content:
+                  print(f'WARNING: {key} pattern not found — secret not injected', file=sys.stderr)
+              content = new_content
+
+          with open(path, 'w') as f:
+              f.write(content)
+          print('Secrets injected')
+          EOF
 
       - name: Build site
-        run: bundle exec jekyll build
+        run: bundle exec jekyll build --strict_front_matter
         env:
           JEKYLL_ENV: production
 
+      - name: PurgeCSS — remove unused CSS rules
+        run: |
+          export PATH=~/.npm-global/bin:$PATH
+          purgecss \
+            --css _site/assets/css/style.css \
+            --content "_site/**/*.html" "_site/**/*.js" \
+            --output _site/assets/css/style.css \
+            --safelist \
+              "light" "dark" \
+              "reduce-motion" "high-contrast" "focus-mode" "dyslexia-mode" \
+              "nav-open" "search-open" "active" "active-page" "focused" "copied" "on" "open" \
+              "htb-type" "htb-sort" "htb-diff" "htb-os" "current" "show" "hidden" \
+              "badge-easy" "badge-medium" "badge-hard" "badge-insane" "badge-os" "badge-critical" \
+              "collapsed" "install-btn" \
+            --safelist-patterns \
+              "/^rouge-/" "/^highlight/" "/^language-/" "/^lineno/" \
+              "/^badge-/" "/^a11y/" "/^nav-/" "/^post-/" "/^tag-h/" \
+            --variables
+
       - uses: actions/upload-pages-artifact@v3
 
+  # ── Stage 3: Deploy ─────────────────────────────────────────────────────
   deploy:
+    name: Deploy to Pages
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -48,3 +163,30 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  # ── Stage 4: Post-deploy smoke test ─────────────────────────────────────
+  verify:
+    name: Smoke Test
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for CDN propagation
+        run: sleep 15
+
+      - name: Check home page
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oxbyte.blog/)
+          echo "Home: $STATUS"
+          [ "$STATUS" = "200" ] || { echo "FAIL: home returned $STATUS"; exit 1; }
+
+      - name: Check feed
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oxbyte.blog/feed.xml)
+          echo "Feed: $STATUS"
+          [ "$STATUS" = "200" ] || echo "WARN: feed returned $STATUS"
+
+      - name: Check sitemap
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oxbyte.blog/sitemap.xml)
+          echo "Sitemap: $STATUS"
+          [ "$STATUS" = "200" ] || echo "WARN: sitemap returned $STATUS"

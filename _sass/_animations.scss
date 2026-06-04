@@ -1,0 +1,81 @@
+@layer animations {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes checkBounce {
+      0%   { transform: scale(0.7); opacity: 0; }
+      60%  { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    section { animation: fadeIn 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+    nav     { animation: fadeIn 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
+    .post-card {
+      animation: fadeUp 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+
+      &:nth-child(1)   { animation-delay:  0ms; }
+      &:nth-child(2)   { animation-delay: 30ms; }
+      &:nth-child(3)   { animation-delay: 60ms; }
+      &:nth-child(4)   { animation-delay: 90ms; }
+      &:nth-child(5)   { animation-delay: 120ms; }
+      &:nth-child(n+6) { animation-delay: 150ms; }
+
+      /* removed translateX + box-shadow — caused "|" bar on the left edge of card on hover */
+      &:hover .post-card-title a { color: var(--c-accent); }
+    }
+
+    .nav-pages a, .nav-htb-list a, .nav-toc a {
+      transition: color 90ms ease, transform 90ms ease;
+      display: block;
+    }
+    .nav-pages a:hover { transform: translateX(2px); }
+
+    .theme-icon { display: inline-block; transition: transform 200ms ease; }
+    .theme-toggle:active .theme-icon { transform: rotate(180deg) scale(0.85); }
+
+    .copy-btn.copied svg { animation: checkBounce 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+    .nav-htb-list { transition: opacity 160ms ease, transform 160ms ease; }
+
+    pre.highlight:not(.collapsed) code { animation: fadeIn 120ms ease both; }
+
+    .share-btn {
+      transition: transform 80ms ease, color 80ms ease, border-color 80ms ease;
+      &:hover  { transform: translateY(-1px); }
+      &:active { transform: translateY(0) scale(0.97); }
+    }
+  }
+
+  /* View Transitions API — smooth page navigation */
+  @view-transition { navigation: auto; }
+
+  ::view-transition-old(main-content) {
+    animation: 180ms ease-out both fade-out-slide;
+  }
+  ::view-transition-new(main-content) {
+    animation: 200ms ease-in both fade-in-slide;
+  }
+
+  @keyframes fade-out-slide {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes fade-in-slide {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  main { view-transition-name: main-content; }
+  nav  { view-transition-name: sidebar; }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(*), ::view-transition-new(*) { animation: none; }
+  }
+}

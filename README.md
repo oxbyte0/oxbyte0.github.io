@@ -15,7 +15,7 @@ Jekyll · GitHub Pages · Rouge syntax highlighting · Vanilla JS · Custom SCSS
 ## Local development
 
 ```bash
-# Prerequisites: Ruby, Bundler
+# Prerequisites: Ruby, Bundler, Node.js v18+
 gem install bundler
 
 # Install dependencies
@@ -25,6 +25,28 @@ bundle install
 make serve
 # → http://localhost:4000
 ```
+
+---
+
+## Admin panel
+
+Local web dashboard for managing posts, media, git, and deploys.
+
+```bash
+# Start admin server
+make admin
+# → http://localhost:3001
+# Token: cat ~/.oxbyte-admin.token
+```
+
+Or with auto-restart:
+
+```bash
+cd ../admin-server && ./setup.sh --pm2
+```
+
+Features: post editor, HTB machine fetch, media library, Jekyll build log, git commit/push, `_config.yml` editor.
+See [admin-server/README.md](../admin-server/README.md) for full docs.
 
 ---
 

@@ -1,0 +1,93 @@
+@layer layout {
+  #progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--c-accent);
+    z-index: 1000; pointer-events: none;
+    transition: width 60ms linear;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    @keyframes grow-progress { to { width: 100%; } }
+    #progress {
+      animation: grow-progress linear both;
+      animation-timeline: scroll(root block);
+      transition: none;
+    }
+  }
+
+  .wrapper {
+    display: flex; align-items: flex-start; gap: var(--sp-5);
+    max-width: min(88vw, 1320px);
+    margin: 0 auto;
+    padding: var(--sp-6) clamp(16px, 2.5vw, 48px);
+  }
+
+  main { flex: 1; min-width: 0; max-width: var(--content-max); }
+
+  section {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-5);
+    transition: background-color var(--t-base), border-color var(--t-base);
+  }
+
+  #phoneHeader {
+    display: none;
+    margin-bottom: var(--sp-4);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--c-border);
+
+    h1 { font-family: 'Martian Mono', monospace; font-size: 13px; font-weight: 400; margin: 0; letter-spacing: 0.04em; }
+  }
+
+  .nav-overlay {
+    display: none; position: fixed; inset: 0;
+    background: light-dark(rgba(246,246,246,0.88), rgba(6,6,6,0.88));
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    z-index: 99; opacity: 0; pointer-events: none;
+    transition: opacity var(--t-slow);
+
+    &.open { opacity: 1; pointer-events: auto; }
+  }
+
+  .nav-toggle {
+    display: none; position: fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: 16px;
+    width: 38px; height: 38px;
+    background: var(--c-surface-2); border: 1px solid var(--c-border-2);
+    border-radius: var(--r-lg); color: var(--c-accent);
+    cursor: pointer; z-index: 200;
+    align-items: center; justify-content: center; font-size: 14px;
+
+    &:hover { background: var(--c-surface-3); border-color: var(--c-accent); }
+  }
+
+  .back-to-top {
+    position: fixed; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); right: 18px;
+    width: 34px; height: 34px;
+    background: var(--c-surface-2); border: 1px solid var(--c-border-2);
+    border-radius: var(--r-md); color: var(--c-muted);
+    cursor: pointer; font-size: 15px; z-index: 198;
+    display: flex; align-items: center; justify-content: center;
+    transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+
+    &[hidden] { display: none; }
+    &:hover { color: var(--c-head); border-color: var(--c-muted); }
+  }
+
+  @media screen and (max-width: 900px) {
+    .wrapper { flex-direction: column; padding: var(--sp-4); gap: var(--sp-3); }
+    main { max-width: 100%; width: 100%; }
+    section { padding: var(--sp-4); }
+    #phoneHeader { display: block; }
+    .nav-toggle { display: flex; width: 44px; height: 44px; }
+    .back-to-top { right: auto; left: 18px; width: 44px; height: 44px; } /* 44px touch target on mobile */
+  }
+
+  @media screen and (max-width: 480px) {
+    .wrapper { padding: var(--sp-3); }
+    section { padding: var(--sp-3); }
+    body { font-size: 15px; }
+  }
+}

@@ -12,15 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse CI with performance budget
         uses: treosh/lighthouse-ci-action@v11
         with:
           urls: |
             https://oxbyte.blog/
+            https://oxbyte.blog/archive/
+          budgetPath: ./lighthouse-budget.json
           uploadArtifacts: true
           temporaryPublicStorage: true
         continue-on-error: true
 
-      - name: Lighthouse scores summary
+      - name: Print results
         if: always()
-        run: echo "Lighthouse results uploaded as artifact"
+        run: echo "Lighthouse results saved as artifact — check Actions tab for scores and budget diffs"

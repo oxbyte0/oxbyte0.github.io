@@ -1,8 +1,15 @@
 ---
 layout: null
 ---
-const CACHE = 'oxbyte-{{ site.github.build_revision | default: site.time | date: "%Y%m%d" }}';
-const PRECACHE = ['/favicon.svg'];
+'use strict';
+var CACHE    = 'oxbyte-{{ site.github.build_revision | default: site.time | date: "%Y%m%d%H%M" }}';
+var PRECACHE = [
+  '/',
+  '/assets/css/style.css',
+  '/assets/js/main.js',
+  '/favicon.svg',
+  '/offline.html'
+];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -27,33 +34,51 @@ self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   var url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
+  var path = url.pathname;
 
-  if (/\.(css|js|woff2?|ttf|png|jpe?g|gif|ico|svg|webp)(\?.*)?$/.test(url.pathname)) {
-    e.respondWith(
-      caches.open(CACHE).then(function (cache) {
-        return cache.match(e.request).then(function (cached) {
-          var networkFetch = fetch(e.request).then(function (res) {
-            if (res.ok) cache.put(e.request, res.clone());
-            return res;
-          }).catch(function () { return cached; });
-          return cached || networkFetch;
-        });
-      })
-    );
+  /* Static assets: stale-while-revalidate */
+  if (/\.(css|js|woff2?|ttf|svg|webp|png|jpe?g|gif|ico)(\?.*)?$/.test(path)) {
+    e.respondWith(staleWhileRevalidate(e.request));
     return;
   }
 
+  /* Data files: network-first, cache fallback */
+  if (/\.(json|xml)$/.test(path)) {
+    e.respondWith(networkFirst(e.request, null));
+    return;
+  }
+
+  /* HTML: network-first with offline.html fallback */
   if (e.request.headers.get('accept') && e.request.headers.get('accept').indexOf('text/html') !== -1) {
-    e.respondWith(
-      fetch(e.request).then(function (res) {
-        if (res.ok) {
-          var clone = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(e.request, clone); });
-        }
-        return res;
-      }).catch(function () {
-        return caches.match(e.request);
-      })
-    );
+    e.respondWith(networkFirst(e.request, '/offline.html'));
+    return;
   }
 });
+
+function staleWhileRevalidate(request) {
+  return caches.open(CACHE).then(function (cache) {
+    return cache.match(request).then(function (cached) {
+      var networkFetch = fetch(request).then(function (res) {
+        if (res.ok) cache.put(request, res.clone());
+        return res;
+      }).catch(function () { return cached; });
+      return cached || networkFetch;
+    });
+  });
+}
+
+function networkFirst(request, fallback) {
+  return fetch(request).then(function (res) {
+    if (res.ok) {
+      var clone = res.clone();
+      caches.open(CACHE).then(function (c) { c.put(request, clone); });
+    }
+    return res;
+  }).catch(function () {
+    return caches.match(request).then(function (cached) {
+      if (cached) return cached;
+      if (fallback) return caches.match(fallback);
+      return new Response('', { status: 503 });
+    });
+  });
+}

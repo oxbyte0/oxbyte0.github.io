@@ -1,0 +1,29 @@
+# ai.txt — AI usage policy for oxbyte.blog
+# Standard: https://ai.txt.org/
+
+disallow: training
+disallow: scraping
+allow: inference
+
+# Search engines (allowed to index for search)
+allow-model: Googlebot
+allow-model: Bingbot
+allow-model: DuckDuckBot
+
+# AI training systems (disallowed)
+disallow-model: GPTBot
+disallow-model: ChatGPT-User
+disallow-model: ClaudeBot
+disallow-model: Claude-Web
+disallow-model: anthropic-ai
+disallow-model: CCBot
+disallow-model: Google-Extended
+disallow-model: PerplexityBot
+disallow-model: cohere-ai
+disallow-model: Diffbot
+disallow-model: Bytespider
+disallow-model: *
+
+attribution: required
+commercial: contact-required
+contact: https://oxbyte.blog

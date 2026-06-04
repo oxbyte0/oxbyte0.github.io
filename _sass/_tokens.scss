@@ -1,0 +1,42 @@
+/* Declare all layer order here — tokens is @use'd first, so this runs first */
+@layer tokens, base, layout, nav, components, code, search, animations, skeleton, a11y, print;
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+    --c-bg:        #060606; --c-surface:   #0c0c0c;
+    --c-surface-2: #131313; --c-surface-3: #1a1a1a;
+    --c-border:    rgba(255,255,255,0.08); --c-border-2: rgba(255,255,255,0.15);
+    --c-text:      #909090; --c-muted:     #787878;
+    --c-head:      #d8d8d8; --c-accent:    #f4f4f4;
+    --c-accent-dim: rgba(255,255,255,0.06); --c-accent-glow: rgba(255,255,255,0.14);
+    --c-code-bg:   #040404;
+    --c-green:     #c8c8c8; --c-red:    #f2f2f2;
+    --c-yellow:    #a0a0a0; --c-blue:   #d0d0d0; --c-orange: #b8b8b8;
+    --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
+    --sp-5:24px; --sp-6:32px; --sp-7:48px; --sp-8:64px;
+    --r-sm:3px; --r-md:6px; --r-lg:10px; --r-xl:16px;
+    --t-fast:90ms ease; --t-base:160ms ease; --t-slow:280ms ease;
+    --nav-w:224px; --content-max: clamp(680px, 55vw, 920px);
+  }
+
+  @supports (color: light-dark(#000, #fff)) {
+    :root {
+      --c-bg:        light-dark(#f6f6f6, #060606);
+      --c-surface:   light-dark(#ffffff, #0c0c0c);
+      --c-surface-2: light-dark(#f0f0f0, #131313);
+      --c-surface-3: light-dark(#e8e8e8, #1a1a1a);
+      --c-border:    light-dark(rgba(0,0,0,0.09),   rgba(255,255,255,0.08));
+      --c-border-2:  light-dark(rgba(0,0,0,0.16),   rgba(255,255,255,0.15));
+      --c-text:      light-dark(#5a5a5a, #909090);
+      --c-muted:     light-dark(#717171, #787878);
+      --c-head:      light-dark(#111111, #d8d8d8);
+      --c-accent:    light-dark(#000000, #f4f4f4);
+      --c-accent-dim:  light-dark(rgba(0,0,0,0.06),  rgba(255,255,255,0.06));
+      --c-accent-glow: light-dark(rgba(0,0,0,0.14),  rgba(255,255,255,0.14));
+      --c-green:  light-dark(#484848, #c8c8c8); --c-red:    light-dark(#1a1a1a, #f2f2f2);
+      --c-yellow: light-dark(#606060, #a0a0a0); --c-blue:   light-dark(#383838, #d0d0d0);
+      --c-orange: light-dark(#505050, #b8b8b8);
+    }
+  }
+}

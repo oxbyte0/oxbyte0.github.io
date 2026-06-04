@@ -14,7 +14,7 @@ layout: template
 </div>
 
 <div class="post-meta">
-  <time>{{ page.date | date: "%-d %B %Y" }}</time>
+  <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: "%-d %B %Y" }}</time>
   <span>{{ mins }} min read</span>
   {% for tag in page.tags %}
     {% if tag contains "diff/" %}<span class="badge badge-{{ tag | remove: 'diff/' }}">{{ tag | remove: 'diff/' }}</span>{% endif %}
@@ -51,69 +51,52 @@ layout: template
   <button class="share-btn" onclick="window.print()" aria-label="Export as PDF">export pdf</button>
 </div>
 
-{% assign rel_count = 0 %}
-{% assign has_related = false %}
-{% for post in site.categories.HTB %}
-  {% if post.url != page.url and rel_count < 3 %}
-    {% assign matched = false %}
-    {% for tag in post.tags %}
-      {% if matched == false %}
-        {% if page.tags contains tag and tag != 'boxes' %}
-          {% if tag contains 'os/' or tag contains 'diff/' %}
-            {% assign matched = true %}
-          {% endif %}
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-    {% if matched %}
-      {% unless has_related %}
-        {% assign has_related = true %}
-      {% endunless %}
-      {% assign rel_count = rel_count | plus: 1 %}
-    {% endif %}
-  {% endif %}
-{% endfor %}
-
-{% if has_related %}
-<div class="related-posts">
-  <h2 class="posts-category">related</h2>
+{% comment %} BAD-05 fix: single-pass related posts — removed redundant first loop {% endcomment %}
+{% capture _related_html %}
   {% assign rel_count = 0 %}
   {% for post in site.categories.HTB %}
     {% if post.url != page.url and rel_count < 3 %}
       {% assign matched = false %}
       {% for tag in post.tags %}
-        {% if matched == false %}
+        {% unless matched %}
           {% if page.tags contains tag and tag != 'boxes' %}
-            {% if tag contains 'os/' or tag contains 'diff/' %}
-              {% assign matched = true %}
-            {% endif %}
+            {% if tag contains 'os/' or tag contains 'diff/' %}{% assign matched = true %}{% endif %}
           {% endif %}
-        {% endif %}
+        {% endunless %}
       {% endfor %}
       {% if matched %}
         {% assign rel_count = rel_count | plus: 1 %}
         {% assign rel_diff = "" %}
-        {% for tag in post.tags %}
-          {% if tag contains "diff/" %}{% assign rel_diff = tag | remove: "diff/" %}{% endif %}
-        {% endfor %}
-        <article class="post-card">
+        {% for tag in post.tags %}{% if tag contains "diff/" %}{% assign rel_diff = tag | remove: "diff/" %}{% endif %}{% endfor %}
+        <article class="post-card" aria-labelledby="rel-{{ post.slug }}">
           {% if post.image %}
           <a href="{{ post.url }}" class="post-card-thumb" tabindex="-1" aria-hidden="true">
-            <img src="{{ post.image }}" alt="{{ post.title }} — HackTheBox writeup" loading="lazy" width="68" height="68" decoding="async">
+            {% assign _ri = post.image %}
+            {% if _ri contains '/assets/img/' %}
+              {% assign _rw = _ri | replace: '.png', '.webp' | replace: '.jpg', '.webp' | replace: '.jpeg', '.webp' %}
+              <picture><source srcset="{{ _rw }}" type="image/webp"><img src="{{ _ri }}" alt="{{ post.title }} — HackTheBox writeup" loading="lazy" width="68" height="68" decoding="async"></picture>
+            {% else %}
+              <img src="{{ _ri }}" alt="{{ post.title }} — HackTheBox writeup" loading="lazy" width="68" height="68" decoding="async">
+            {% endif %}
           </a>
           {% endif %}
           <div class="post-card-body">
             <div class="post-card-meta">
-              <time>{{ post.date | date: "%Y-%m-%d" }}</time>
+              <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }}</time>
               {% if rel_diff != "" %}<span class="badge badge-{{ rel_diff }}">{{ rel_diff }}</span>{% endif %}
             </div>
-            <h3 class="post-card-title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
+            <h3 id="rel-{{ post.slug }}" class="post-card-title"><a href="{{ post.url }}">{{ post.title }}</a></h3>
             {% if post.description %}<p class="post-card-desc">{{ post.description | truncate: 120 }}</p>{% endif %}
           </div>
         </article>
       {% endif %}
     {% endif %}
   {% endfor %}
+{% endcapture %}
+{% if _related_html contains 'post-card' %}
+<div class="related-posts">
+  <h2 class="posts-category">related</h2>
+  {{ _related_html }}
 </div>
 {% endif %}
 

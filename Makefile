@@ -1,4 +1,4 @@
-.PHONY: menu new htb draft write list import batch-import serve deploy open setup
+.PHONY: menu new htb draft write list import batch-import serve deploy open setup convert
 
 menu:
 	@bash scripts/blog menu
@@ -18,7 +18,22 @@ write:
 list:
 	@bash scripts/blog list
 
-serve:
+convert:
+	@echo "Converting images to WebP..."
+	@if command -v cwebp > /dev/null 2>&1; then \
+		find assets/img -type f \( -name "*.png" -o -name "*.jpg" \) | while read img; do \
+			out="$${img%.*}.webp"; [ -f "$$out" ] || cwebp -q 82 -mt -quiet "$$img" -o "$$out"; \
+		done; \
+	elif command -v convert > /dev/null 2>&1; then \
+		find assets/img -type f \( -name "*.png" -o -name "*.jpg" \) | while read img; do \
+			out="$${img%.*}.webp"; [ -f "$$out" ] || convert "$$img" -quality 82 "$$out" 2>/dev/null; \
+		done; \
+	else \
+		echo "No converter found. Install: sudo apt install webp  OR  imagemagick"; \
+	fi
+	@echo "WebP conversion complete. $$(find assets/img -name '*.webp' | wc -l) files."
+
+serve: convert
 	bundle exec jekyll serve --livereload --incremental
 
 deploy:

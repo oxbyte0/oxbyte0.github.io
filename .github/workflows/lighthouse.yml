@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Lighthouse CI with performance budget
-        uses: treosh/lighthouse-ci-action@v11
+        uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
             https://oxbyte.blog/

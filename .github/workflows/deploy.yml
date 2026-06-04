@@ -114,8 +114,10 @@ jobs:
           for key, value in replacements.items():
               if not value:
                   continue
-              pattern = rf'^({re.escape(key)}:\s*)("?[^"\n]*"?)?\s*$'
-              replacement = rf'\g<1>{value}'
+              # Always produce `key: value` with exactly one space — avoids YAML parse error
+              # when group 1 captures `key:` without trailing space (produces `key:VALUE` = invalid YAML)
+              pattern = rf'^{re.escape(key)}:.*$'
+              replacement = f'{key}: {value}'
               new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
               if new_content == content:
                   print(f'WARNING: {key} pattern not found — secret not injected', file=sys.stderr)

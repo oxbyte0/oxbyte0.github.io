@@ -36,3 +36,6 @@ setup:
 
 batch-import:
 	@bash scripts/blog batch-import
+
+admin:
+	@cd ../admin-server && node server.js

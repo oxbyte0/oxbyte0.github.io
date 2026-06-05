@@ -136,21 +136,7 @@ jobs:
       - name: PurgeCSS — remove unused CSS rules
         run: |
           export PATH=~/.npm-global/bin:$PATH
-          purgecss \
-            --css _site/assets/css/style.css \
-            --content "_site/**/*.html" "_site/**/*.js" \
-            --output _site/assets/css/style.css \
-            --safelist \
-              "light" "dark" \
-              "reduce-motion" "high-contrast" "focus-mode" "dyslexia-mode" \
-              "nav-open" "search-open" "active" "active-page" "focused" "copied" "on" "open" \
-              "htb-type" "htb-sort" "htb-diff" "htb-os" "current" "show" "hidden" \
-              "badge-easy" "badge-medium" "badge-hard" "badge-insane" "badge-os" "badge-critical" \
-              "collapsed" "install-btn" \
-            --safelist-patterns \
-              "/^rouge-/" "/^highlight/" "/^language-/" "/^lineno/" \
-              "/^badge-/" "/^a11y/" "/^nav-/" "/^post-/" "/^tag-h/" \
-            --variables
+          purgecss --config purgecss.config.js
 
       - uses: actions/upload-pages-artifact@v3
 

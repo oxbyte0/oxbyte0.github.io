@@ -1,8 +1,16 @@
 @layer animations {
+
+  /* ── CSS @property — animatable custom properties ── */
+  @property --card-opacity {
+    syntax: '<number>';
+    initial-value: 0.85;
+    inherits: false;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; translate: 0 8px; }
+      to   { opacity: 1; translate: 0 0; }
     }
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -13,22 +21,63 @@
       60%  { transform: scale(1.2); opacity: 1; }
       100% { transform: scale(1); }
     }
+    @keyframes btt-appear {
+      from { opacity: 0; scale: 0.7; visibility: hidden; pointer-events: none; }
+      to   { opacity: 1; scale: 1;   visibility: visible; pointer-events: auto; }
+    }
+    @keyframes reveal-card {
+      from { opacity: 0; translate: 0 14px; }
+      to   { opacity: 1; translate: 0 0;    }
+    }
 
     section { animation: fadeIn 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
     nav     { animation: fadeIn 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
 
-    .post-card {
-      animation: fadeUp 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    /* ── Back-to-top: CSS scroll-driven — no JS needed ── */
+    @supports (animation-timeline: scroll()) {
+      .back-to-top {
+        animation: btt-appear linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 280px 380px;
+        /* remove hidden attr logic from JS — CSS controls visibility */
+      }
+    }
 
-      &:nth-child(1)   { animation-delay:  0ms; }
-      &:nth-child(2)   { animation-delay: 30ms; }
-      &:nth-child(3)   { animation-delay: 60ms; }
-      &:nth-child(4)   { animation-delay: 90ms; }
-      &:nth-child(5)   { animation-delay: 120ms; }
-      &:nth-child(n+6) { animation-delay: 150ms; }
+    /* ── Card entry: scroll-driven where supported, fadUp fallback elsewhere ── */
+    @supports (animation-timeline: view()) {
+      .post-card {
+        animation: reveal-card linear both;
+        animation-timeline: view(block);
+        animation-range: entry 0% entry 18%;
+        &:nth-child(n) { animation-delay: 0ms; } /* reset stagger — scroll handles timing */
+      }
+    }
 
-      /* removed translateX + box-shadow — caused "|" bar on the left edge of card on hover */
-      &:hover .post-card-title a { color: var(--c-accent); }
+    @supports not (animation-timeline: view()) {
+      .post-card {
+        animation: fadeUp 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+        &:nth-child(1)   { animation-delay:  0ms; }
+        &:nth-child(2)   { animation-delay: 30ms; }
+        &:nth-child(3)   { animation-delay: 60ms; }
+        &:nth-child(4)   { animation-delay: 90ms; }
+        &:nth-child(5)   { animation-delay: 120ms; }
+        &:nth-child(n+6) { animation-delay: 150ms; }
+      }
+    }
+
+    .post-card:hover .post-card-title a { color: var(--c-accent); }
+
+    /* ── Reading progress color shift ── */
+    @supports (animation-timeline: scroll()) {
+      @keyframes progress-color {
+        0%   { background: rgba(255,255,255,0.3); }
+        60%  { background: rgba(255,255,255,0.6); }
+        100% { background: var(--c-accent); }
+      }
+      #progress {
+        animation: grow-progress linear both, progress-color linear both;
+        animation-timeline: scroll(root block), scroll(root block);
+      }
     }
 
     .nav-pages a, .nav-htb-list a, .nav-toc a {
@@ -42,8 +91,6 @@
 
     .copy-btn.copied svg { animation: checkBounce 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 
-    .nav-htb-list { transition: opacity 160ms ease, transform 160ms ease; }
-
     pre.highlight:not(.collapsed) code { animation: fadeIn 120ms ease both; }
 
     .share-btn {
@@ -53,24 +100,20 @@
     }
   }
 
-  /* View Transitions API — smooth page navigation */
+  /* ── View Transitions API ── */
   @view-transition { navigation: auto; }
 
-  ::view-transition-old(main-content) {
-    animation: 180ms ease-out both fade-out-slide;
-  }
-  ::view-transition-new(main-content) {
-    animation: 200ms ease-in both fade-in-slide;
-  }
-
   @keyframes fade-out-slide {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-8px); }
+    from { opacity: 1; translate: 0 0; }
+    to   { opacity: 0; translate: 0 -8px; }
   }
   @keyframes fade-in-slide {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; translate: 0 8px; }
+    to   { opacity: 1; translate: 0 0; }
   }
+
+  ::view-transition-old(main-content) { animation: 180ms ease-out both fade-out-slide; }
+  ::view-transition-new(main-content) { animation: 200ms ease-in  both fade-in-slide; }
 
   main { view-transition-name: main-content; }
   nav  { view-transition-name: sidebar; }

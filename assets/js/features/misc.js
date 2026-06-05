@@ -5,7 +5,7 @@ import { debounce } from '../lib/utils.js';
  * This observer triggers a hidden Image() preload 600px before the real img
  * enters view, so by the time it's visible the data is already cached.
  */
-export function initLazyImages() {
+export function initLazyImages(preloadPx = 600) {
   if (!('IntersectionObserver' in window)) return;
 
   const observer = new IntersectionObserver((entries) => {
@@ -14,15 +14,13 @@ export function initLazyImages() {
       const img = entry.target;
       const src = img.src || img.dataset.src;
       if (!src || src.startsWith('data:')) { observer.unobserve(img); return; }
-      /* Pre-fetch via Image constructor — result lands in browser cache */
       const pre = new Image();
       pre.src = src;
-      pre.decode().catch(() => {}); /* trigger decode early too */
+      pre.decode().catch(() => {});
       observer.unobserve(img);
     });
-  }, { rootMargin: '600px 0px', threshold: 0 });
+  }, { rootMargin: `${preloadPx}px 0px`, threshold: 0 });
 
-  /* Only observe truly lazy images (eager ones are already loading) */
   document.querySelectorAll('img[loading="lazy"]').forEach(img => observer.observe(img));
 }
 

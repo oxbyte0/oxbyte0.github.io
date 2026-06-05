@@ -95,3 +95,18 @@
     #progress { display: none; }
   }
 }
+
+@layer base {
+  /* Device-adaptive hooks set by device.js */
+  [data-pointer="touch"] {
+    /* Slightly larger tap targets when touch device confirmed */
+    --btn-min-h: 44px;
+    a, button { -webkit-tap-highlight-color: transparent; }
+  }
+  [data-network="slow"] img[loading="lazy"] {
+    /* On slow networks, show a subtle placeholder until loaded */
+    background: var(--c-surface-2);
+  }
+  /* Use JS-set --dvh for true viewport height (fixes iOS Safari 100vh issue) */
+  .search-overlay { min-height: calc(var(--dvh, 1dvh) * 100); }
+}

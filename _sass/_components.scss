@@ -1,6 +1,10 @@
 @layer components {
   /* ── Post cards ── */
-  .posts-section { margin-bottom: var(--sp-6); &:last-child { margin-bottom: 0; } }
+  .posts-section {
+    margin-bottom: var(--sp-6); &:last-child { margin-bottom: 0; }
+    container-type: inline-size; /* enables container queries on children */
+    container-name: post-list;
+  }
   .posts-category {
     font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 400;
     text-transform: uppercase; letter-spacing: 0.14em; color: var(--c-muted);
@@ -55,6 +59,17 @@
     .post-card .post-card-thumb { width: 54px; height: 54px; }
   }
 
+  /* Container queries — card responds to its column width, not viewport */
+  @container post-list (max-width: 360px) {
+    .post-card { flex-direction: column; gap: var(--sp-3); }
+    .post-card-thumb { width: 100% !important; height: 80px !important; img { border-radius: var(--r-md) !important; } }
+    .post-card-title { font-size: clamp(13px, 3.5cqi, 16px); }
+  }
+
+  @container post-list (min-width: 600px) {
+    .post-card-title { font-size: clamp(14px, 1.8cqi, 18px); }
+  }
+
   /* ── Badges ── */
   .badge {
     font-family: 'Martian Mono', monospace; font-size: 10px; padding: 1px 5px;
@@ -65,13 +80,14 @@
   .badge-medium { color: rgba(255,255,255,0.48); background: rgba(255,255,255,0.06); }
   .badge-hard   { color: rgba(255,255,255,0.68); background: rgba(255,255,255,0.08); }
   .badge-insane { color: rgba(255,255,255,0.88); background: rgba(255,255,255,0.10); }
-  .badge-os     { color: rgba(255,255,255,0.42); background: rgba(255,255,255,0.08); }
+  /* OS badge: subtle blue tint — visually distinct from grey difficulty badges */
+  .badge-os     { color: rgba(138,180,248,0.82); background: rgba(90,140,240,0.10); }
 
   :root[style*="light"] .badge-easy   { color: rgba(0,0,0,0.22); background: rgba(0,0,0,0.05); }
   :root[style*="light"] .badge-medium { color: rgba(0,0,0,0.40); background: rgba(0,0,0,0.07); }
   :root[style*="light"] .badge-hard   { color: rgba(0,0,0,0.60); background: rgba(0,0,0,0.09); }
   :root[style*="light"] .badge-insane { color: rgba(0,0,0,0.82); background: rgba(0,0,0,0.11); }
-  :root[style*="light"] .badge-os     { color: rgba(0,0,0,0.52); background: rgba(0,0,0,0.08); }
+  :root[style*="light"] .badge-os     { color: rgba(26,74,138,0.85); background: rgba(26,74,138,0.08); }
 
   /* ── Archive ── */
   .archive-year { margin-bottom: var(--sp-5); }

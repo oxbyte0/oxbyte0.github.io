@@ -77,16 +77,21 @@
   }
 
   @media screen and (max-width: 900px) {
-    .wrapper { flex-direction: column; padding: var(--sp-4); gap: var(--sp-3); }
+    .wrapper {
+      flex-direction: column;
+      padding: var(--sp-4);
+      padding-bottom: calc(var(--sp-4) + 80px + env(safe-area-inset-bottom, 0px)); /* clear FAB buttons */
+      gap: var(--sp-3);
+    }
     main { max-width: 100%; width: 100%; }
     section { padding: var(--sp-4); }
     #phoneHeader { display: block; }
     .nav-toggle { display: flex; width: 44px; height: 44px; }
-    .back-to-top { right: auto; left: 18px; width: 44px; height: 44px; } /* 44px touch target on mobile */
+    .back-to-top { right: 18px; left: auto; width: 44px; height: 44px; } /* right side — avoids overlapping card text */
   }
 
   @media screen and (max-width: 480px) {
-    .wrapper { padding: var(--sp-3); }
+    .wrapper { padding: var(--sp-3); padding-bottom: calc(var(--sp-3) + 80px + env(safe-area-inset-bottom, 0px)); }
     section { padding: var(--sp-3); }
     body { font-size: 15px; }
   }

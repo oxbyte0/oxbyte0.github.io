@@ -52,28 +52,40 @@
     &.open { opacity: 1; pointer-events: auto; }
   }
 
-  .nav-toggle {
-    display: none; position: fixed; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: 16px;
-    width: 38px; height: 38px;
-    background: var(--c-surface-2); border: 1px solid var(--c-border-2);
-    border-radius: var(--r-lg); color: var(--c-accent);
-    cursor: pointer; z-index: 200;
-    align-items: center; justify-content: center; font-size: 14px;
+  /* SVG icon color fix — fill inherits CSS color via currentColor */
+  svg use, svg path { fill: currentColor; }
 
-    &:hover { background: var(--c-surface-3); border-color: var(--c-accent); }
+  .nav-toggle {
+    display: none; position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px)); right: 16px;
+    width: 44px; height: 44px;          /* 44px minimum touch target */
+    background: var(--c-surface-2); border: 1px solid var(--c-border-2);
+    border-radius: var(--r-lg);
+    color: var(--c-accent);             /* drives SVG fill via currentColor */
+    cursor: pointer; z-index: 200;
+    align-items: center; justify-content: center; /* takes effect when display:flex */
+
+    /* Explicit transition so open/close feels snappy */
+    transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+
+    svg { display: block; flex-shrink: 0; }
+
+    &:hover  { background: var(--c-surface-3); border-color: var(--c-accent); }
+    &:active { background: var(--c-surface-3); scale: 0.92; }
   }
 
   .back-to-top {
-    position: fixed; bottom: calc(66px + env(safe-area-inset-bottom, 0px)); right: 18px;
-    width: 34px; height: 34px;
+    position: fixed; bottom: calc(74px + env(safe-area-inset-bottom, 0px)); right: 16px;
+    width: 40px; height: 40px;
     background: var(--c-surface-2); border: 1px solid var(--c-border-2);
     border-radius: var(--r-md); color: var(--c-muted);
-    cursor: pointer; font-size: 15px; z-index: 198;
+    cursor: pointer; font-size: 16px; z-index: 198;
     display: flex; align-items: center; justify-content: center;
-    transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+    transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast), opacity var(--t-base), scale var(--t-base);
 
     &[hidden] { display: none; }
     &:hover { color: var(--c-head); border-color: var(--c-muted); }
+    &:active { scale: 0.92; }
   }
 
   @media screen and (max-width: 900px) {
@@ -86,8 +98,8 @@
     main { max-width: 100%; width: 100%; }
     section { padding: var(--sp-4); }
     #phoneHeader { display: block; }
-    .nav-toggle { display: flex; width: 44px; height: 44px; }
-    .back-to-top { right: 18px; left: auto; width: 44px; height: 44px; } /* right side — avoids overlapping card text */
+    .nav-toggle { display: flex; } /* size already set in base rule (44×44) */
+    .back-to-top { right: 16px; left: auto; width: 44px; height: 44px; }
   }
 
   @media screen and (max-width: 480px) {

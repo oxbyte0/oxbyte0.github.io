@@ -4,15 +4,37 @@ export function initNav() {
   const toggle  = document.getElementById('navToggle');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('navOverlay');
-  if (!toggle || !sidebar || !overlay) return { isOpen: () => false };
+  if (!toggle || !sidebar || !overlay) return { isOpen: () => false, closeNav: () => {} };
 
-  /* matchMedia matches CSS @media exactly — innerWidth misses scrollbar width */
   const mobileQuery = window.matchMedia('(max-width: 900px)');
+
+  /* ── iOS Safari scroll-lock ──────────────────────────────────────────────
+   * overflow:hidden on body doesn't stop scroll on iOS Safari.
+   * position:fixed + top:-scrollY freezes the page correctly.
+   */
+  function lockScroll() {
+    const y = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top      = `-${y}px`;
+    document.body.style.width    = '100%';
+    document.body.style.overflow = 'hidden';
+    document.body.dataset.scrollY = String(y);
+  }
+
+  function unlockScroll() {
+    const y = parseFloat(document.body.dataset.scrollY || '0');
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.width    = '';
+    document.body.style.overflow = '';
+    delete document.body.dataset.scrollY;
+    window.scrollTo(0, y);
+  }
 
   function openNav() {
     sidebar.classList.add('open');
     overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Close navigation');
     toggle.querySelector('use')?.setAttribute('href', '#icon-xmark');
@@ -21,7 +43,7 @@ export function initNav() {
   function closeNav() {
     sidebar.classList.remove('open');
     overlay.classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open navigation');
     toggle.querySelector('use')?.setAttribute('href', '#icon-list');
@@ -32,18 +54,22 @@ export function initNav() {
   toggle.addEventListener('click', () => isOpen() ? closeNav() : openNav());
   overlay.addEventListener('click', closeNav);
 
-  /* Close on nav link click — only in mobile drawer mode */
   sidebar.addEventListener('click', e => {
     if (mobileQuery.matches && e.target.closest('a')) closeNav();
   });
 
-  /* Close when viewport grows past breakpoint */
+  /* Close when viewport exits mobile breakpoint */
+  mobileQuery.addEventListener('change', e => {
+    if (!e.matches && isOpen()) closeNav();
+  });
+
+  /* Fallback debounced resize for browsers without mql change event */
   window.addEventListener('resize', debounce(() => {
     if (!mobileQuery.matches && isOpen()) closeNav();
   }, 150));
 
-  /* Platform shortcut labels — drop navigator.platform (deprecated) */
-  const ua  = navigator.userAgentData?.platform ?? navigator.userAgent ?? '';
+  /* Platform shortcut labels */
+  const ua    = navigator.userAgentData?.platform ?? navigator.userAgent ?? '';
   const isMac = /mac|iphone|ipad/i.test(ua);
   document.querySelectorAll('.search-shortcut').forEach(kbd => {
     kbd.textContent = isMac ? '⌘K' : 'Ctrl+K';

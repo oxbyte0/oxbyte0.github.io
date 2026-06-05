@@ -21,10 +21,8 @@
       60%  { transform: scale(1.2); opacity: 1; }
       100% { transform: scale(1); }
     }
-    @keyframes btt-appear {
-      from { opacity: 0; scale: 0.7; visibility: hidden; pointer-events: none; }
-      to   { opacity: 1; scale: 1;   visibility: visible; pointer-events: auto; }
-    }
+    /* btt-appear removed — CSS scroll-driven permanently hides button on short pages.
+       Back-to-top visibility handled by JS (initBackToTop) for reliability. */
     @keyframes reveal-card {
       from { opacity: 0; translate: 0 14px; }
       to   { opacity: 1; translate: 0 0;    }
@@ -33,15 +31,7 @@
     section { animation: fadeIn 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
     nav     { animation: fadeIn 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
 
-    /* ── Back-to-top: CSS scroll-driven — no JS needed ── */
-    @supports (animation-timeline: scroll()) {
-      .back-to-top {
-        animation: btt-appear linear both;
-        animation-timeline: scroll(root block);
-        animation-range: 280px 380px;
-        /* remove hidden attr logic from JS — CSS controls visibility */
-      }
-    }
+    /* back-to-top: JS-controlled via initBackToTop() for all browsers */
 
     /* ── Card entry: scroll-driven where supported, fadUp fallback elsewhere ── */
     @supports (animation-timeline: view()) {
@@ -117,6 +107,11 @@
 
   main { view-transition-name: main-content; }
   nav  { view-transition-name: sidebar; }
+
+  /* On mobile nav is position:fixed with translateX — view-transition causes flash */
+  @media screen and (max-width: 900px) {
+    nav { view-transition-name: none; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     ::view-transition-old(*), ::view-transition-new(*) { animation: none; }

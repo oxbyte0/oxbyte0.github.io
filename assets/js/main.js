@@ -18,16 +18,12 @@ const theme    = initTheme();
 const navState = initNav();
 initA11y();
 initProgress();
-initViewTransitions();
+initViewTransitions(navState); /* pass navState so it can skip transition when nav open */
 initSkeletons();
+idle(initBackToTop);  /* JS always handles back-to-top — CSS scroll-driven caused permanent hide bug */
 
-/* ── Dynamic rootMargin: 80% of viewport height (scales with screen size) ── */
+/* ── Dynamic rootMargin: 80% of viewport height ── */
 initLazyImages(Math.round(window.innerHeight * 0.8));
-
-/* ── Back-to-top: CSS scroll-driven in supporting browsers, JS fallback ── */
-if (!CSS.supports('animation-timeline', 'scroll()')) {
-  idle(initBackToTop); /* JS fallback for Firefox/older browsers */
-}
 
 /* ── Deferred (idle time) ── */
 idle(() => {

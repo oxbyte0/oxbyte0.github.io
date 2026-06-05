@@ -28,12 +28,17 @@ export function initSearch(navState) {
         s.integrity   = 'sha384-fjX7DeaZ/XFhVUVbuJ4tJCCRWoC6LtyhHqvsNRsJBcfs1VksovPjnUUGM3+Ii9st';
         s.crossOrigin = 'anonymous';
         s.onload = () => {
-          fuse = new window.Fuse(posts, {
-            keys: [{ name: 'title', weight: 3 }, { name: 'description', weight: 2 }, { name: 'tags', weight: 1 }],
-            threshold: 0.35, includeMatches: true, minMatchCharLength: 2
-          });
-          input.placeholder = 'search posts…';
-          input.focus();
+          try {
+            fuse = new window.Fuse(posts, {
+              keys: [{ name: 'title', weight: 3 }, { name: 'description', weight: 2 }, { name: 'tags', weight: 1 }],
+              threshold: 0.35, includeMatches: true, minMatchCharLength: 2
+            });
+            input.placeholder = 'search posts…';
+            input.focus();
+          } catch {
+            fuseLoading = false;
+            input.placeholder = 'search unavailable';
+          }
         };
         s.onerror = () => { fuseLoading = false; input.placeholder = 'search posts…'; };
         document.head.appendChild(s);

@@ -87,56 +87,14 @@
     }
   }
 
-  /* ── 3. Text skeleton via @starting-style ──────────────────────────────
-   * Titles + descriptions start as block placeholders and transition to
-   * real content as the element is first painted.
-   * Falls back gracefully in unsupported browsers (content shows normally).
+  /* ── 3. @starting-style removed from .post-card-title and body text ───────
+   * @starting-style re-fires on every View Transition navigation — titles
+   * would flash as grey blocks on every page load. Card-entry shine (::after)
+   * already covers the visual entry effect.
+   * Kept only for .posts-category which is outside the view-transition capture.
    */
-  .post-card-title a {
-    display: block;
-    border-radius: var(--r-sm);
-    transition: color 0.35s ease 0.05s, background-color 0.35s ease 0.05s;
-  }
-  @starting-style {
-    .post-card-title a {
-      color: transparent;
-      background-color: var(--c-surface-3);
-    }
-  }
 
-  .post-card-creator,
-  .post-card-desc {
-    transition: opacity 0.4s ease 0.1s;
-  }
-  @starting-style {
-    .post-card-creator,
-    .post-card-desc { opacity: 0; }
-  }
-
-  .post-card-meta time,
-  .post-card-meta .badge {
-    transition: opacity 0.3s ease 0.08s;
-  }
-  @starting-style {
-    .post-card-meta time,
-    .post-card-meta .badge { opacity: 0; }
-  }
-
-  /* Archive items */
-  .archive-item a {
-    border-radius: var(--r-sm);
-    transition: color 0.3s ease 0.06s, background-color 0.3s ease 0.06s;
-  }
-  @starting-style {
-    .archive-item a {
-      color: transparent;
-      background-color: var(--c-surface-2);
-    }
-  }
-
-  /* ── 4. Section-level reveal ────────────────────────────────────────────
-   * Section heading appears with skeleton underline that expands to real border
-   */
+  /* ── 4. Section heading reveal ── */
   .posts-category {
     transition: border-color 0.5s ease, color 0.4s ease;
   }
@@ -147,17 +105,14 @@
     }
   }
 
-  /* ── 5. Respect reduced motion ─────────────────────────────────────────
-   * Kill all skeleton animations immediately for users who prefer it.
-   */
-  .reduce-motion .post-card-thumb::before,
+  /* ── 5. Reduced motion ── */
+  /* .post-card-thumb::before removed (thumbnail skeleton deleted) */
   .reduce-motion .post-card::after,
   .reduce-motion .archive-item::after {
     animation: none !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .post-card-thumb::before,
     .post-card::after,
     .archive-item::after {
       animation: none;

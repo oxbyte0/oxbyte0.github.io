@@ -14,11 +14,19 @@ export function initToc() {
 
   headings.forEach(h => {
     const text = h.textContent.trim();
-    let base = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[\s_-]+/g, '-') || 'heading';
-    if (/^\d/.test(base)) base = 'h' + base;
-    slugCount[base] = (slugCount[base] || 0) + 1;
-    const slug = slugCount[base] > 1 ? `${base}-${slugCount[base]}` : base;
-    h.id = slug;
+
+    /* Use existing Kramdown-generated id if present — avoids mismatch with
+       external deep-links which use Kramdown's 1-based suffix scheme */
+    let slug = h.id;
+    if (!slug) {
+      let base = text.toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/[\s_-]+/g, '-') || 'heading';
+      if (/^\d/.test(base)) base = 'h' + base;
+      slugCount[base] = (slugCount[base] || 0) + 1;
+      /* Match Kramdown: first = 'base', second = 'base-1', third = 'base-2' */
+      slug = slugCount[base] === 1 ? base : `${base}-${slugCount[base] - 1}`;
+      h.id = slug;
+    }
+
     const li = document.createElement('li');
     li.className = 'tag-' + h.nodeName.toLowerCase();
     const a = document.createElement('a');
@@ -40,10 +48,9 @@ export function initToc() {
         else visible = visible.filter(h => h !== e.target);
       });
       const top = headings.find(h => visible.includes(h));
-      if (top) {
-        links.forEach(l => l.classList.remove('active'));
-        navToc.querySelector(`a[href="#${top.id}"]`)?.classList.add('active');
-      }
+      /* Always clear first — if nothing visible, no active highlight */
+      links.forEach(l => l.classList.remove('active'));
+      if (top) navToc.querySelector(`a[href="#${top.id}"]`)?.classList.add('active');
     }, { rootMargin: '-8% 0px -80% 0px', threshold: 0 });
     headings.forEach(h => observer.observe(h));
   }

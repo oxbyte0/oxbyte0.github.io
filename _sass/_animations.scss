@@ -108,7 +108,11 @@
   main { view-transition-name: main-content; }
   nav  { view-transition-name: sidebar; }
 
-  /* On mobile nav is position:fixed with translateX — view-transition causes flash */
+  /* Sidebar: suppress default cross-fade — it should stay static during navigation */
+  ::view-transition-old(sidebar),
+  ::view-transition-new(sidebar) { animation: none; mix-blend-mode: normal; }
+
+  /* On mobile nav has translateX transform — suppress entirely to prevent flash */
   @media screen and (max-width: 900px) {
     nav { view-transition-name: none; }
   }

@@ -6,7 +6,7 @@ module.exports = {
   safelist: {
     standard: [
       'light', 'dark',
-      'reduce-motion', 'high-contrast', 'focus-mode', 'dyslexia-mode',
+      'reduce-motion', 'high-contrast',
       'nav-open', 'search-open', 'active', 'active-page', 'focused', 'copied', 'on', 'open',
       'htb-type', 'htb-sort', 'htb-diff', 'htb-os', 'current', 'show', 'hidden',
       'badge-easy', 'badge-medium', 'badge-hard', 'badge-insane', 'badge-os', 'badge-critical',

@@ -44,6 +44,7 @@
 
   .nav-overlay {
     display: none; position: fixed; inset: 0;
+    background: rgba(6,6,6,0.88); /* dark fallback for browsers without light-dark() */
     background: light-dark(rgba(246,246,246,0.88), rgba(6,6,6,0.88));
     backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
     z-index: 99; opacity: 0; pointer-events: none;

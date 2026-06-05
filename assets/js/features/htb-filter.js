@@ -55,8 +55,18 @@ export function initHtbFilter() {
       if (diffFilter === dv) { diffFilter = ''; btn.classList.remove('active'); }
       else { container.querySelectorAll('.htb-diff').forEach(b => b.classList.remove('active')); btn.classList.add('active'); diffFilter = dv; }
     } else if (btn.dataset.type !== undefined) {
-      container.querySelectorAll('.htb-type').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); typeFilter = btn.dataset.type;
+      const tv = btn.dataset.type;
+      if (typeFilter === tv && tv !== '') {
+        /* Toggle off — clicking active type deselects it */
+        typeFilter = '';
+        container.querySelectorAll('.htb-type').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        /* Re-activate the "all" button if present */
+        const allBtn = container.querySelector('.htb-type[data-type=""]');
+        if (allBtn) { allBtn.classList.add('active'); allBtn.setAttribute('aria-selected', 'true'); }
+      } else {
+        container.querySelectorAll('.htb-type').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+        btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); typeFilter = tv;
+      }
     }
     apply();
   });

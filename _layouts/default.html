@@ -47,9 +47,10 @@ layout: template
   {% endif %}
 {% endfor %}
 
-{% comment %} All other categories {% endcomment %}
+{% comment %} All other categories — guard against empty category producing orphaned heading {% endcomment %}
 {% for cat in site.categories %}
   {% unless cat[0] == "HTB" %}
+  {% if cat[1].size > 0 %}
     <div class="posts-section">
       <h2 class="posts-category">{{ cat[0] }}</h2>
       {% for post in cat[1] %}
@@ -64,5 +65,6 @@ layout: template
         </article>
       {% endfor %}
     </div>
+  {% endif %}
   {% endunless %}
 {% endfor %}

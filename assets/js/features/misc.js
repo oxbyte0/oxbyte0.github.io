@@ -12,7 +12,8 @@ export function initLazyImages(preloadPx = 600) {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const img = entry.target;
-      const src = img.src || img.dataset.src;
+      /* Use getAttribute not .src — .src always returns a resolved URL even on src-less elements */
+      const src = img.getAttribute('src') || img.dataset.src;
       if (!src || src.startsWith('data:')) { observer.unobserve(img); return; }
       const pre = new Image();
       pre.src = src;
@@ -169,8 +170,10 @@ export function initViewTransitions(navState) {
       navState.closeNav();
       /* Let nav close animation finish (t-slow ≈ 280ms) before navigating */
       e.preventDefault();
-      const tSlow = parseFloat(getComputedStyle(document.documentElement)
-        .getPropertyValue('--t-slow')) || 280;
+      const raw   = getComputedStyle(document.documentElement).getPropertyValue('--t-slow').trim();
+    const tSlow = raw.endsWith('ms') ? parseFloat(raw)
+                : raw.endsWith('s')  ? parseFloat(raw) * 1000
+                : parseFloat(raw) || 280;
       setTimeout(() => {
         document.startViewTransition(() => { location.href = href.toString(); });
       }, tSlow);

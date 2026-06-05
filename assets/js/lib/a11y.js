@@ -2,7 +2,7 @@ import { safeStorage } from './utils.js';
 
 export function initA11y() {
   const html  = document.documentElement;
-  const modes = ['reduce-motion', 'high-contrast', 'focus-mode', 'dyslexia-mode'];
+  const modes = ['reduce-motion', 'high-contrast'];
 
   function save() {
     safeStorage('a11y', modes.filter(m => html.classList.contains(m)).join(' '));

@@ -173,8 +173,6 @@ Nav sidebar → bottom buttons:
 |--------|--------|
 | `no motion` | Disables all animations (epilepsy / motion sensitivity) |
 | `contrast` | High contrast black/white mode (low vision) |
-| `focus` | Larger text + wider spacing (ADHD) |
-| `dyslexia` | Atkinson Hyperlegible / Lexend font (dyslexia) |
 
 Preferences persist across sessions via `localStorage`.
 

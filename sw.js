@@ -77,8 +77,10 @@ function networkFirst(request, fallback) {
   }).catch(function () {
     return caches.match(request).then(function (cached) {
       if (cached) return cached;
-      if (fallback) return caches.match(fallback);
-      return new Response('', { status: 503 });
+      if (fallback) return caches.match(fallback).then(function (fb) {
+        return fb || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+      });
+      return new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
     });
   });
 }

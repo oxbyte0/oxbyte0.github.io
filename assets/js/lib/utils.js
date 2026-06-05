@@ -11,6 +11,7 @@ export function safeStorage(key, val) {
   try {
     if (val === undefined) return localStorage.getItem(key);
     localStorage.setItem(key, val);
+    return val; /* return stored value so callers can confirm success */
   } catch {}
   return null;
 }

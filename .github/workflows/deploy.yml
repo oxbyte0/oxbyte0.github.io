@@ -96,7 +96,7 @@ jobs:
       # ── Self-hosted fonts: download woff2 files once, cache across runs ──
       - name: Cache self-hosted fonts
         id: font-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: assets/fonts
           key: fonts-martianmono-onest-v2
@@ -178,7 +178,7 @@ jobs:
 
       # FIXED: Create cache directory before caching
       - name: Setup PurgeCSS cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: npm-cache
         with:
           path: /opt/npm-global
@@ -277,7 +277,7 @@ jobs:
 
       # Cache build artifacts for smoke test reuse
       - name: Cache build output
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: _site
           key: jekyll-build-${{ github.sha }}

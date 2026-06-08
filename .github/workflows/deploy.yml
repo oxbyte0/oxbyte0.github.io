@@ -265,8 +265,9 @@ jobs:
 
       - name: Validate generated HTML
         run: |
-          if grep -r "{{ site\." _site --include="*.html" | head -1; then
+          if grep -rq "{{ site\." _site --include="*.html"; then
             echo "ERROR: Unrendered Liquid tags found in output"
+            grep -rl "{{ site\." _site --include="*.html" | head -5
             exit 1
           fi
           echo "OK: No unrendered template tags in output"

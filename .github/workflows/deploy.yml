@@ -283,7 +283,7 @@ jobs:
           key: jekyll-build-${{ github.sha }}
           retention-days: 1
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
 
   # ── Stage 3: Pre-deployment smoke test (BEFORE deploy goes live) ─────────
   smoke-test:

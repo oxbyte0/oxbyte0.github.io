@@ -53,6 +53,29 @@ jobs:
             exit 1
           fi
 
+  lint-fingerprint:
+    name: Check Tech Fingerprints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Reject Google Fonts CDN references in committed CSS
+        run: |
+          if grep -rq "fonts\.googleapis\.com\|fonts\.gstatic\.com" assets/css/ _sass/ _includes/ _layouts/ --include="*.css" --include="*.scss" --include="*.html"; then
+            echo "ERROR: Google Fonts CDN reference found — use self-hosted fonts only"
+            grep -rn "fonts\.googleapis\.com\|fonts\.gstatic\.com" assets/css/ _sass/ _includes/ _layouts/ --include="*.css" --include="*.scss" --include="*.html"
+            exit 1
+          fi
+          echo "OK: No Google Fonts CDN references"
+
+      - name: Warn on static giscus script tags
+        run: |
+          if grep -rq 'src="https://giscus\.app/client\.js"' _layouts/ _includes/; then
+            echo "WARN: Static giscus script in HTML — prefer IntersectionObserver injection"
+          else
+            echo "OK: Giscus loaded via JS (no static fingerprint)"
+          fi
+
   lint-config:
     name: Validate Config
     runs-on: ubuntu-latest
@@ -81,7 +104,7 @@ jobs:
   build:
     name: Build Site
     runs-on: ubuntu-latest
-    needs: [lint-frontmatter, check-links, lint-config]
+    needs: [lint-frontmatter, check-links, lint-config, lint-fingerprint]
     steps:
       - uses: actions/checkout@v6
 
@@ -94,7 +117,7 @@ jobs:
       - name: Cache image conversion tools
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: webp libavif-bin
+          packages: webp libavif-bin pngquant
           version: 1.0
 
       # ── Self-hosted fonts: download woff2 files once, cache across runs ──
@@ -197,6 +220,21 @@ jobs:
           mkdir -p /opt/npm-global
           npm config set prefix /opt/npm-global
           npm install -g purgecss terser
+
+      - name: Compress source PNG images
+        run: |
+          oversized=0
+          find assets/img -type f -iname '*.png' | while read img; do
+            size=$(stat -c%s "$img")
+            if [ "$size" -gt 524288 ]; then
+              echo "LARGE (>512KB): $img ($(( size / 1024 ))KB)"
+              ((oversized++))
+            fi
+            pngquant --quality=75-95 --speed 2 --force --ext .png "$img" 2>/dev/null \
+              || true
+          done
+          png_before=$(du -sh assets/img/ | cut -f1)
+          echo "Source PNGs after pngquant: $png_before"
 
       # FIXED: Export PATH globally so all steps use it
       - name: Convert images to WebP

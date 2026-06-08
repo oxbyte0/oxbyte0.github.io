@@ -1,5 +1,5 @@
 /* giscus light theme — oxbyte.blog */
-@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&family=Onest:wght@400;500;600&display=swap');
+/* Fonts fall back to system stack — self-hosted woff2 not served cross-origin to iframe */
 
 *, *::before, *::after { box-sizing: border-box; }
 

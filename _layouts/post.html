@@ -101,23 +101,36 @@ layout: template
 {% endif %}
 
 {% if site.giscus.repo and site.giscus.repo != "" and site.giscus.repo_id != "" %}
-<div class="giscus-wrapper">
+<div class="giscus-wrapper" id="giscus-host">
   <p class="posts-category">comments</p>
-  <script src="https://giscus.app/client.js"
-    data-repo="{{ site.giscus.repo }}"
-    data-repo-id="{{ site.giscus.repo_id }}"
-    data-category="{{ site.giscus.category | default: 'Announcements' }}"
-    data-category-id="{{ site.giscus.category_id }}"
-    data-mapping="{{ site.giscus.mapping | default: 'pathname' }}"
-    data-strict="{{ site.giscus.strict | default: '1' }}"
-    data-reactions-enabled="{{ site.giscus.reactions | default: '1' }}"
-    data-emit-metadata="{{ site.giscus.emit_metadata | default: '0' }}"
-    data-input-position="{{ site.giscus.input_position | default: 'top' }}"
-    data-theme="{{ site.giscus.theme | default: 'noborder_dark' }}"
-    data-loading="{{ site.giscus.loading | default: 'lazy' }}"
-    data-lang="en"
-    crossorigin="anonymous"
-    async>
-  </script>
 </div>
+<script>
+(function(){
+  var host=document.getElementById('giscus-host');
+  if(!host)return;
+  var done=false;
+  function load(){
+    if(done)return;done=true;
+    var s=document.createElement('script');
+    s.src='https://giscus.app/client.js';
+    s.setAttribute('data-repo','{{ site.giscus.repo }}');
+    s.setAttribute('data-repo-id','{{ site.giscus.repo_id }}');
+    s.setAttribute('data-category','{{ site.giscus.category | default: "Announcements" }}');
+    s.setAttribute('data-category-id','{{ site.giscus.category_id }}');
+    s.setAttribute('data-mapping','{{ site.giscus.mapping | default: "pathname" }}');
+    s.setAttribute('data-strict','{{ site.giscus.strict | default: "1" }}');
+    s.setAttribute('data-reactions-enabled','{{ site.giscus.reactions | default: "1" }}');
+    s.setAttribute('data-emit-metadata','{{ site.giscus.emit_metadata | default: "0" }}');
+    s.setAttribute('data-input-position','{{ site.giscus.input_position | default: "top" }}');
+    s.setAttribute('data-theme','{{ site.giscus.theme | default: "noborder_dark" }}');
+    s.setAttribute('data-lang','en');
+    s.setAttribute('crossorigin','anonymous');
+    s.async=true;
+    host.appendChild(s);
+  }
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(e,o){if(e[0].isIntersecting){o.disconnect();load();}},{rootMargin:'300px 0px'}).observe(host);
+  }else{load();}
+}());
+</script>
 {% endif %}

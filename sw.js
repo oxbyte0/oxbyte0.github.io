@@ -7,6 +7,11 @@ var PRECACHE = [
   '/',
   '/assets/css/style.css',
   '/assets/js/main.js',
+  '/assets/js/features/misc.js',
+  '/assets/js/lib/theme.js',
+  '/assets/js/lib/device.js',
+  '/assets/fonts/fonts.css',
+  '/search.json',
   '/favicon.svg',
   '/offline.html'
 ];

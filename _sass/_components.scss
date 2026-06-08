@@ -15,7 +15,7 @@
   .post-card {
     display: flex; gap: var(--sp-4); padding: var(--sp-3) 0; align-items: flex-start;
     border-bottom: 1px solid var(--c-border); contain: style; /* removed layout — was clipping hover box-shadow */
-    content-visibility: auto; contain-intrinsic-size: 0 110px;
+    content-visibility: auto; contain-intrinsic-size: 0 140px;
     transition: background-color var(--t-base), border-color var(--t-base);
 
     &:last-child { border-bottom: none; }

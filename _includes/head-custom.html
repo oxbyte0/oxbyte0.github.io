@@ -8,9 +8,8 @@
 <!-- X-Frame-Options meta tag handles same-origin framing for older browsers -->
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
 
-<!-- Critical resource preloads — placed before any include so the preload scanner
-     acts on these immediately during HTML parse, before render-blocking CSS is fetched -->
-<link rel="preload" href="/assets/css/style.css" as="style">
+<!-- Preload main.js: the stylesheet is already linked in template.html above this include,
+     so no duplicate CSS preload is needed — only the module entry point benefits from a hint -->
 <link rel="preload" href="/assets/js/main.js" as="script" crossorigin>
 
 <!-- Self-hosted fonts: preload the CSS first, then two representative woff2 files

@@ -27,6 +27,7 @@ export function initSearch(navState) {
         s.src         = 'https://cdn.jsdelivr.net/npm/fuse.js@7.2.0/dist/fuse.min.js';
         s.integrity   = 'sha384-fjX7DeaZ/XFhVUVbuJ4tJCCRWoC6LtyhHqvsNRsJBcfs1VksovPjnUUGM3+Ii9st';
         s.crossOrigin = 'anonymous';
+        s.async       = true;
         s.onload = () => {
           try {
             fuse = new window.Fuse(posts, {

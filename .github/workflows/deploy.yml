@@ -94,7 +94,7 @@ jobs:
       - name: Cache image conversion tools
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: webp
+          packages: webp libavif-bin
           version: 1.0
 
       # ── Self-hosted fonts: download woff2 files once, cache across runs ──
@@ -181,21 +181,22 @@ jobs:
           ls -lh assets/fonts/
 
       # FIXED: Create cache directory before caching
-      - name: Setup PurgeCSS cache
+      - name: Setup npm tools cache
         uses: actions/cache@v5
         id: npm-cache
         with:
           path: /opt/npm-global
-          key: purgecss-${{ runner.os }}-${{ hashFiles('package*.json') }}
+          key: purgecss-terser-${{ runner.os }}-v1
           restore-keys: |
+            purgecss-terser-${{ runner.os }}-
             purgecss-${{ runner.os }}-
 
-      - name: Install PurgeCSS
+      - name: Install PurgeCSS and Terser
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
           mkdir -p /opt/npm-global
           npm config set prefix /opt/npm-global
-          npm install -g purgecss
+          npm install -g purgecss terser
 
       # FIXED: Export PATH globally so all steps use it
       - name: Convert images to WebP
@@ -213,6 +214,21 @@ jobs:
           done
           webp_count=$(find assets/img -name '*.webp' | wc -l)
           echo "WebP: $webp_count files generated"
+
+      - name: Convert images to AVIF
+        run: |
+          find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+            out="${img%.*}.avif"
+            [ -f "$out" ] && continue
+            if command -v avifenc &>/dev/null; then
+              avifenc -q 60 -s 6 "$img" "$out" 2>/dev/null \
+                || echo "WARN: avifenc failed for $img"
+            else
+              echo "WARN: avifenc not available, skipping AVIF for $img"
+            fi
+          done
+          avif_count=$(find assets/img -name '*.avif' | wc -l)
+          echo "AVIF: $avif_count files generated"
 
       # FIXED: Secret injection with YAML validation
       - name: Inject secrets into config
@@ -279,6 +295,16 @@ jobs:
           purgecss --config purgecss.config.js
           css_size=$(du -h _site/assets/css/style.css | cut -f1)
           echo "CSS size after PurgeCSS: $css_size"
+
+      - name: Minify JavaScript
+        run: |
+          export PATH=/opt/npm-global/bin:$PATH
+          find _site/assets/js -name '*.js' | while read jsfile; do
+            terser "$jsfile" --module --compress --mangle --output "$jsfile" 2>/dev/null \
+              || echo "WARN: terser skipped $jsfile"
+          done
+          js_size=$(du -sh _site/assets/js/ | cut -f1)
+          echo "JS size after minification: $js_size"
 
       # Cache build artifacts for smoke test reuse
       - name: Cache build output

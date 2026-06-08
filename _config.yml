@@ -21,6 +21,10 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-seo-tag
+
+feed:
+  posts_limit: 20
+  excerpt_only: true
 excerpt_separator: "<!--more-->"
 
 sass:

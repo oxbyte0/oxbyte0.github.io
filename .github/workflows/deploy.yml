@@ -223,18 +223,15 @@ jobs:
 
       - name: Compress source PNG images
         run: |
-          oversized=0
-          find assets/img -type f -iname '*.png' | while read img; do
+          while IFS= read -r img; do
             size=$(stat -c%s "$img")
             if [ "$size" -gt 524288 ]; then
               echo "LARGE (>512KB): $img ($(( size / 1024 ))KB)"
-              ((oversized++))
             fi
             pngquant --quality=75-95 --speed 2 --force --ext .png "$img" 2>/dev/null \
               || true
-          done
-          png_before=$(du -sh assets/img/ | cut -f1)
-          echo "Source PNGs after pngquant: $png_before"
+          done < <(find assets/img -type f -iname '*.png')
+          echo "Source PNGs after pngquant: $(du -sh assets/img/ | cut -f1)"
 
       # FIXED: Export PATH globally so all steps use it
       - name: Convert images to WebP
@@ -400,7 +397,7 @@ jobs:
               target_index="_site${link}/index.html"
               if [[ ! -f "$target_html" && ! -f "$target_index" ]]; then
                 echo "WARN: Possible broken link: $link"
-                ((broken++))
+                broken=$((broken + 1))
               fi
             fi
           done < <(grep -roh 'href="[^"]*"' _site --include="*.html" | sed 's/href="\(.*\)"/\1/' | sort -u)

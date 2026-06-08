@@ -19,7 +19,7 @@ jobs:
     name: Validate Frontmatter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate post frontmatter
         run: python3 scripts/validate_posts.py
@@ -28,7 +28,7 @@ jobs:
     name: Check Image References
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check for broken local image references
         run: |
@@ -37,9 +37,13 @@ jobs:
             while IFS= read -r line; do
               if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
                 path=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))')
-                if [[ -n "$path" && ! -f "${path#/}" ]]; then
-                  echo "ERROR: broken image: $path in $(basename $f)"
-                  ((errors++))
+                if [[ -n "$path" ]]; then
+                  # URL-decode %20 etc before filesystem check
+                  decoded=$(python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.argv[1]))" "$path")
+                  if [[ ! -f "${decoded#/}" ]]; then
+                    echo "ERROR: broken image: $path in $(basename $f)"
+                    ((errors++))
+                  fi
                 fi
               fi
             done < "$f"
@@ -53,7 +57,7 @@ jobs:
     name: Validate Config
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate _config.yml syntax
         run: |
@@ -79,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-frontmatter, check-links, lint-config]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -96,7 +100,7 @@ jobs:
       # ── Self-hosted fonts: download woff2 files once, cache across runs ──
       - name: Cache self-hosted fonts
         id: font-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: assets/fonts
           key: fonts-martianmono-onest-v2
@@ -178,7 +182,7 @@ jobs:
 
       # FIXED: Create cache directory before caching
       - name: Setup PurgeCSS cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: npm-cache
         with:
           path: /opt/npm-global
@@ -277,13 +281,13 @@ jobs:
 
       # Cache build artifacts for smoke test reuse
       - name: Cache build output
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: _site
           key: jekyll-build-${{ github.sha }}
           retention-days: 1
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
 
   # ── Stage 3: Pre-deployment smoke test (BEFORE deploy goes live) ─────────
   smoke-test:
@@ -291,7 +295,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -349,7 +353,7 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
       - name: Capture deployment metadata
         run: |

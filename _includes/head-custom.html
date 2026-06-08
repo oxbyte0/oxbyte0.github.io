@@ -58,7 +58,10 @@
 
 {% if site.goatcounter and site.goatcounter != "" %}
 <script data-goatcounter="https://{{ site.goatcounter }}.goatcounter.com/count"
-        async src="https://gc.zgo.at/count.js"></script>
+        async
+        src="https://gc.zgo.at/count.js"
+        integrity="sha384-2UjvVpptg4JlEVgJI2PdscrjOjPcil/4F1ZvIMJ81CShQnEDSlPI+l4PfogvTLYi"
+        crossorigin="anonymous"></script>
 {% endif %}
 
 {% include seo-extra.html %}

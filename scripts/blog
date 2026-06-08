@@ -397,7 +397,7 @@ cmd_deploy() {
 
     git add -A -- ':!.env' ':!.env.*' ':!*.key' ':!*.pem' ':!_site'
     git commit -m "$msg" || { wt_msg "commit failed"; return; }
-    git push origin main --force || { wt_msg "push failed — check remote and auth"; return; }
+    git push --force-with-lease origin main || { wt_msg "push failed — check remote and auth"; return; }
     echo ""
     echo "pushed — deploying to https://oxbyte.blog (~60s)"
 }

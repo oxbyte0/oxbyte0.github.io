@@ -1,0 +1,4 @@
+Contact: mailto:komron.sirojidinov@alif.tj
+Expires: 2027-06-08T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://oxbyte.blog/.well-known/security.txt

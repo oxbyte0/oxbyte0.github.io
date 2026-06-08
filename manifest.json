@@ -12,10 +12,16 @@ layout: null
   "categories": ["security", "technology"],
   "icons": [
     {
-      "src": "{{ site.logo | relative_url }}",
+      "src": "/assets/img/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

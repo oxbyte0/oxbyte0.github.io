@@ -239,7 +239,7 @@ jobs:
                   continue
               pattern = rf'^{re.escape(key)}:\s*.*$'
               replacement = f'{key}: {value}'
-              new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+              new_content = re.sub(pattern, lambda m: replacement, content, flags=re.MULTILINE)
               if new_content == content:
                   print(f'ERROR: {key} pattern not found in _config.yml', file=sys.stderr)
                   sys.exit(1)

@@ -282,11 +282,10 @@ jobs:
 
       # Cache build artifacts for smoke test reuse
       - name: Cache build output
-        uses: actions/cache@v5
+        uses: actions/cache/save@v4
         with:
           path: _site
           key: jekyll-build-${{ github.sha }}
-          retention-days: 1
 
       - uses: actions/upload-pages-artifact@v5
 
@@ -296,13 +295,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - name: Restore build cache
+        uses: actions/cache/restore@v4
         with:
-          name: github-pages
           path: _site
+          key: jekyll-build-${{ github.sha }}
+          fail-on-cache-miss: true
 
       - name: Start local web server
         run: |
@@ -332,7 +330,7 @@ jobs:
       - name: Check for broken internal links
         run: |
           broken=0
-          grep -roh 'href="[^"]*"' _site --include="*.html" | sed 's/href="\(.*\)"/\1/' | sort -u | while read link; do
+          while IFS= read -r link; do
             if [[ "$link" == /* && "$link" != "http"* ]]; then
               target_html="_site${link%.html}.html"
               target_index="_site${link}/index.html"
@@ -341,8 +339,8 @@ jobs:
                 ((broken++))
               fi
             fi
-          done
-          [ $broken -lt 5 ] || { echo "ERROR: Too many broken links"; exit 1; }
+          done < <(grep -roh 'href="[^"]*"' _site --include="*.html" | sed 's/href="\(.*\)"/\1/' | sort -u)
+          [ $broken -lt 5 ] || { echo "ERROR: Too many broken links ($broken)"; exit 1; }
 
   # ── Stage 4: Deploy to Pages ────────────────────────────────────────────
   deploy:

@@ -15,38 +15,14 @@ Jekyll · GitHub Pages · Rouge syntax highlighting · Vanilla JS · Custom SCSS
 ## Local development
 
 ```bash
-# Prerequisites: Ruby, Bundler, Node.js v18+
+# Prerequisites: Ruby, Bundler
 gem install bundler
-
-# Install dependencies
 bundle install
 
-# Run local server
+# Run local server (also downloads self-hosted fonts)
 make serve
 # → http://localhost:4000
 ```
-
----
-
-## Admin panel
-
-Local web dashboard for managing posts, media, git, and deploys.
-
-```bash
-# Start admin server
-make admin
-# → http://localhost:3001
-# Token: cat ~/.oxbyte-admin.token
-```
-
-Or with auto-restart:
-
-```bash
-cd ../admin-server && ./setup.sh --pm2
-```
-
-Features: post editor, HTB machine fetch, media library, Jekyll build log, git commit/push, `_config.yml` editor.
-See [admin-server/README.md](../admin-server/README.md) for full docs.
 
 ---
 
@@ -66,14 +42,7 @@ make new
 
 ### Import existing writeup notes
 ```bash
-make import FILE=~/path/to/writeup.md
-# Copies file, adds frontmatter if missing, opens in Obsidian
-```
-
-### Import all unimported writeups
-```bash
-make batch-import
-# Scans ~/work/ctf/htb for writeup.md files not yet in _posts/
+make import FILE=path/to/writeup.md
 ```
 
 ### AI-assisted draft (Claude API)
@@ -118,36 +87,12 @@ make deploy
 
 ---
 
-## Move to a new machine
-
-```bash
-# On new machine — clone
-git clone git@github.com:oxbyte0/oxbyte0.github.io.git
-
-# Copy SSH key
-scp old-machine:~/.ssh/github_oxbyte0 ~/.ssh/
-scp old-machine:~/.ssh/github_oxbyte0.pub ~/.ssh/
-chmod 600 ~/.ssh/github_oxbyte0
-
-# Add to ~/.ssh/config
-echo "Host github.com
-  HostName github.com
-  User git
-  IdentityFile ~/.ssh/github_oxbyte0
-  IdentitiesOnly yes" >> ~/.ssh/config
-
-# Install dependencies
-bundle install
-```
-
----
-
 ## Configuration
 
 | File | Purpose |
 |------|---------|
 | `_config.yml` | Site title, URL, GoatCounter analytics ID, Giscus comments |
-| `.env` | `ANTHROPIC_API_KEY` for AI drafting |
+| `.env` | `ANTHROPIC_API_KEY` for AI drafting (not committed) |
 | `CNAME` | Custom domain (`oxbyte.blog`) |
 | `_posts/` | All writeups — filename format `YYYY-MM-DD-Title.md` |
 | `assets/img/img_MACHINENAME/` | Per-post screenshots |
@@ -155,7 +100,6 @@ bundle install
 ### Analytics (GoatCounter)
 
 Set `goatcounter: YOUR_CODE` in `_config.yml`.
-Dashboard at `https://YOUR_CODE.goatcounter.com` (login required).
 
 ### Comments (Giscus)
 

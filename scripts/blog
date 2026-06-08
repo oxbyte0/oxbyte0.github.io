@@ -518,7 +518,7 @@ PYEOF
 }
 
 cmd_batch_import() {
-    local src_dir="${HOME}/work/ctf/htb"
+    local src_dir="${HTB_WRITEUPS_DIR:-${HOME}/writeups}"
     [[ -d "$src_dir" ]] || { wt_msg "directory not found:\n${src_dir}"; return; }
 
     local imports=()
@@ -569,7 +569,7 @@ cmd_import() {
     local src="${1:-}"
 
     if [[ -z "$src" ]]; then
-        src=$(wt_input "import writeup" "path to .md file (e.g. ~/work/ctf/htb/machine/writeup.md)")
+        src=$(wt_input "import writeup" "path to .md file")
     fi
 
     src="${src/#\~/$HOME}"

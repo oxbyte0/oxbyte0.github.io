@@ -28,23 +28,3 @@ jobs:
           bundle-audit check --update
           echo "Ruby audit complete"
 
-  node-audit:
-    name: Node.js Audit (admin-server)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: admin-server
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: admin-server/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run npm audit
-        run: npm audit --audit-level=moderate

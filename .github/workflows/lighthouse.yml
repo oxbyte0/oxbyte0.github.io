@@ -10,7 +10,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run Lighthouse CI with performance budget
         uses: treosh/lighthouse-ci-action@v11

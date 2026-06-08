@@ -8,6 +8,14 @@ updates:
     open-pull-requests-limit: 3
     labels: ["dependencies", "ruby"]
 
+  - package-ecosystem: "npm"
+    directory: "/admin-server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "node"]
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

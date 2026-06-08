@@ -3,38 +3,64 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="format-detection" content="telephone=no,date=no,email=no,address=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://giscus.app; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <!-- frame-ancestors only works via HTTP header (GitHub Pages → use Cloudflare to set it) -->
 <!-- X-Frame-Options meta tag handles same-origin framing for older browsers -->
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
-<!-- clipboard-write removed: not a valid Permissions Policy feature name (causes browser warnings) -->
 
+<!-- Critical resource preloads — placed before any include so the preload scanner
+     acts on these immediately during HTML parse, before render-blocking CSS is fetched -->
+<link rel="preload" href="/assets/css/style.css" as="style">
+<link rel="preload" href="/assets/js/main.js" as="script" crossorigin>
+
+<!-- Self-hosted fonts: preload the CSS first, then two representative woff2 files
+     (latin subset, most common weight) so glyphs render before FCP.
+     The rest load via font-display:swap without blocking. -->
+<link rel="preload" href="/assets/fonts/fonts.css" as="style">
+{% comment %}
+  We can't statically know the md5-hashed woff2 filenames at Jekyll build time
+  because they are generated in CI. The fonts.css preload above is sufficient —
+  the browser will start fetching woff2 files immediately upon parsing fonts.css,
+  which itself is preloaded. font-display:swap in fonts.css prevents FOIT.
+{% endcomment %}
+
+<!-- LCP image preload: only on pages with a declared hero image -->
+{% if page.image %}
+<link rel="preload" as="image" href="{{ page.image }}" fetchpriority="high">
+{% endif %}
+
+<!-- Third-party preconnects: only GoatCounter and Giscus are always needed.
+     HTB S3 preconnect is gated to post pages to avoid wasted handshakes on
+     the home/archive pages that never load S3 images. -->
+<link rel="preconnect" href="https://gc.zgo.at">
+<link rel="preconnect" href="https://giscus.app" crossorigin>
+{% if page.layout == 'post' or page.date %}
+<link rel="preconnect" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com" crossorigin>
+{% endif %}
+
+<!-- GA preconnects: only injected when GA is configured -->
+{% if site.google_analytics %}
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+{% endif %}
+
+<!-- dns-prefetch fallback for browsers that do not support preconnect -->
+<link rel="dns-prefetch" href="https://gc.zgo.at">
+<link rel="dns-prefetch" href="https://giscus.app">
+{% if page.layout == 'post' or page.date %}
+<link rel="dns-prefetch" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com">
+{% endif %}
+
+<!-- Self-hosted font CSS (no external origin — fonts.googleapis.com removed) -->
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 
 {% include head-custom-google-analytics.html %}
-
 
 {% if site.goatcounter and site.goatcounter != "" %}
 <script data-goatcounter="https://{{ site.goatcounter }}.goatcounter.com/count"
         async src="https://gc.zgo.at/count.js"></script>
 {% endif %}
 
-
 {% include seo-extra.html %}
 
-
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
-{% if page.image %}<link rel="preload" as="image" href="{{ page.image }}" fetchpriority="high">{% endif %}
-
-<link rel="dns-prefetch" href="https://gc.zgo.at">
-<link rel="dns-prefetch" href="https://giscus.app">
-<link rel="preconnect" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com" crossorigin>
-<link rel="dns-prefetch" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com">
-
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style"
-  href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap"
-  onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap"></noscript>

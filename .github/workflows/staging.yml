@@ -1,0 +1,64 @@
+name: Staging Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-check:
+    name: Staging Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Validate frontmatter
+        run: python3 scripts/validate_posts.py
+
+      - name: Validate _config.yml syntax
+        run: |
+          python3 - <<'EOF'
+          import yaml, sys
+          try:
+              with open('_config.yml') as f:
+                  yaml.safe_load(f)
+              print("OK: _config.yml valid")
+          except yaml.YAMLError as e:
+              print(f"ERROR: {e}", file=sys.stderr); sys.exit(1)
+          EOF
+
+      - name: Build site (staging)
+        run: bundle exec jekyll build --strict_front_matter
+        env:
+          JEKYLL_ENV: staging
+
+      - name: Report build size
+        id: size
+        run: |
+          size=$(du -sh _site | cut -f1)
+          html=$(find _site -name '*.html' | wc -l)
+          echo "size=$size" >> $GITHUB_OUTPUT
+          echo "html=$html" >> $GITHUB_OUTPUT
+          echo "Build: $size total, $html HTML files"
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### Staging Build ✓\n\n| | |\n|---|---|\n| **Size** | ${{ steps.size.outputs.size }} |\n| **HTML pages** | ${{ steps.size.outputs.html }} |\n| **Commit** | \`${{ github.sha }}\` |`
+            })

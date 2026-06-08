@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Pre-commit hook: validates frontmatter + checks image refs
+set -euo pipefail
+
+BLOG_DIR="$(git rev-parse --show-toplevel)"
+errors=0
+
+# 1. Validate post frontmatter
+if python3 "${BLOG_DIR}/scripts/validate_posts.py" 2>&1; then
+  echo "[pre-commit] frontmatter OK"
+else
+  echo "[pre-commit] FAIL: frontmatter validation failed"
+  errors=$((errors + 1))
+fi
+
+# 2. Check broken local image references in staged posts
+staged_posts=$(git diff --cached --name-only --diff-filter=ACM | grep '^_posts/.*\.md$' || true)
+if [[ -n "$staged_posts" ]]; then
+  while IFS= read -r f; do
+    while IFS= read -r line; do
+      if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
+        imgpath=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))')
+        if [[ -n "$imgpath" && ! -f "${BLOG_DIR}/${imgpath#/}" ]]; then
+          echo "[pre-commit] FAIL: broken image ref: $imgpath in $f"
+          errors=$((errors + 1))
+        fi
+      fi
+    done < "${BLOG_DIR}/$f"
+  done <<< "$staged_posts"
+fi
+
+if [[ $errors -gt 0 ]]; then
+  echo "[pre-commit] $errors error(s) found — commit blocked"
+  exit 1
+fi
+
+echo "[pre-commit] all checks passed"

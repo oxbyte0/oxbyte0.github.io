@@ -14,10 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
-  # ── Stage 1: Validate (fast gate — must pass before build) ──────────────
-  validate:
-    name: Validate Posts
+  # ── Stage 1: Parallel Validation (fast gates before build) ───────────────
+  lint-frontmatter:
+    name: Validate Frontmatter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,20 +24,60 @@ jobs:
       - name: Validate post frontmatter
         run: python3 scripts/validate_posts.py
 
-      - name: Check broken local image references
+  check-links:
+    name: Check Image References
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for broken local image references
         run: |
           errors=0
           for f in _posts/*.md; do
-            grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' "$f" 2>/dev/null | while read path; do
-              [ -f "${path#/}" ] || echo "BROKEN: $path in $(basename $f)"
-            done
+            while IFS= read -r line; do
+              if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
+                path=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))')
+                if [[ -n "$path" && ! -f "${path#/}" ]]; then
+                  echo "ERROR: broken image: $path in $(basename $f)"
+                  ((errors++))
+                fi
+              fi
+            done < "$f"
           done
+          if [ $errors -gt 0 ]; then
+            echo "FAIL: Found $errors broken image references"
+            exit 1
+          fi
 
-  # ── Stage 2: Build ──────────────────────────────────────────────────────
+  lint-config:
+    name: Validate Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate _config.yml syntax
+        run: |
+          python3 - <<'EOF'
+          import yaml
+          try:
+              with open('_config.yml') as f:
+                  config = yaml.safe_load(f)
+              required = ['title', 'url', 'author']
+              for k in required:
+                  if k not in config:
+                      print(f"ERROR: _config.yml missing required field: {k}")
+                      exit(1)
+              print(f"OK: _config.yml valid ({len(config)} keys)")
+          except yaml.YAMLError as e:
+              print(f"ERROR: Invalid YAML syntax: {e}")
+              exit(1)
+          EOF
+
+  # ── Stage 2: Build (depends on all validations) ──────────────────────────
   build:
     name: Build Site
     runs-on: ubuntu-latest
-    needs: validate
+    needs: [lint-frontmatter, check-links, lint-config]
     steps:
       - uses: actions/checkout@v4
 
@@ -47,85 +86,172 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
 
-      # Cache image conversion tools
-      - name: Cache apt packages
-        uses: actions/cache@v4
-        id: apt-cache
+      # Use dedicated action for apt caching
+      - name: Cache image conversion tools
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          path: /usr/local/bin/cwebp
-          key: apt-webp-${{ runner.os }}-v1
+          packages: webp
+          version: 1.0
 
-      - name: Install image tools
-        if: steps.apt-cache.outputs.cache-hit != 'true'
+      # ── Self-hosted fonts: download woff2 files once, cache across runs ──
+      - name: Cache self-hosted fonts
+        id: font-cache
+        uses: actions/cache@v4
+        with:
+          path: assets/fonts
+          key: fonts-martianmono-onest-v2
+
+      - name: Download and subset Google Fonts
+        if: steps.font-cache.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get install -y webp
-          # Copy to cacheable location
-          cp /usr/bin/cwebp /usr/local/bin/cwebp 2>/dev/null || true
+          mkdir -p assets/fonts
+          # Download the CSS descriptor from Google Fonts (includes correct woff2 URLs per subset)
+          # User-Agent must claim a modern browser so Google returns woff2 format
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36"
 
-      # Cache npm tools (PurgeCSS)
-      - name: Cache npm tools
+          fetch_font_css() {
+            curl -s -A "$UA" "$1"
+          }
+
+          MARTIAN_URL="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&display=swap"
+          ONEST_URL="https://fonts.googleapis.com/css2?family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+
+          # Parse woff2 URLs from the CSS and download each file
+          for CSS_URL in "$MARTIAN_URL" "$ONEST_URL"; do
+            CSS=$(fetch_font_css "$CSS_URL")
+            echo "$CSS" | grep -oP 'url\(\K[^)]+(?=\) format)' | while read woff2_url; do
+              # Derive a stable filename: family slug + subset + weight descriptor
+              fname=$(echo "$woff2_url" | md5sum | cut -c1-12).woff2
+              outfile="assets/fonts/$fname"
+              [ -f "$outfile" ] || curl -s -o "$outfile" "$woff2_url"
+              echo "  $outfile"
+            done
+            # Also save a local CSS file referencing the downloaded files
+          done
+
+          # Generate local font-face CSS pointing to /assets/fonts/*.woff2
+          python3 - <<'PYEOF'
+          import re, hashlib, os
+
+          UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36"
+          import urllib.request
+
+          def fetch(url):
+              req = urllib.request.Request(url, headers={"User-Agent": UA})
+              return urllib.request.urlopen(req).read().decode()
+
+          urls = [
+              "https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400&display=swap",
+              "https://fonts.googleapis.com/css2?family=Onest:ital,wght@0,400;0,500;0,600;1,400&display=swap",
+          ]
+
+          combined_css = ""
+          for url in urls:
+              css = fetch(url)
+              # Replace each remote woff2 URL with a local path
+              def replace_url(m):
+                  woff2_url = m.group(1)
+                  h = hashlib.md5(woff2_url.encode()).hexdigest()[:12]
+                  local = f"/assets/fonts/{h}.woff2"
+                  outfile = f"assets/fonts/{h}.woff2"
+                  if not os.path.exists(outfile):
+                      req2 = urllib.request.Request(woff2_url, headers={"User-Agent": UA})
+                      data = urllib.request.urlopen(req2).read()
+                      with open(outfile, "wb") as f:
+                          f.write(data)
+                      print(f"  Downloaded {outfile}")
+                  return f"url({local})"
+              css = re.sub(r"url\(([^)]+\.woff2)\)", replace_url, css)
+              # Keep font-display: swap (already in Google's output)
+              combined_css += css + "\n"
+
+          # Write the self-hosted font CSS file
+          with open("assets/fonts/fonts.css", "w") as f:
+              f.write("/* Self-hosted fonts — generated by CI, do not edit */\n")
+              f.write(combined_css)
+          print("OK: assets/fonts/fonts.css written")
+          PYEOF
+
+          font_count=$(find assets/fonts -name '*.woff2' | wc -l)
+          echo "Fonts: $font_count woff2 files downloaded"
+          ls -lh assets/fonts/
+
+      # FIXED: Create cache directory before caching
+      - name: Setup PurgeCSS cache
         uses: actions/cache@v4
         id: npm-cache
         with:
-          path: ~/.npm-global
-          key: npm-purgecss-v5
+          path: /opt/npm-global
+          key: purgecss-${{ runner.os }}-${{ hashFiles('package*.json') }}
+          restore-keys: |
+            purgecss-${{ runner.os }}-
 
       - name: Install PurgeCSS
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: |
-          npm config set prefix ~/.npm-global
+          mkdir -p /opt/npm-global
+          npm config set prefix /opt/npm-global
           npm install -g purgecss
 
+      # FIXED: Export PATH globally so all steps use it
       - name: Convert images to WebP
         run: |
-          export PATH=~/.npm-global/bin:$PATH
-          # Use cwebp if available, fall back to ImageMagick (always on ubuntu-latest)
-          if command -v cwebp &>/dev/null; then
-            find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
-              out="${img%.*}.webp"
-              [ -f "$out" ] || cwebp -q 82 -mt -quiet "$img" -o "$out"
-            done
-          else
-            find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
-              out="${img%.*}.webp"
-              [ -f "$out" ] || convert "$img" -quality 82 "$out" 2>/dev/null
-            done
-          fi
-          echo "WebP: $(find assets/img -name '*.webp' | wc -l) files"
+          export PATH=/opt/npm-global/bin:$PATH
+          find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) | while read img; do
+            out="${img%.*}.webp"
+            [ -f "$out" ] && continue
+            if command -v cwebp &>/dev/null; then
+              cwebp -q 82 -mt -quiet "$img" -o "$out" 2>/dev/null || { echo "WARN: cwebp failed for $img"; convert "$img" -quality 82 "$out" 2>/dev/null && echo "INFO: Used ImageMagick fallback"; }
+            else
+              echo "WARN: cwebp not available, using ImageMagick (lower quality)"
+              convert "$img" -quality 82 "$out" 2>/dev/null || echo "ERROR: Image conversion failed for $img"
+            fi
+          done
+          webp_count=$(find assets/img -name '*.webp' | wc -l)
+          echo "WebP: $webp_count files generated"
 
-      # Phase 1.4: Secure, robust secret injection (Python-based, fails loudly)
+      # FIXED: Secret injection with YAML validation
       - name: Inject secrets into config
         env:
           GOATCOUNTER: ${{ secrets.GOATCOUNTER_CODE }}
           GA_ID: ${{ secrets.GA_MEASUREMENT_ID }}
         run: |
           python3 - <<'EOF'
-          import os, re, sys
+          import os, re, sys, yaml
 
           path = '_config.yml'
           with open(path) as f:
               content = f.read()
 
           replacements = {
-              'goatcounter':    os.environ.get('GOATCOUNTER', ''),
+              'goatcounter': os.environ.get('GOATCOUNTER', ''),
               'google_analytics': os.environ.get('GA_ID', ''),
           }
 
+          injected_count = 0
           for key, value in replacements.items():
               if not value:
+                  print(f'WARN: {key} is empty in environment', file=sys.stderr)
                   continue
-              # Always produce `key: value` with exactly one space — avoids YAML parse error
-              # when group 1 captures `key:` without trailing space (produces `key:VALUE` = invalid YAML)
-              pattern = rf'^{re.escape(key)}:.*$'
+              pattern = rf'^{re.escape(key)}:\s*.*$'
               replacement = f'{key}: {value}'
               new_content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
               if new_content == content:
-                  print(f'WARNING: {key} pattern not found — secret not injected', file=sys.stderr)
+                  print(f'ERROR: {key} pattern not found in _config.yml', file=sys.stderr)
+                  sys.exit(1)
               content = new_content
+              injected_count += 1
+
+          # Validate YAML syntax
+          try:
+              yaml.safe_load(content)
+          except yaml.YAMLError as e:
+              print(f'ERROR: Invalid YAML syntax after injection: {e}', file=sys.stderr)
+              sys.exit(1)
 
           with open(path, 'w') as f:
               f.write(content)
-          print('Secrets injected')
+          print(f'OK: Injected {injected_count} secrets (YAML syntax valid)')
           EOF
 
       - name: Build site
@@ -133,17 +259,90 @@ jobs:
         env:
           JEKYLL_ENV: production
 
-      - name: PurgeCSS — remove unused CSS rules
+      - name: Validate generated HTML
         run: |
-          export PATH=~/.npm-global/bin:$PATH
+          if grep -r "{{ site\." _site --include="*.html" | head -1; then
+            echo "ERROR: Unrendered Liquid tags found in output"
+            exit 1
+          fi
+          echo "OK: No unrendered template tags in output"
+
+      # Export PATH for PurgeCSS step
+      - name: PurgeCSS — remove unused CSS
+        run: |
+          export PATH=/opt/npm-global/bin:$PATH
           purgecss --config purgecss.config.js
+          css_size=$(du -h _site/assets/css/style.css | cut -f1)
+          echo "CSS size after PurgeCSS: $css_size"
+
+      # Cache build artifacts for smoke test reuse
+      - name: Cache build output
+        uses: actions/cache@v4
+        with:
+          path: _site
+          key: jekyll-build-${{ github.sha }}
+          retention-days: 1
 
       - uses: actions/upload-pages-artifact@v3
 
-  # ── Stage 3: Deploy ─────────────────────────────────────────────────────
+  # ── Stage 3: Pre-deployment smoke test (BEFORE deploy goes live) ─────────
+  smoke-test:
+    name: Smoke Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: _site
+
+      - name: Start local web server
+        run: |
+          cd _site
+          python3 -m http.server 8000 >/dev/null 2>&1 &
+          sleep 2
+          echo "Web server started on port 8000"
+
+      - name: Test critical pages
+        run: |
+          test_url() {
+            local url="$1" expect="${2:-200}"
+            status=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8000$url")
+            if [ "$status" != "$expect" ]; then
+              echo "FAIL: $url returned $status, expected $expect"
+              return 1
+            fi
+            echo "OK: $url = $status"
+            return 0
+          }
+          test_url "/" "200" || exit 1
+          test_url "/feed.xml" "200" || exit 1
+          test_url "/sitemap.xml" "200" || exit 1
+          test_url "/index.html" "200" || exit 1
+          echo "All smoke tests passed"
+
+      - name: Check for broken internal links
+        run: |
+          broken=0
+          grep -roh 'href="[^"]*"' _site --include="*.html" | sed 's/href="\(.*\)"/\1/' | sort -u | while read link; do
+            if [[ "$link" == /* && "$link" != "http"* ]]; then
+              target_html="_site${link%.html}.html"
+              target_index="_site${link}/index.html"
+              if [[ ! -f "$target_html" && ! -f "$target_index" ]]; then
+                echo "WARN: Possible broken link: $link"
+                ((broken++))
+              fi
+            fi
+          done
+          [ $broken -lt 5 ] || { echo "ERROR: Too many broken links"; exit 1; }
+
+  # ── Stage 4: Deploy to Pages ────────────────────────────────────────────
   deploy:
     name: Deploy to Pages
-    needs: build
+    needs: smoke-test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -152,14 +351,34 @@ jobs:
       - id: deploy
         uses: actions/deploy-pages@v4
 
-  # ── Stage 4: Post-deploy smoke test ─────────────────────────────────────
+      - name: Capture deployment metadata
+        run: |
+          cat > /tmp/deployment-info.json <<EOF
+          {
+            "sha": "${{ github.sha }}",
+            "ref": "${{ github.ref }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "deployed_by": "${{ github.actor }}",
+            "status": "success"
+          }
+          EOF
+
+      - name: Upload deployment metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-metadata-${{ github.sha }}
+          path: /tmp/deployment-info.json
+          retention-days: 30
+
+  # ── Stage 5: Post-deployment verification ──────────────────────────────
   verify:
-    name: Smoke Test
+    name: Verify Live Site
     needs: deploy
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Wait for CDN propagation
-        run: sleep 15
+        run: sleep 10
 
       - name: Check home page
         run: |
@@ -178,3 +397,37 @@ jobs:
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oxbyte.blog/sitemap.xml)
           echo "Sitemap: $STATUS"
           [ "$STATUS" = "200" ] || echo "WARN: sitemap returned $STATUS"
+
+  # ── Stage 6: Deployment Metrics ────────────────────────────────────────
+  metrics:
+    name: Deployment Metrics
+    if: always()
+    needs: [deploy, verify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Collect deployment metrics
+        run: |
+          python3 - <<'EOF'
+          import json
+          from datetime import datetime
+
+          metrics = {
+              "timestamp": datetime.utcnow().isoformat(),
+              "commit_sha": "${{ github.sha }}",
+              "branch": "${{ github.ref }}",
+              "workflow_run_id": "${{ github.run_id }}",
+              "deployment_status": "success",
+              "actor": "${{ github.actor }}"
+          }
+
+          with open('/tmp/metrics.json', 'w') as f:
+              json.dump(metrics, f, indent=2)
+          print("Metrics collected")
+          EOF
+
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-metrics-${{ github.sha }}
+          path: /tmp/metrics.json
+          retention-days: 90

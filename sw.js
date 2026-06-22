@@ -9,7 +9,7 @@ var PRECACHE = [
   '/assets/js/main.js',
   '/assets/js/features/misc.js',
   '/assets/js/lib/theme.js',
-  '/assets/js/lib/device.js',
+  '/assets/js/features/device.js',
   '/assets/fonts/fonts.css',
   '/search.json',
   '/favicon.svg',

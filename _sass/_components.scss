@@ -16,9 +16,14 @@
     display: flex; gap: var(--sp-4); padding: var(--sp-3) 0; align-items: flex-start;
     border-bottom: 1px solid var(--c-border); contain: style; /* removed layout — was clipping hover box-shadow */
     content-visibility: auto; contain-intrinsic-size: 0 140px;
-    transition: background-color var(--t-base), border-color var(--t-base);
+    box-shadow: inset 2px 0 0 transparent;
+    transition: background-color var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
 
     &:last-child { border-bottom: none; }
+    &:hover {
+      background: rgba(255,255,255,0.018);
+      box-shadow: inset 2px 0 0 rgba(255,255,255,0.30);
+    }
 
     .post-card-thumb {
       flex-shrink: 0; display: block;

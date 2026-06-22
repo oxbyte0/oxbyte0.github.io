@@ -105,7 +105,7 @@
     &:hover { color: var(--c-head); border-left-color: var(--c-accent); text-decoration: none; }
   }
 
-  .nav-toc a.active { color: var(--c-head) !important; border-left-color: var(--c-accent) !important; font-weight: 500; }
+  .nav-toc a.active { color: var(--c-accent) !important; border-left-color: var(--c-accent) !important; font-weight: 600; letter-spacing: -0.01em; }
 
   .nav-bottom {
     position: sticky; bottom: 0; padding: var(--sp-2) 0 0;

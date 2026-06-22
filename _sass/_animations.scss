@@ -55,7 +55,8 @@
       }
     }
 
-    .post-card:hover .post-card-title a { color: var(--c-accent); }
+    .post-card .post-card-title a { transition: color var(--t-fast), transform var(--t-fast); display: inline-block; }
+    .post-card:hover .post-card-title a { color: var(--c-accent); transform: translateX(3px); }
 
     /* ── Reading progress color shift ── */
     @supports (animation-timeline: scroll()) {

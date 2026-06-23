@@ -11,6 +11,7 @@ export function initTheme() {
 
   function sync() {
     const light = html.style.colorScheme === 'light';
+    html.dataset.theme = light ? 'light' : 'dark';
     if (icon)  icon.textContent  = light ? '☽' : '☀';
     if (label) label.textContent = light ? 'dark mode' : 'light mode';
     btn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');

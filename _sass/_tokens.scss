@@ -7,7 +7,7 @@
     --c-bg:        #060606; --c-surface:   #0c0c0c;
     --c-surface-2: #131313; --c-surface-3: #1a1a1a;
     --c-border:    rgba(255,255,255,0.08); --c-border-2: rgba(255,255,255,0.15);
-    --c-text:      #9e9e9e; --c-muted:     #787878;
+    --c-text:      #9e9e9e; --c-muted:     #8a8a8a;
     --c-head:      #e4e4e4; --c-accent:    #f4f4f4;
     --c-accent-dim: rgba(255,255,255,0.06); --c-accent-glow: rgba(255,255,255,0.14);
     --c-code-bg:   #040404;
@@ -57,7 +57,7 @@
       --c-border:    light-dark(rgba(0,0,0,0.09),  rgba(255,255,255,0.08));
       --c-border-2:  light-dark(rgba(0,0,0,0.16),  rgba(255,255,255,0.15));
       --c-text:      light-dark(#5a5a5a, #9e9e9e);
-      --c-muted:     light-dark(#717171, #787878);
+      --c-muted:     light-dark(#717171, #8a8a8a);
       --c-head:      light-dark(#111111, #e4e4e4);
       --c-accent:    light-dark(#000000, #f4f4f4);
       --c-accent-dim:  light-dark(rgba(0,0,0,0.06),  rgba(255,255,255,0.06));

@@ -5,6 +5,7 @@
     border-radius: var(--r-lg); padding: 16px 14px 12px;
     position: sticky; top: 24px; max-height: calc(100vh - 48px);
     display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     transition: background-color var(--t-base), border-color var(--t-base);
 
     img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto var(--sp-2); }
@@ -157,4 +158,6 @@
     .htb-type, .htb-sort, .htb-diff   { padding: 6px 10px; font-size: 11px; }
     .a11y-btn                          { padding: 6px 8px; }
   }
+
+  :root[data-theme="light"] nav { box-shadow: none; }
 }

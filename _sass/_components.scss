@@ -13,28 +13,30 @@
   }
 
   .post-card {
-    display: flex; gap: var(--sp-4); padding: var(--sp-3) 0; align-items: flex-start;
+    display: flex; gap: var(--sp-5); padding: var(--sp-3) 0; align-items: flex-start;
     border-bottom: 1px solid var(--c-border); contain: style; /* removed layout — was clipping hover box-shadow */
     content-visibility: auto; contain-intrinsic-size: 0 140px;
-    box-shadow: inset 2px 0 0 transparent;
-    transition: background-color var(--t-base), border-color var(--t-base), box-shadow var(--t-base);
+    transition: background-color var(--t-base), border-color var(--t-base);
 
     &:last-child { border-bottom: none; }
-    &:hover {
-      background: rgba(255,255,255,0.018);
-      box-shadow: inset 2px 0 0 rgba(255,255,255,0.30);
-    }
+    &:hover { background: rgba(255,255,255,0.018); }
 
     .post-card-thumb {
       flex-shrink: 0; display: block;
       width: 68px; height: 68px;
       /* img fills container — size controlled by parent only */
-      img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; opacity: 0.85; transition: opacity var(--t-base); }
+      img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--r-md); display: block; opacity: 0.85; transition: opacity var(--t-base); }
     }
 
     &:hover .post-card-thumb img { opacity: 1; }
 
-    .post-card-body { flex: 1; min-width: 0; }
+    .post-card-body {
+      flex: 1; min-width: 0;
+      border-left: 2px solid transparent;
+      padding-left: var(--sp-3);
+      transition: border-color var(--t-base);
+    }
+    &:hover .post-card-body { border-left-color: rgba(255,255,255,0.22); }
 
     .post-card-meta {
       display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 3px; flex-wrap: wrap;
@@ -79,7 +81,7 @@
   .badge {
     font-family: 'Martian Mono', monospace; font-size: 10px; padding: 1px 5px;
     border-radius: 100px; font-weight: 400; text-transform: uppercase;
-    letter-spacing: 0.06em; line-height: 1.7;
+    letter-spacing: 0.06em; line-height: 1.7; white-space: nowrap;
   }
   .badge-easy   { color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.04); }
   .badge-medium { color: rgba(255,255,255,0.48); background: rgba(255,255,255,0.06); }
@@ -87,6 +89,13 @@
   .badge-insane { color: rgba(255,255,255,0.88); background: rgba(255,255,255,0.10); }
   /* OS badge: subtle blue tint — visually distinct from grey difficulty badges */
   .badge-os     { color: rgba(138,180,248,0.82); background: rgba(90,140,240,0.10); }
+
+  /* Difficulty meter — non-color signal, inherits badge color */
+  .badge-easy::before   { content: "▰▱▱▱ "; }
+  .badge-medium::before { content: "▰▰▱▱ "; }
+  .badge-hard::before   { content: "▰▰▰▱ "; }
+  .badge-insane::before { content: "▰▰▰▰ "; }
+  .badge-os::before     { content: ""; }
 
   :root[data-theme="light"] .badge-easy   { color: rgba(0,0,0,0.22); background: rgba(0,0,0,0.05); }
   :root[data-theme="light"] .badge-medium { color: rgba(0,0,0,0.40); background: rgba(0,0,0,0.07); }

@@ -73,6 +73,10 @@
     }
   }
 
+  /* TODO(9): at --nav-w floor (188px) sort+difficulty buttons wrap to 3 rows — clutter.
+   * Plan: move sort+difficulty into search overlay as filter chips; keep type tabs in sidebar.
+   * Blocked: requires htb-filter.js to expose filterState externally + search.js chip UI.
+   */
   .htb-filters { display: flex; flex-wrap: wrap; gap: 3px; padding: 4px 0 2px; }
   .htb-type-tabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px 0 2px; border-bottom: 1px solid var(--c-border); margin-bottom: 3px; }
 

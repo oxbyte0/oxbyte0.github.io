@@ -110,4 +110,35 @@
     section { padding: var(--sp-3); }
     body { font-size: 15px; }
   }
+
+  /* ── Homepage masthead ── */
+  .home-masthead {
+    margin-bottom: var(--sp-5);
+    padding-bottom: var(--sp-4);
+    border-bottom: 1px solid var(--c-border);
+
+    .masthead-word {
+      font-family: 'Onest', system-ui, sans-serif;
+      font-size: clamp(28px, calc(18px + 1.6vw), 44px);
+      font-weight: 700; letter-spacing: -0.038em; line-height: 1;
+      color: var(--c-head); margin: 0 0 var(--sp-2);
+    }
+    .masthead-tag {
+      font-size: clamp(13px, calc(10px + 0.4vw), 16px);
+      color: var(--c-text); margin: 0 0 var(--sp-3); line-height: 1.55;
+      max-width: 52ch;
+    }
+    .masthead-stat {
+      font-family: 'Martian Mono', monospace; font-size: 10px;
+      color: var(--c-muted); letter-spacing: 0.04em; margin: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .home-masthead {
+      .masthead-word { animation: fadeIn 200ms ease both; }
+      .masthead-tag  { animation: fadeIn 240ms ease both; animation-delay: 30ms; }
+      .masthead-stat { animation: fadeIn 280ms ease both; animation-delay: 60ms; }
+    }
+  }
 }

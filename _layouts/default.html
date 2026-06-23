@@ -4,6 +4,14 @@ layout: template
 
 {{ content }}
 
+{% if page.url == "/" %}
+<header class="home-masthead" role="banner" aria-label="Site introduction">
+  <p class="masthead-word">{{ site.title }}</p>
+  <p class="masthead-tag">{{ site.description }}</p>
+  <p class="masthead-stat">{% if site.categories.HTB %}{{ site.categories.HTB.size }} machines pwned{% endif %}{% if site.categories.HTB and site.posts.size > site.categories.HTB.size %} &middot; {{ site.posts.size | minus: site.categories.HTB.size }} other posts{% endif %} &middot; {{ site.time | date: "%Y-%m-%d" }}</p>
+</header>
+{% endif %}
+
 {% comment %} HTB first {% endcomment %}
 {% for cat in site.categories %}
   {% if cat[0] == "HTB" %}

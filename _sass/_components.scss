@@ -137,8 +137,8 @@
     &.copied { color: var(--c-head); }
   }
 
-  .post-body a { text-decoration: underline; text-decoration-color: rgba(200,200,200,0.3); text-underline-offset: 3px; }
-  :root[data-theme="light"] .post-body a { text-decoration-color: rgba(0,0,0,0.25); }
+  .post-body a { text-decoration: underline; text-decoration-color: rgba(138,180,248,0.35); text-underline-offset: 3px; }
+  :root[data-theme="light"] .post-body a { text-decoration-color: rgba(26,74,138,0.30); }
   p.view { font-size: 12px; color: var(--c-muted); margin: 0 0 var(--sp-4); }
   p.view a { color: var(--c-muted); }
   p.view a:hover { color: var(--c-accent); }

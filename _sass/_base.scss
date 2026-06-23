@@ -2,7 +2,7 @@
   *, *::before, *::after { box-sizing: border-box; }
 
   :focus-visible {
-    outline: 2px solid var(--c-accent);
+    outline: 2px solid var(--c-blue);
     outline-offset: 2px;
     border-radius: var(--r-sm);
   }
@@ -47,7 +47,7 @@
   hr { border: none; border-top: 1px solid var(--c-border); margin: var(--sp-5) 0; }
 
   a { color: var(--c-accent); text-decoration: none; }
-  a:hover { color: var(--c-head); text-decoration: underline; text-decoration-color: var(--c-accent); text-underline-offset: 3px; }
+  a:hover { color: var(--c-blue); text-decoration: underline; text-decoration-color: var(--c-blue); text-underline-offset: 3px; }
   h1 a, h2 a { color: var(--c-head); }
   h1 a:hover, h2 a:hover { color: var(--c-accent); text-decoration: none; }
   a small { font-size: 11px; color: var(--c-muted); margin-top: -0.3em; display: block; }

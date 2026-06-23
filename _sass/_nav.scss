@@ -103,10 +103,10 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     transition: color var(--t-fast), border-color var(--t-fast);
 
-    &:hover { color: var(--c-head); border-left-color: var(--c-accent); text-decoration: none; }
+    &:hover { color: var(--c-blue); border-left-color: var(--c-blue); text-decoration: none; }
   }
 
-  .nav-toc a.active { color: var(--c-accent) !important; border-left-color: var(--c-accent) !important; font-weight: 600; letter-spacing: -0.01em; }
+  .nav-toc a.active { color: var(--c-blue) !important; border-left-color: var(--c-blue) !important; font-weight: 600; letter-spacing: -0.01em; }
 
   .nav-bottom {
     position: sticky; bottom: 0; padding: var(--sp-2) 0 0;

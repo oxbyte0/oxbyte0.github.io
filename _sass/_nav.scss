@@ -28,7 +28,7 @@
     list-style: none; margin: 0 0 var(--sp-2); padding: 0;
     li { margin: 0; }
     a { display: block; font-size: 12px; padding: 3px 0; color: var(--c-text); text-decoration: none; }
-    a:hover { color: var(--c-head); text-decoration: none; }
+    a:hover { color: var(--c-blue); text-decoration: none; }
     a.active-page { color: var(--c-accent); font-weight: 500; }
   }
 
@@ -59,7 +59,7 @@
       display: block; font-size: 11px; padding: 2px 0 2px 4px;
       color: var(--c-text); overflow: hidden; text-overflow: ellipsis;
       white-space: nowrap; text-decoration: none;
-      &:hover { color: var(--c-head); text-decoration: none; }
+      &:hover { color: var(--c-blue); text-decoration: none; }
       &.active-page { color: var(--c-accent); font-weight: 500; }
     }
   }
@@ -96,7 +96,7 @@
   .nav-toc { list-style: none; margin: 0; padding: 0; } /* aria-label is in HTML attribute, not CSS */
   .nav-toc li { margin: 0; padding: 0; }
   .nav-toc a { color: var(--c-text); text-decoration: none; }
-  .nav-toc a:hover { color: var(--c-head); text-decoration: none; }
+  .nav-toc a:hover { color: var(--c-blue); text-decoration: none; }
 
   .tag-h1 { list-style: none; padding: 0; > a { font-size: 12px; padding: 2px 0; display: block; } }
   .tag-h2 { list-style: none; padding: 0 0 0 8px; }

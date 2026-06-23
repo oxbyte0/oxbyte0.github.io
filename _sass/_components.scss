@@ -71,6 +71,8 @@
     .post-card { flex-direction: column; gap: var(--sp-3); }
     .post-card-thumb { width: 100% !important; height: 80px !important; img { border-radius: var(--r-md) !important; } }
     .post-card-title { font-size: clamp(13px, 3.5cqi, 16px); }
+    /* Reset body indicator — column layout has no thumb-to-body gutter for the border to sit in */
+    .post-card-body { border-left: none !important; padding-left: 0 !important; }
   }
 
   @container post-list (min-width: 600px) {
@@ -96,6 +98,8 @@
   .badge-hard::before   { content: "▰▰▰▱ "; }
   .badge-insane::before { content: "▰▰▰▰ "; }
   .badge-os::before     { content: ""; }
+  .badge-easy::before, .badge-medium::before,
+  .badge-hard::before, .badge-insane::before { letter-spacing: 0; font-style: normal; }
 
   :root[data-theme="light"] .badge-easy   { color: rgba(0,0,0,0.22); background: rgba(0,0,0,0.05); }
   :root[data-theme="light"] .badge-medium { color: rgba(0,0,0,0.40); background: rgba(0,0,0,0.07); }
@@ -113,7 +117,7 @@
     &:last-child { border-bottom: none; }
     time { font-family: 'Martian Mono', monospace; font-size: 10px; color: var(--c-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
     a { color: var(--c-head); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    a:hover { color: var(--c-accent); text-decoration: none; }
+    a:hover { color: var(--c-blue); text-decoration: none; }
   }
 
   /* ── Share & post meta ── */

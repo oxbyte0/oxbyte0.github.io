@@ -123,7 +123,7 @@ jobs:
       # ── Self-hosted fonts: download woff2 files once, cache across runs ──
       - name: Cache self-hosted fonts
         id: font-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: assets/fonts
           key: fonts-martianmono-onest-v2
@@ -205,7 +205,7 @@ jobs:
 
       # FIXED: Create cache directory before caching
       - name: Setup npm tools cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: npm-cache
         with:
           path: /opt/npm-global
@@ -224,7 +224,7 @@ jobs:
       # Cache converted images keyed to source image hashes — skips all conversion on unchanged images
       - name: Cache converted images
         id: img-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: assets/img
           key: img-converted-${{ hashFiles('assets/img/**') }}
@@ -343,7 +343,7 @@ jobs:
 
       # Cache build artifacts for smoke test reuse
       - name: Cache build output
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: _site
           key: jekyll-build-${{ github.sha }}
@@ -357,7 +357,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restore build cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: _site
           key: jekyll-build-${{ github.sha }}

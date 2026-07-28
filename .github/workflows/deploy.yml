@@ -3,6 +3,7 @@ name: Build & Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,8 +19,14 @@ jobs:
   lint-frontmatter:
     name: Validate Frontmatter
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            _posts
+            scripts/validate_posts.py
+          sparse-checkout-cone-mode: false
 
       - name: Validate post frontmatter
         run: python3 scripts/validate_posts.py
@@ -27,8 +34,14 @@ jobs:
   check-links:
     name: Check Image References
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            _posts
+            assets/img
+          sparse-checkout-cone-mode: false
 
       - name: Check for broken local image references
         run: |
@@ -56,14 +69,22 @@ jobs:
   lint-fingerprint:
     name: Check Tech Fingerprints
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            assets/css
+            _sass
+            _includes
+            _layouts
+          sparse-checkout-cone-mode: false
 
       - name: Reject Google Fonts CDN references in committed CSS
         run: |
-          if grep -rq "fonts\.googleapis\.com\|fonts\.gstatic\.com" assets/css/ _sass/ _includes/ _layouts/ --include="*.css" --include="*.scss" --include="*.html"; then
+          if grep -rqE 'fonts\.googleapis\.com|fonts\.gstatic\.com' assets/css/ _sass/ _includes/ _layouts/ --include='*.css' --include='*.scss' --include='*.html'; then
             echo "ERROR: Google Fonts CDN reference found — use self-hosted fonts only"
-            grep -rn "fonts\.googleapis\.com\|fonts\.gstatic\.com" assets/css/ _sass/ _includes/ _layouts/ --include="*.css" --include="*.scss" --include="*.html"
+            grep -rnE 'fonts\.googleapis\.com|fonts\.gstatic\.com' assets/css/ _sass/ _includes/ _layouts/ --include='*.css' --include='*.scss' --include='*.html'
             exit 1
           fi
           echo "OK: No Google Fonts CDN references"
@@ -79,8 +100,12 @@ jobs:
   lint-config:
     name: Validate Config
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v7
+        with:
+          sparse-checkout: _config.yml
+          sparse-checkout-cone-mode: false
 
       - name: Validate _config.yml syntax
         run: |
@@ -241,29 +266,22 @@ jobs:
           done < <(find assets/img -type f -iname '*.png')
           echo "Source PNGs: $(du -sh assets/img/ | cut -f1)"
 
-      - name: Convert images to WebP
+      - name: Convert images to WebP + AVIF
         if: steps.img-cache.outputs.cache-hit != 'true'
         run: |
-          find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) \
-            | while IFS= read -r img; do
-            out="${img%.*}.webp"
-            [ -f "$out" ] && continue
-            cwebp -q 82 -mt -quiet "$img" -o "$out" 2>/dev/null \
-              || convert "$img" -quality 82 "$out" 2>/dev/null \
-              || echo "WARN: WebP failed for $img"
-          done
+          JOBS=$(nproc)
+          find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) -print0 \
+            | xargs -0 -P"$JOBS" -I{} bash -c '
+              img="$1"
+              webp="${img%.*}.webp"
+              avif="${img%.*}.avif"
+              [ -f "$webp" ] || cwebp -q 82 -mt -quiet "$img" -o "$webp" 2>/dev/null \
+                || convert "$img" -quality 82 "$webp" 2>/dev/null \
+                || echo "WARN: WebP failed: $img"
+              [ -f "$avif" ] || avifenc -q 60 -s 8 "$img" "$avif" 2>/dev/null \
+                || echo "WARN: AVIF failed: $img"
+            ' -- {}
           echo "WebP: $(find assets/img -name '*.webp' | wc -l) files"
-
-      - name: Convert images to AVIF
-        if: steps.img-cache.outputs.cache-hit != 'true'
-        run: |
-          find assets/img -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" \) \
-            | while IFS= read -r img; do
-            out="${img%.*}.avif"
-            [ -f "$out" ] && continue
-            avifenc -q 60 -s 8 "$img" "$out" 2>/dev/null \
-              || echo "WARN: AVIF failed for $img"
-          done
           echo "AVIF: $(find assets/img -name '*.avif' | wc -l) files"
 
       # FIXED: Secret injection with YAML validation
@@ -314,6 +332,7 @@ jobs:
         run: bundle exec jekyll build --strict_front_matter
         env:
           JEKYLL_ENV: production
+          BUNDLE_RETRY: "3"
 
       - name: Validate generated HTML
         run: |
@@ -366,10 +385,10 @@ jobs:
 
       - name: Start local web server
         run: |
-          cd _site
-          python3 -m http.server 8000 >/dev/null 2>&1 &
-          sleep 2
-          echo "Web server started on port 8000"
+          cd _site && python3 -m http.server 8000 >/dev/null 2>&1 &
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:8000/ > /dev/null 2>&1 && echo "Server ready" && break || sleep 1
+          done
 
       - name: Test critical pages
         run: |
@@ -424,24 +443,6 @@ jobs:
       - id: deploy
         uses: actions/deploy-pages@v5
 
-      - name: Capture deployment metadata
-        run: |
-          cat > /tmp/deployment-info.json <<EOF
-          {
-            "sha": "${{ github.sha }}",
-            "ref": "${{ github.ref }}",
-            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "deployed_by": "${{ github.actor }}",
-            "status": "success"
-          }
-          EOF
-
-      - name: Upload deployment metadata
-        uses: actions/upload-artifact@v7
-        with:
-          name: deployment-metadata-${{ github.sha }}
-          path: /tmp/deployment-info.json
-          retention-days: 30
 
   # ── Stage 5: Post-deployment verification ──────────────────────────────
   verify:
@@ -451,7 +452,11 @@ jobs:
     if: always()
     steps:
       - name: Wait for CDN propagation
-        run: sleep 10
+        run: |
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://oxbyte.blog/)
+            [ "$STATUS" = "200" ] && echo "Live in ${i}s" && break || sleep 3
+          done
 
       - name: Check home page
         run: |

@@ -52,16 +52,19 @@ else
   echo "[*] obsidian vault exists"
 fi
 
-# pre-commit hook
-HOOK_SRC="${BLOG_DIR}/scripts/pre-commit.hook"
-HOOK_DST="${BLOG_DIR}/.git/hooks/pre-commit"
-if [[ -f "$HOOK_SRC" ]]; then
-  cp "$HOOK_SRC" "$HOOK_DST"
-  chmod +x "$HOOK_DST"
-  echo "[*] pre-commit hook installed"
-else
-  echo "[!] pre-commit.hook not found — skipping"
-fi
+# git hooks
+HOOKS_DIR="${BLOG_DIR}/scripts/hooks"
+GIT_HOOKS="${BLOG_DIR}/.git/hooks"
+for hook in pre-commit commit-msg pre-push; do
+  src="${HOOKS_DIR}/${hook}"
+  if [[ -f "$src" ]]; then
+    cp "$src" "${GIT_HOOKS}/${hook}"
+    chmod +x "${GIT_HOOKS}/${hook}"
+    echo "[*] $hook hook installed"
+  else
+    echo "[!] scripts/hooks/$hook not found — skipping"
+  fi
+done
 
 # symlink blog CLI to PATH
 LINK_TARGET="/usr/local/bin/blog"

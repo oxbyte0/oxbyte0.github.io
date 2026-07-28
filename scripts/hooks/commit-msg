@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+MSG_FILE="$1"
+RED='\033[0;31m'; YEL='\033[0;33m'; RST='\033[0m'
+
+# Strip Co-Authored-By: Claude (project constraint — never in commits)
+if grep -qi 'co-authored-by:.*claude' "$MSG_FILE"; then
+    sed -i '/[Cc]o-[Aa]uthored-[Bb]y:.*[Cc]laude/d' "$MSG_FILE"
+    printf "${YEL}[commit-msg] Co-Authored-By: Claude removed${RST}\n" >&2
+fi
+
+# Clean message for validation (strip comments + blank lines)
+MSG=$(grep -v '^#' "$MSG_FILE" | grep -v '^[[:space:]]*$' | head -1)
+
+if [[ -z "$MSG" ]]; then
+    printf "${RED}[commit-msg] empty commit message — aborted${RST}\n" >&2
+    exit 1
+fi
+
+if [[ ${#MSG} -lt 10 ]]; then
+    printf "${RED}[commit-msg] message too short (%d chars, min 10)${RST}\n" "${#MSG}" >&2
+    exit 1
+fi
+
+# Conventional commit format check (warn only, don't block)
+TYPES="feat|fix|post|docs|refactor|chore|assets|style|ci|perf|test|revert|archive"
+if ! echo "$MSG" | grep -qE "^(${TYPES})(\([^)]+\))?: .{2,}"; then
+    printf "${YEL}[commit-msg] WARN: not conventional format — type: description (types: feat fix post docs refactor chore assets style ci)${RST}\n" >&2
+fi

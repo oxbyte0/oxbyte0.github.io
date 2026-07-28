@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+STAGED="$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)"
+errors=0
+
+RED='\033[0;31m'; YEL='\033[0;33m'; GRN='\033[0;32m'; RST='\033[0m'
+_fail() { printf "${RED}[pre-commit] FAIL:${RST} %s\n" "$*" >&2; errors=$((errors+1)); }
+_warn() { printf "${YEL}[pre-commit] WARN:${RST} %s\n" "$*"; }
+_ok()   { printf "${GRN}[pre-commit]  OK :${RST} %s\n" "$*"; }
+
+# ── 1. Block secrets and generated files ──────────────────────────────────
+sensitive=$(printf '%s\n' "$STAGED" | grep -E '(^|/)\.env($|\.|_)|\.key$|\.pem$|\.p12$|\.pfx$|\.ppk$' || true)
+if [[ -n "$sensitive" ]]; then
+    _fail "sensitive file(s) staged — never commit secrets"
+    printf '%s\n' "$sensitive" | sed 's/^/       /'
+fi
+
+webp=$(printf '%s\n' "$STAGED" | grep -E 'assets/img/.*\.webp$' || true)
+woff2=$(printf '%s\n' "$STAGED" | grep -E 'assets/fonts/.*\.woff2$' || true)
+[[ -n "$webp"  ]] && _fail "WebP files are CI-generated — unstage: git restore --staged '*.webp'"
+[[ -n "$woff2" ]] && _fail "woff2 files are CI-generated — unstage: git restore --staged '*.woff2'"
+
+# ── 2. Secret pattern scan in staged text content ─────────────────────────
+text_staged=$(printf '%s\n' "$STAGED" | grep -vE '\.(png|jpg|jpeg|gif|webp|avif|woff2?|ttf|eot|ico|svg|pdf|zip|gz|tar|bin)$' || true)
+if [[ -n "$text_staged" ]]; then
+    secret_re='sk-ant-api[0-9A-Za-z_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{82}|ghs_[0-9A-Za-z]{36}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[0-9A-Za-z-]+'
+    while IFS= read -r f; do
+        [[ -f "$ROOT/$f" ]] || continue
+        if git show ":$f" 2>/dev/null | grep -qE "$secret_re"; then
+            _fail "possible API key/secret in staged $f — review before committing"
+        fi
+    done <<< "$text_staged"
+fi
+
+# ── 3. Post frontmatter + broken image refs ───────────────────────────────
+staged_posts=$(printf '%s\n' "$STAGED" | grep '^_posts/.*\.md$' || true)
+if [[ -n "$staged_posts" ]]; then
+    if python3 "${ROOT}/scripts/validate_posts.py" > /dev/null 2>&1; then
+        _ok "frontmatter valid"
+    else
+        _fail "frontmatter validation failed:"
+        python3 "${ROOT}/scripts/validate_posts.py" 2>&1 | head -10 >&2 || true
+    fi
+
+    img_ok=1
+    while IFS= read -r f; do
+        [[ -f "$ROOT/$f" ]] || continue
+        while IFS= read -r line; do
+            if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
+                imgpath=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' || true)
+                if [[ -n "$imgpath" && ! -f "${ROOT}/${imgpath#/}" ]]; then
+                    _fail "broken image: $imgpath in $(basename "$f")"
+                    img_ok=0
+                fi
+            fi
+        done < "${ROOT}/$f"
+    done <<< "$staged_posts"
+    [[ $img_ok -eq 1 ]] && _ok "image refs OK"
+fi
+
+# ── 4. Google Fonts CDN check in staged CSS/SCSS/HTML ─────────────────────
+cdn_staged=$(printf '%s\n' "$STAGED" | grep -E '\.(css|scss|html)$' || true)
+if [[ -n "$cdn_staged" ]]; then
+    cdn_hit=0
+    while IFS= read -r f; do
+        [[ -f "$ROOT/$f" ]] || continue
+        if git show ":$f" 2>/dev/null | grep -qE 'fonts\.googleapis\.com|fonts\.gstatic\.com'; then
+            _fail "Google Fonts CDN ref in $f — use self-hosted fonts"
+            cdn_hit=1
+        fi
+    done <<< "$cdn_staged"
+    [[ $cdn_hit -eq 0 ]] && _ok "no CDN font refs"
+fi
+
+# ── 5. _config.yml YAML + required keys ───────────────────────────────────
+if printf '%s\n' "$STAGED" | grep -q '^_config\.yml$'; then
+    if python3 - <<'PYEOF' 2>&1; then
+import sys, yaml
+try:
+    cfg = yaml.safe_load(open('_config.yml'))
+    missing = [k for k in ('title', 'url', 'author') if k not in cfg]
+    if missing:
+        print(f"ERROR: missing keys: {', '.join(missing)}", file=sys.stderr)
+        sys.exit(1)
+except yaml.YAMLError as e:
+    print(f"ERROR: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+        _ok "_config.yml valid"
+    else
+        _fail "_config.yml: YAML error or missing required keys"
+    fi
+fi
+
+# ── Result ────────────────────────────────────────────────────────────────
+echo ""
+if [[ $errors -gt 0 ]]; then
+    printf "${RED}[pre-commit] %d error(s) — commit blocked${RST}\n" "$errors" >&2
+    exit 1
+fi
+_ok "all checks passed"

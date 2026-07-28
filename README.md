@@ -1,60 +1,30 @@
 # oxbyte.blog
 
-> HackTheBox machine writeups, CTF solutions, and offensive security research.
-
-**Live:** [oxbyte.blog](https://oxbyte.blog)
-
----
-
-## Stack
-
-Jekyll · GitHub Pages · Rouge syntax highlighting · Vanilla JS · Custom SCSS
+HackTheBox writeups, CTF solutions, and offensive security research.
+Live at **[oxbyte.blog](https://oxbyte.blog)**
 
 ---
 
-## Local development
+## Quick start
 
 ```bash
-# Prerequisites: Ruby, Bundler
 gem install bundler
 bundle install
-
-# Run local server (also downloads self-hosted fonts)
-make serve
-# → http://localhost:4000
+make serve        # → http://localhost:4000
 ```
 
 ---
 
-## Writing workflow
+## Writing a new post
 
-### New HTB machine (auto-fetches metadata)
-```bash
-make htb
-# Wizard: enter machine name → fetches title, OS, difficulty, image from HTB API
-```
+| What | Command |
+|------|---------|
+| New HTB machine (auto-fetches metadata) | `make htb` |
+| New post (manual) | `make new` |
+| Import existing notes | `make import FILE=path/to/notes.md` |
+| AI-assisted draft (needs `ANTHROPIC_API_KEY` in `.env`) | `make draft` |
 
-### New post (manual)
-```bash
-make new
-# Wizard: title, category, OS, difficulty, description
-```
-
-### Import existing writeup notes
-```bash
-make import FILE=path/to/writeup.md
-```
-
-### AI-assisted draft (Claude API)
-```bash
-make draft
-# Enter notes → Claude generates full writeup body
-# Requires ANTHROPIC_API_KEY in .env
-```
-
----
-
-## Post frontmatter
+### Post frontmatter
 
 ```yaml
 ---
@@ -65,12 +35,12 @@ creators: AuthorName
 pwned: true
 tags:
   - boxes
-  - os/linux          # os/linux · os/windows · os/freebsd
-  - diff/medium       # diff/easy · diff/medium · diff/hard · diff/insane
-  - type/machine      # type/machine · type/sherlock · type/challenge · type/prolab · type/fortress
+  - os/linux        # os/linux · os/windows · os/freebsd
+  - diff/medium     # diff/easy · diff/medium · diff/hard · diff/insane
+  - type/machine    # type/machine · type/sherlock · type/challenge · type/prolab · type/fortress
 category:
-  - HTB               # HTB · Work
-description: "One-line summary of the attack chain."
+  - HTB             # HTB · Work
+description: "One sentence on the attack chain."
 image: https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/HASH.png
 ---
 ```
@@ -81,51 +51,27 @@ image: https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com/avatars/
 
 ```bash
 make deploy
-# Prompts for commit message → builds → pushes to GitHub
-# GitHub Actions deploys to oxbyte.blog automatically
+# Enter a commit message → builds → pushes → GitHub Actions takes it from there
 ```
 
 ---
 
 ## Configuration
 
-| File | Purpose |
-|------|---------|
-| `_config.yml` | Site title, URL, GoatCounter analytics ID, Giscus comments |
-| `.env` | `ANTHROPIC_API_KEY` for AI drafting (not committed) |
+| File | What it does |
+|------|--------------|
+| `_config.yml` | Site title, URL, GoatCounter analytics code, Giscus comment IDs |
+| `.env` | `ANTHROPIC_API_KEY` for `make draft` — never committed |
 | `CNAME` | Custom domain (`oxbyte.blog`) |
 | `_posts/` | All writeups — filename format `YYYY-MM-DD-Title.md` |
-| `assets/img/img_MACHINENAME/` | Per-post screenshots |
+| `assets/img/img_MACHINENAME/` | Screenshots for a specific post |
 
-### Analytics (GoatCounter)
+**Analytics** — set `goatcounter: YOUR_CODE` in `_config.yml`.
 
-Set `goatcounter: YOUR_CODE` in `_config.yml`.
-
-### Comments (Giscus)
-
-1. Enable Discussions on the GitHub repo
-2. Visit [giscus.app](https://giscus.app), paste repo details
-3. Fill `giscus.repo`, `giscus.repo_id`, `giscus.category_id` in `_config.yml`
+**Comments (Giscus)** — enable Discussions on this repo, go to [giscus.app](https://giscus.app), paste the repo details, then fill `giscus.repo`, `giscus.repo_id`, `giscus.category_id` in `_config.yml`.
 
 ---
 
-## Accessibility modes
+## Stack
 
-Nav sidebar → bottom buttons:
-
-| Button | Effect |
-|--------|--------|
-| `no motion` | Disables all animations (epilepsy / motion sensitivity) |
-| `contrast` | High contrast black/white mode (low vision) |
-
-Preferences persist across sessions via `localStorage`.
-
----
-
-## CI / GitHub Actions
-
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `deploy.yml` | Push to `main` | Build Jekyll + deploy to GitHub Pages |
-| `validate.yml` | Push to `_posts/` | Validate post frontmatter |
-| `lighthouse.yml` | After deploy | Lighthouse performance/a11y/SEO audit |
+Jekyll · GitHub Pages · Rouge · Vanilla JS · Custom SCSS

@@ -36,9 +36,12 @@ for f in _posts/*.md; do
     while IFS= read -r line; do
         if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
             imgpath=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' || true)
-            if [[ -n "$imgpath" && ! -f "${imgpath#/}" ]]; then
-                _fail "broken image: $imgpath in $(basename "$f")"
-                img_errors=$((img_errors+1))
+            if [[ -n "$imgpath" ]]; then
+                decoded=$(python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.argv[1]))" "$imgpath")
+                if [[ ! -f "${decoded#/}" ]]; then
+                    _fail "broken image: $imgpath in $(basename "$f")"
+                    img_errors=$((img_errors+1))
+                fi
             fi
         fi
     done < "$f"

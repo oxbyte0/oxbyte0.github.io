@@ -1,13 +1,5 @@
 @layer skeleton {
 
-  /* ── Keyframes ─────────────────────────────────────────────────────────── */
-
-  /* Pulsing shimmer — moves gradient left→right continuously (thumbnails) */
-  @keyframes sk-pulse {
-    0%   { background-position:  200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
   /* One-shot light stripe — sweeps across card once on entry */
   @keyframes sk-shine {
     0%   { transform: translateX(-180%) skewX(-12deg); opacity: 0; }
@@ -15,13 +7,7 @@
     100% { transform: translateX(280%)  skewX(-12deg); opacity: 0; }
   }
 
-  /* ── 1. Thumbnail skeleton — REMOVED
-   * HTB logos have their own colored backgrounds; a grey shimmer disc
-   * behind them bleeds through the semi-transparent img and looks wrong.
-   * No skeleton on thumbnails — card-shine (step 2) covers the load gap.
-   */
-
-  /* ── 2. Card entry shine ───────────────────────────────────────────────
+  /* ── Card entry shine ─────────────────────────────────────────────────
    * One-shot light stripe sweeps across each card as it first renders.
    * Staggered delays for above-fold cards; below-fold cards fire when
    * content-visibility renders them as user scrolls.
@@ -87,14 +73,7 @@
     }
   }
 
-  /* ── 3. @starting-style removed from .post-card-title and body text ───────
-   * @starting-style re-fires on every View Transition navigation — titles
-   * would flash as grey blocks on every page load. Card-entry shine (::after)
-   * already covers the visual entry effect.
-   * Kept only for .posts-category which is outside the view-transition capture.
-   */
-
-  /* ── 4. Section heading reveal ── */
+  /* ── Section heading reveal ── */
   .posts-category {
     transition: border-color 0.5s ease, color 0.4s ease;
   }
@@ -105,8 +84,6 @@
     }
   }
 
-  /* ── 5. Reduced motion ── */
-  /* .post-card-thumb::before removed (thumbnail skeleton deleted) */
   .reduce-motion .post-card::after,
   .reduce-motion .archive-item::after {
     animation: none !important;

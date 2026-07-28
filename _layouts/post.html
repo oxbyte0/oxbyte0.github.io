@@ -5,11 +5,11 @@ layout: template
 {% assign words = content | number_of_words %}
 {% assign mins  = words | divided_by: 150 | plus: 1 %}
 
-{% capture post_url %}{{ page.url | absolute_url }}{% endcapture %}
-{% capture tweet_msg %}Just pwned {{ page.title }} on HackTheBox! Check out @oxbyte's writeup 🏴‍☠️ {{ post_url }}{% endcapture %}
+{% assign post_url = page.url | absolute_url %}
+{% capture tweet_msg %}Just pwned {{ page.title }} on HackTheBox! Check out @{{ site.social.name }}'s writeup 🏴‍☠️ {{ post_url }}{% endcapture %}
 
 <div class="print-header" aria-hidden="true">
-  <strong>oxbyte.blog</strong> — {{ post_url }}<br>
+  <strong>{{ site.title }}</strong> — {{ post_url }}<br>
   By {{ page.author | default: site.author }} &nbsp;·&nbsp; {{ page.date | date: "%-d %B %Y" }} &nbsp;·&nbsp; {{ mins }} min read
 </div>
 
@@ -32,7 +32,7 @@ layout: template
 
 <div class="print-footer" aria-hidden="true">
   Source: {{ post_url }}<br>
-  oxbyte.blog — HackTheBox writeups and cybersecurity research
+  {{ site.title }} — {{ site.description }}
 </div>
 
 {% if page.tags %}

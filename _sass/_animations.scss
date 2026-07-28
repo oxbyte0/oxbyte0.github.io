@@ -21,8 +21,6 @@
       60%  { transform: scale(1.2); opacity: 1; }
       100% { transform: scale(1); }
     }
-    /* btt-appear removed — CSS scroll-driven permanently hides button on short pages.
-       Back-to-top visibility handled by JS (initBackToTop) for reliability. */
     @keyframes reveal-card {
       from { opacity: 0; translate: 0 14px; }
       to   { opacity: 1; translate: 0 0;    }
@@ -30,8 +28,6 @@
 
     section { animation: fadeIn 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
     nav     { animation: fadeIn 180ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
-
-    /* back-to-top: JS-controlled via initBackToTop() for all browsers */
 
     /* ── Card entry: scroll-driven where supported, fadUp fallback elsewhere ── */
     @supports (animation-timeline: view()) {
@@ -73,7 +69,6 @@
 
     .nav-pages a, .nav-htb-list a, .nav-toc a {
       transition: color 90ms ease, transform 90ms ease;
-      display: block;
     }
     .nav-pages a:hover { color: var(--c-blue); transform: translateX(2px); }
 

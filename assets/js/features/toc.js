@@ -41,14 +41,13 @@ export function initToc() {
   if (links.length) links[0].classList.add('active');
 
   if ('IntersectionObserver' in window) {
-    let visible = [];
+    const visible = new Set();
     const observer = new IntersectionObserver(entries => {
       entries.forEach(e => {
-        if (e.isIntersecting) { if (!visible.includes(e.target)) visible.push(e.target); }
-        else visible = visible.filter(h => h !== e.target);
+        if (e.isIntersecting) visible.add(e.target);
+        else visible.delete(e.target);
       });
-      const top = headings.find(h => visible.includes(h));
-      /* Always clear first — if nothing visible, no active highlight */
+      const top = headings.find(h => visible.has(h));
       links.forEach(l => l.classList.remove('active'));
       if (top) navToc.querySelector(`a[href="#${top.id}"]`)?.classList.add('active');
     }, { rootMargin: '-8% 0px -80% 0px', threshold: 0 });

@@ -254,7 +254,6 @@ cmd_draft() {
     released=$(wt_input "AI draft" "release date (YYYY-MM-DD)" "$TODAY")
     desc=$(wt_input "AI draft" "one-line description for frontmatter")
 
-    # notes: open editor → user writes bullet points → save → pass file to python
     local tmpnotes
     tmpnotes=$(mktemp /tmp/blog-notes-XXXXXX.txt)
     cat > "$tmpnotes" <<'EOF'
@@ -268,7 +267,7 @@ EOF
     "${BLOG_EDITOR}" "$tmpnotes"
 
     local notes
-    notes=$(grep -v '^#' "$tmpnotes" | sed '/^[[:space:]]*$/d' || true)
+    notes=$(grep -vE '^#|^[[:space:]]*$' "$tmpnotes" || true)
     rm -f "$tmpnotes"
 
     if [[ -z "$notes" ]]; then
@@ -461,13 +460,14 @@ PYEOF
 )
 
     local title os diff creators released image description
-    title=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['title'])")
-    os=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['os'])")
-    diff=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['diff'])")
-    creators=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['creators'])")
-    released=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['released'])")
-    image=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['image'])")
-    description=$(echo "$meta" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['description'])")
+    { read -r title; read -r os; read -r diff; read -r creators; read -r released; read -r image; read -r description; } < <(
+        echo "$meta" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+for k in ('title','os','diff','creators','released','image','description'):
+    print(d.get(k,''))
+"
+    )
 
     # Let user confirm/override
     title=$(wt_input   "htb" "title"       "$title")

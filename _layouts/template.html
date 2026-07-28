@@ -21,9 +21,7 @@ layout: compress
     {% include head-custom.html %}
   </head>
   <body>
-    <!-- SVG sprite sheet — replaces Font Awesome CDN, no external request -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
-      <!-- fill="currentColor" on every path so CSS color property drives icon color -->
       <symbol id="icon-list" viewBox="0 0 16 16">
         <path fill="currentColor" fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
       </symbol>
@@ -146,6 +144,5 @@ layout: compress
     </div>
     <a href="/trap" class="h-trap" tabindex="-1" aria-hidden="true" rel="nofollow noopener">.</a>
     <noscript><form action="/trap-ns" method="post" aria-hidden="true" style="display:none"><input type="text" name="url"><input type="submit" value="go"></form></noscript>
-    <!-- mermaid injected by main.js (ES module) — removed duplicate inline script -->
   </body>
 </html>

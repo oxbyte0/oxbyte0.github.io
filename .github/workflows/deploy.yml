@@ -105,6 +105,7 @@ jobs:
     name: Build Site
     runs-on: ubuntu-latest
     needs: [lint-frontmatter, check-links, lint-config, lint-fingerprint]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -470,36 +471,3 @@ jobs:
           echo "Sitemap: $STATUS"
           [ "$STATUS" = "200" ] || echo "WARN: sitemap returned $STATUS"
 
-  # ── Stage 6: Deployment Metrics ────────────────────────────────────────
-  metrics:
-    name: Deployment Metrics
-    if: always()
-    needs: [deploy, verify]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Collect deployment metrics
-        run: |
-          python3 - <<'EOF'
-          import json
-          from datetime import datetime
-
-          metrics = {
-              "timestamp": datetime.utcnow().isoformat(),
-              "commit_sha": "${{ github.sha }}",
-              "branch": "${{ github.ref }}",
-              "workflow_run_id": "${{ github.run_id }}",
-              "deployment_status": "success",
-              "actor": "${{ github.actor }}"
-          }
-
-          with open('/tmp/metrics.json', 'w') as f:
-              json.dump(metrics, f, indent=2)
-          print("Metrics collected")
-          EOF
-
-      - name: Upload metrics artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: deployment-metrics-${{ github.sha }}
-          path: /tmp/metrics.json
-          retention-days: 90

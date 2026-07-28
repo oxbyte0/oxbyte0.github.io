@@ -7,6 +7,8 @@ export function initSearch(navState) {
   const resultsList = document.getElementById('searchResults');
   if (!toggleBtn || !overlay) return;
 
+  if (resultsList) resultsList.setAttribute('aria-live', 'polite');
+
   let fuse        = null;
   let fuseLoading = false;
   let focusIdx    = -1;
@@ -88,7 +90,6 @@ export function initSearch(navState) {
     });
     resultsList.appendChild(frag);
     resultsList.hidden = false;
-    resultsList.setAttribute('aria-live', 'polite');
     focusIdx = -1;
   }
 

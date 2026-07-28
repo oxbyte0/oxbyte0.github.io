@@ -9,7 +9,7 @@ from datetime import date
 def load_env():
     env = Path(__file__).parent.parent / ".env"
     if env.exists():
-        for line in env.read_text().splitlines():
+        for line in env.read_text(encoding='utf-8').splitlines():
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 k, _, v = line.partition("=")
@@ -20,7 +20,7 @@ def get_style_examples() -> str:
     posts_dir = Path(__file__).parent.parent / "_posts"
     examples = []
     for p in sorted(posts_dir.glob("*.md"), reverse=True)[:3]:
-        lines = p.read_text(errors="replace").splitlines()[:60]
+        lines = p.read_text(encoding='utf-8', errors="replace").splitlines()[:60]
         examples.append("\n".join(lines))
     return "\n\n---NEXT EXAMPLE---\n\n".join(examples)
 
@@ -75,7 +75,7 @@ def draft(title: str, os_: str, diff: str, creators: str, notes: str, descriptio
 
     result = ""
     with client.messages.stream(
-        model="claude-sonnet-4-6",
+        model=os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-6"),
         max_tokens=8000,
         system=system,
         messages=[{"role": "user", "content": user_msg}],

@@ -1,5 +1,3 @@
-import { debounce } from './utils.js';
-
 export function initNav() {
   const toggle  = document.getElementById('navToggle');
   const sidebar = document.getElementById('sidebar');
@@ -58,15 +56,9 @@ export function initNav() {
     if (mobileQuery.matches && e.target.closest('a')) closeNav();
   });
 
-  /* Close when viewport exits mobile breakpoint */
   mobileQuery.addEventListener('change', e => {
     if (!e.matches && isOpen()) closeNav();
   });
-
-  /* Fallback debounced resize for browsers without mql change event */
-  window.addEventListener('resize', debounce(() => {
-    if (!mobileQuery.matches && isOpen()) closeNav();
-  }, 150));
 
   /* Platform shortcut labels */
   const ua    = navigator.userAgentData?.platform ?? navigator.userAgent ?? '';

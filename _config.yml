@@ -1,21 +1,20 @@
 title: oxbyte
-logo:
 description: "HackTheBox machine writeups, CTF solutions, and offensive security research — retired boxes, AD attacks, web exploitation."
-show_downloads: false
-google_analytics:
-goatcounter:
-author: "oxbyte"
 url: "https://oxbyte.blog"
-image:
 lang: en-US
 timezone: UTC
 
-permalink: "/:title/"
+# Injected by CI (deploy.yml) — leave blank here
+google_analytics:
+goatcounter:
 
+author: "oxbyte"
 social:
   name: oxbyte
   links:
     - https://github.com/oxbyte0
+
+permalink: "/:title/"
 
 plugins:
   - jekyll-sitemap
@@ -35,10 +34,10 @@ sass:
 
 markdown: kramdown
 kramdown:
-    highlighter: rouge
-    syntax_highlighter_opts:
-        block:
-            line_numbers: true
+  highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
 
 defaults:
   - scope:

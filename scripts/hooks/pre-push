@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+errors=0
+
+RED='\033[0;31m'; YEL='\033[0;33m'; GRN='\033[0;32m'; RST='\033[0m'
+_fail() { printf "${RED}[pre-push] FAIL:${RST} %s\n" "$*" >&2; errors=$((errors+1)); }
+_warn() { printf "${YEL}[pre-push] WARN:${RST} %s\n" "$*"; }
+_ok()   { printf "${GRN}[pre-push]  OK :${RST} %s\n" "$*"; }
+
+cd "$ROOT"
+
+# ── 1. Force-push protection on main ──────────────────────────────────────
+while IFS=' ' read -r _lref _lsha _rref _rsha; do
+    if [[ "$_rref" == "refs/heads/main" ]] \
+       && [[ "$_rsha" != "0000000000000000000000000000000000000000" ]] \
+       && ! git merge-base --is-ancestor "$_rsha" "$_lsha" 2>/dev/null; then
+        _fail "force-push to main blocked — rebase and push normally"
+        exit 1
+    fi
+done
+
+# ── 2. Full frontmatter validation (all posts) ────────────────────────────
+if python3 scripts/validate_posts.py > /dev/null 2>&1; then
+    _ok "frontmatter valid"
+else
+    _fail "frontmatter validation failed"
+    python3 scripts/validate_posts.py 2>&1 | head -15 >&2 || true
+fi
+
+# ── 3. Full image ref check (all posts) ───────────────────────────────────
+img_errors=0
+for f in _posts/*.md; do
+    [[ -f "$f" ]] || continue
+    while IFS= read -r line; do
+        if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
+            imgpath=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' || true)
+            if [[ -n "$imgpath" && ! -f "${imgpath#/}" ]]; then
+                _fail "broken image: $imgpath in $(basename "$f")"
+                img_errors=$((img_errors+1))
+            fi
+        fi
+    done < "$f"
+done
+[[ $img_errors -eq 0 ]] && _ok "all image refs OK"
+
+# ── 4. _config.yml YAML + required keys ───────────────────────────────────
+if python3 - <<'PYEOF' 2>/dev/null; then
+import sys, yaml
+try:
+    cfg = yaml.safe_load(open('_config.yml'))
+    missing = [k for k in ('title', 'url', 'author') if k not in cfg]
+    if missing:
+        print(f"missing keys: {', '.join(missing)}", file=sys.stderr)
+        sys.exit(1)
+except yaml.YAMLError as e:
+    print(f"invalid YAML: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+    _ok "_config.yml valid"
+else
+    _fail "_config.yml: YAML error or missing required key (title/url/author)"
+fi
+
+# ── 5. CDN font check (all source files) ──────────────────────────────────
+if grep -rqE 'fonts\.googleapis\.com|fonts\.gstatic\.com' \
+    assets/css/ _sass/ _includes/ _layouts/ \
+    --include='*.css' --include='*.scss' --include='*.html' 2>/dev/null; then
+    _fail "Google Fonts CDN reference found — use self-hosted fonts only"
+    grep -rnE 'fonts\.googleapis\.com|fonts\.gstatic\.com' \
+        assets/css/ _sass/ _includes/ _layouts/ \
+        --include='*.css' --include='*.scss' --include='*.html' 2>/dev/null || true
+else
+    _ok "no CDN font refs"
+fi
+
+# ── 6. .env must not appear in commits being pushed ───────────────────────
+upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)
+if [[ -n "$upstream" ]]; then
+    if git log --name-only --format="" "${upstream}..HEAD" 2>/dev/null | grep -qE '^\.env$'; then
+        _fail ".env committed in push range — rewrite history before pushing"
+    fi
+fi
+
+# ── Result ────────────────────────────────────────────────────────────────
+echo ""
+if [[ $errors -gt 0 ]]; then
+    printf "${RED}[pre-push] %d error(s) — push blocked${RST}\n" "$errors" >&2
+    exit 1
+fi
+_ok "all checks passed — pushing"

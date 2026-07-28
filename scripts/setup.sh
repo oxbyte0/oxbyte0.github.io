@@ -58,7 +58,7 @@ GIT_HOOKS="${BLOG_DIR}/.git/hooks"
 for hook in pre-commit commit-msg pre-push; do
   src="${HOOKS_DIR}/${hook}"
   if [[ -f "$src" ]]; then
-    cp "$src" "${GIT_HOOKS}/${hook}"
+    \cp -f "$src" "${GIT_HOOKS}/${hook}"
     chmod +x "${GIT_HOOKS}/${hook}"
     echo "[*] $hook hook installed"
   else

@@ -50,9 +50,12 @@ if [[ -n "$staged_posts" ]]; then
         while IFS= read -r line; do
             if echo "$line" | grep -qE '!\[.*\]\(/assets/img/'; then
                 imgpath=$(echo "$line" | grep -oP '(?<=\()(/assets/img/[^)]+)(?=\))' || true)
-                if [[ -n "$imgpath" && ! -f "${ROOT}/${imgpath#/}" ]]; then
-                    _fail "broken image: $imgpath in $(basename "$f")"
-                    img_ok=0
+                if [[ -n "$imgpath" ]]; then
+                    decoded=$(python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.argv[1]))" "$imgpath")
+                    if [[ ! -f "${ROOT}/${decoded#/}" ]]; then
+                        _fail "broken image: $imgpath in $(basename "$f")"
+                        img_ok=0
+                    fi
                 fi
             fi
         done < "${ROOT}/$f"

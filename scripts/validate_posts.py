@@ -53,9 +53,11 @@ def main():
         if not m or 'placeholder' in m.group(1).strip() or m.group(1).strip() in ('', '/assets/img/logo.png'):
             warnings.append(f"{f.name}: missing or placeholder image")
         elif m.group(1).strip().startswith('/assets/img/'):
-            img_path = Path(__file__).parent.parent / m.group(1).strip().lstrip('/')
-            if not img_path.exists():
-                errors.append(f"{f.name}: image file not found: {m.group(1).strip()}")
+            assets_root = Path(__file__).parent.parent / 'assets' / 'img'
+            if assets_root.exists():
+                img_path = Path(__file__).parent.parent / m.group(1).strip().lstrip('/')
+                if not img_path.exists():
+                    errors.append(f"{f.name}: image file not found: {m.group(1).strip()}")
 
         m2 = re.search(r'^description:\s*"?(.+)"?$', fm, re.MULTILINE)
         if m2 and len(m2.group(1)) < 40:

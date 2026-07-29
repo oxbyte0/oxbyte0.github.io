@@ -7,11 +7,13 @@ pwned: true
 tags:
   - os/windows
   - diff/easy
+  - type/machine
 category:
   - HTB
 description: Escape two is an assumed breach scenario where we start of as Rose. Rose is able to view an SMB share that contains excel files which contain additional credentials for SA. SA is a service account running mssql which we have access to xp_cmdline to get a foothold. With this foothold we can look around and find a file with a cleartext password which, when password spraying, leads us to Ryan's account. Ryan has an ACL to write owner the CA account, which is the Certificate Authority service. Using the CA service we find a vulnerable certificate template that needs a slight edit for the ESC to work. Once we edit and exploit the template we're able to grab the Administrator's certificates and just like that we have root!
 image: https://labs.hackthebox.com/storage/avatars/d5fcf2425893a73cf137284e2de580e1.png
-cssclass: custom_htb
+cssclasses:
+  - custom_htb
 ---
 
 ![Escape2](https://labs.hackthebox.com/storage/avatars/d5fcf2425893a73cf137284e2de580e1.png)

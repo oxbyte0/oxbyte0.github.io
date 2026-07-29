@@ -8,6 +8,7 @@ tags:
   - boxes
   - os/linux
   - diff/medium
+  - type/machine
 category:
   - HTB
 description: Pterodactyl is running a pterodactyl panel which is vulnerable to an unauthenticated RCE in which a public PoC is available but will only work with some modifications using information taken from the machine. We can then pivot to another user by cracking the website database' passwords. We read their mail and discover that the system is vulnerable to two CVEs on OpenSUSE that allow a Local Privilege Escalation.

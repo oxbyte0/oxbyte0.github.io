@@ -42,6 +42,16 @@
     --nav-w:       clamp(188px, 15.5vw, 248px);
     --content-max: clamp(560px, 58vw, 980px);
 
+    /* ── Stacking contexts — single source of truth ── */
+    --z-code-gutter:  2;
+    --z-code-copy:    3;
+    --z-skeleton:     4;
+    --z-nav-drawer:   100;
+    --z-btt:          198;
+    --z-nav-overlay:  200;
+    --z-search:       500;
+    --z-progress:     1000;
+
     /* ── Dynamic vars set by JS (fallbacks here) ── */
     --dvh: 1dvh;
     --vw:  1vw;

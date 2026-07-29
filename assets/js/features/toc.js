@@ -1,3 +1,5 @@
+let _tocObserver = null;
+
 export function initToc() {
   const navToc  = document.querySelector('nav ul.nav-toc');
   const divider = document.getElementById('tocDivider');
@@ -41,8 +43,9 @@ export function initToc() {
   if (links.length) links[0].classList.add('active');
 
   if ('IntersectionObserver' in window) {
+    if (_tocObserver) { _tocObserver.disconnect(); _tocObserver = null; }
     const visible = new Set();
-    const observer = new IntersectionObserver(entries => {
+    _tocObserver = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) visible.add(e.target);
         else visible.delete(e.target);
@@ -51,7 +54,7 @@ export function initToc() {
       links.forEach(l => l.classList.remove('active'));
       if (top) navToc.querySelector(`a[href="#${top.id}"]`)?.classList.add('active');
     }, { rootMargin: '-8% 0px -80% 0px', threshold: 0 });
-    headings.forEach(h => observer.observe(h));
+    headings.forEach(h => _tocObserver.observe(h));
   }
 
   navToc.addEventListener('click', e => {

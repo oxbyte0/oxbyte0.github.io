@@ -8,7 +8,13 @@
 
 <!-- Preload main.js: the stylesheet is already linked in template.html above this include,
      so no duplicate CSS preload is needed — only the module entry point benefits from a hint -->
-<link rel="preload" href="/assets/js/main.js" as="script" crossorigin>
+<link rel="modulepreload" href="/assets/js/main.js">
+{% if page.layout == 'post' %}
+<link rel="modulepreload"
+  href="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs"
+  integrity="sha384-yZWNsk5z9bx9EvlwQD4KlZVm61Q2nI6tUxRpkBSslKIGzs48C2QIyYJqRAPKroQs"
+  crossorigin="anonymous">
+{% endif %}
 
 <!-- Self-hosted fonts: preload the CSS first, then two representative woff2 files
      (latin subset, most common weight) so glyphs render before FCP.
@@ -48,8 +54,9 @@
 <link rel="dns-prefetch" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com">
 {% endif %}
 
-<!-- Self-hosted font CSS — served from /assets/fonts/, no external CDN -->
-<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<!-- Self-hosted font CSS — async load to avoid render-blocking -->
+<link rel="stylesheet" href="/assets/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/assets/fonts/fonts.css"></noscript>
 
 {% include head-custom-google-analytics.html %}
 

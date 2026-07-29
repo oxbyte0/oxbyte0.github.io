@@ -6,7 +6,11 @@ layout: template
 {% assign mins  = words | divided_by: 150 | plus: 1 %}
 
 {% assign post_url = page.url | absolute_url %}
+{% if page.category contains 'HTB' %}
 {% capture tweet_msg %}Just pwned {{ page.title }} on HackTheBox! Check out @{{ site.social.name }}'s writeup 🏴‍☠️ {{ post_url }}{% endcapture %}
+{% else %}
+{% capture tweet_msg %}{{ page.title }} — {{ site.title }} {{ post_url }}{% endcapture %}
+{% endif %}
 
 <div class="print-header" aria-hidden="true">
   <strong>{{ site.title }}</strong> — {{ post_url }}<br>
@@ -48,7 +52,7 @@ layout: template
   </button>
   <a class="share-btn" href="https://x.com/intent/post?text={{ tweet_msg | url_encode }}" target="_blank" rel="noopener noreferrer">share on x</a>
   <a class="share-btn" href="https://www.reddit.com/submit?url={{ post_url | url_encode }}&title={{ page.title | url_encode }}" target="_blank" rel="noopener noreferrer">reddit</a>
-  <button class="share-btn" onclick="window.print()" aria-label="Export as PDF">export pdf</button>
+  <button class="share-btn" id="print-btn" aria-label="Export as PDF">export pdf</button>
 </div>
 
 {% comment %} BAD-05 fix: single-pass related posts — removed redundant first loop {% endcomment %}

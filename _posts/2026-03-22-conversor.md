@@ -7,6 +7,7 @@ pwned: true
 tags:
   - boxes
   - diff/easy
+  - type/machine
   - os/linux
 category:
   - HTB

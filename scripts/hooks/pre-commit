@@ -11,7 +11,7 @@ _warn() { printf "${YEL}[pre-commit] WARN:${RST} %s\n" "$*"; }
 _ok()   { printf "${GRN}[pre-commit]  OK :${RST} %s\n" "$*"; }
 
 # ── 1. Block secrets and generated files ──────────────────────────────────
-sensitive=$(printf '%s\n' "$STAGED" | grep -E '(^|/)\.env($|\.|_)|\.key$|\.pem$|\.p12$|\.pfx$|\.ppk$' || true)
+sensitive=$(printf '%s\n' "$STAGED" | grep -E '(^|/)\.env($|\.|_)|\.key$|\.pem$|\.p12$|\.pfx$|\.ppk$' | grep -v '\.env\.example$' || true)
 if [[ -n "$sensitive" ]]; then
     _fail "sensitive file(s) staged — never commit secrets"
     printf '%s\n' "$sensitive" | sed 's/^/       /'

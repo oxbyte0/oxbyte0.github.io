@@ -8,6 +8,7 @@ tags:
   - boxes
   - os/windows
   - diff/medium
+  - type/machine
 category:
   - HTB
 description: Overwatch is a medium windows box which allows guests to access a software SMB share. Said share contains a binary that when deconstructed leaks `sqlsvc`'s credentials which are usable to connect to the domain. `sqlsvc` has DNS permissions as well as we can find a linked server on the MSSQL service. We can exploit ADIDNS poisoning to point the linked server to ourselves and connect to it providing us credentials for the `sqlmgmt` user. Lastly we exploit the web service being used by the binary we found earlier in the software shell to get `NT authority/system`

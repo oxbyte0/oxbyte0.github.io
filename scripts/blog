@@ -8,8 +8,13 @@ DRAFTS_DIR="${BLOG_DIR}/_drafts"
 SCRIPTS_DIR="${BLOG_DIR}/scripts"
 BLOG_EDITOR="${EDITOR:-nano}"
 
-# load .env
-[[ -f "${BLOG_DIR}/.env" ]] && set -a && source "${BLOG_DIR}/.env" && set +a
+# load .env — targeted export, no set -a leak to child processes
+if [[ -f "${BLOG_DIR}/.env" ]]; then
+  ANTHROPIC_API_KEY=$(grep -m1 '^ANTHROPIC_API_KEY=' "${BLOG_DIR}/.env" | cut -d= -f2-)
+  CLAUDE_MODEL=$(grep -m1 '^CLAUDE_MODEL=' "${BLOG_DIR}/.env" | cut -d= -f2-)
+  [[ -n "${ANTHROPIC_API_KEY:-}" ]] && export ANTHROPIC_API_KEY
+  [[ -n "${CLAUDE_MODEL:-}" ]] && export CLAUDE_MODEL
+fi
 
 TODAY=$(date +%Y-%m-%d)
 
@@ -179,7 +184,7 @@ cmd_new() {
 
         slug=$(slug_from_title "$title")
         image="/assets/img/img_${slug}/${slug}.png"
-        tags="  - boxes\n  - os/${os}\n  - diff/${diff}"
+        tags="  - boxes\n  - os/${os}\n  - diff/${diff}\n  - type/machine"
         cssclass="custom_htb"
         creators_line="creators: ${creators}"
         released_line="released: ${released}"
@@ -427,7 +432,7 @@ cmd_htb() {
 
     local meta
     meta=$(python3 - "$machine" <<'PYEOF'
-import sys, json, urllib.request, urllib.error
+import sys, json, urllib.request, urllib.error, urllib.parse
 
 name = sys.argv[1]
 result = {"title": name, "image": "", "description": "", "os": "linux",

@@ -42,7 +42,7 @@
 
   .search-results {
     list-style: none; margin: 0; padding: 0;
-    flex: 1; overflow-y: auto; /* fills remaining height, scrolls */
+    flex: 1; overflow-y: auto; overflow-anchor: none; /* fills remaining height, scrolls */
     max-height: none; /* container controls height now */
     &[hidden] { display: none; }
     li + li { border-top: 1px solid var(--c-border); }

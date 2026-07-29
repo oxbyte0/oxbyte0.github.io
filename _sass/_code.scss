@@ -100,7 +100,7 @@
   .edgeLabel { border-radius: 0.5em !important; padding: 0.1em 0 !important; }
 
   @media screen and (max-width: 900px) {
-    code, pre, td.rouge-code pre { font-size: 11.5px !important; }
+    code, pre, td.rouge-code pre, td.rouge-gutter pre.lineno { font-size: 11.5px !important; }
     pre.highlight code { font-size: 11.5px !important; }
   }
 }

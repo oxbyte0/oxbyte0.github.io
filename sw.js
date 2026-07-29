@@ -2,7 +2,7 @@
 layout: null
 ---
 'use strict';
-var CACHE    = 'oxbyte-{{ site.github.build_revision | default: site.time | date: "%Y%m%d" }}';
+var CACHE    = 'oxbyte-{{ site.github.build_revision | default: site.time | date: "%Y%m%d%H%M%S" }}';
 var PRECACHE = [
   '/',
   '/assets/css/style.css',

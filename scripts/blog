@@ -32,6 +32,12 @@ urlencode() {
     python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$1"
 }
 
+# quote + escape a string for use as a YAML frontmatter scalar (JSON string
+# escaping is a valid subset of YAML double-quoted scalar escaping)
+yaml_dquote() {
+    python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$1"
+}
+
 # resolve registered Obsidian vault name for BLOG_DIR by reading obsidian.json
 _obsidian_vault_name() {
     python3 - "$BLOG_DIR" <<'PY'
@@ -186,7 +192,7 @@ cmd_new() {
         image="/assets/img/img_${slug}/${slug}.png"
         tags="  - boxes\n  - os/${os}\n  - diff/${diff}\n  - type/machine"
         cssclass="custom_htb"
-        creators_line="creators: ${creators}"
+        creators_line="creators: $(yaml_dquote "$creators")"
         released_line="released: ${released}"
         image_line="image: ${image}"
     else
@@ -207,7 +213,7 @@ cmd_new() {
     mkdir -p "${POSTS_DIR}"
     {
         echo "---"
-        echo "title: ${title}"
+        echo "title: $(yaml_dquote "$title")"
         echo "layout: post"
         [[ -n "${released_line:-}" ]] && echo "$released_line"
         [[ -n "${creators_line:-}" ]] && echo "$creators_line"
@@ -216,7 +222,7 @@ cmd_new() {
         printf "%b\n" "$tags"
         echo "category:"
         echo "  - ${category}"
-        echo "description: ${desc}"
+        echo "description: $(yaml_dquote "$desc")"
         [[ -n "${image_line:-}" ]] && echo "$image_line"
         echo "cssclasses:"
         echo "  - ${cssclass}"
@@ -421,7 +427,7 @@ cmd_htb() {
     [[ -z "$machine" ]] && return
 
     slug=$(slug_from_title "$machine")
-    filepath="${POSTS_DIR}/${TODAY}-${machine}.md"
+    filepath="${POSTS_DIR}/${TODAY}-${slug}.md"
 
     if [[ -f "$filepath" ]]; then
         wt_msg "already exists:\n${filepath}"
@@ -488,10 +494,10 @@ for k in ('title','os','diff','creators','released','image','description'):
     mkdir -p "${POSTS_DIR}"
     {
         echo "---"
-        echo "title: ${title}"
+        echo "title: $(yaml_dquote "$title")"
         echo "layout: post"
         [[ -n "$released"    ]] && echo "released: ${released}"
-        [[ -n "$creators"    ]] && echo "creators: ${creators}"
+        [[ -n "$creators"    ]] && echo "creators: $(yaml_dquote "$creators")"
         echo "pwned: true"
         echo "tags:"
         echo "  - boxes"
@@ -500,7 +506,7 @@ for k in ('title','os','diff','creators','released','image','description'):
         echo "  - type/machine"
         echo "category:"
         echo "  - HTB"
-        echo "description: \"${description}\""
+        echo "description: $(yaml_dquote "$description")"
         if [[ -n "$image" ]]; then
             echo "image: ${image}"
         else
@@ -603,7 +609,7 @@ cmd_import() {
         [[ -z "$diff" ]] && return
         {
             echo "---"
-            echo "title: ${name}"
+            echo "title: $(yaml_dquote "$name")"
             echo "layout: post"
             echo "released: ${TODAY}"
             echo "pwned: true"

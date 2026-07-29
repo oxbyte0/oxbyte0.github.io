@@ -93,13 +93,13 @@ def build_frontmatter(meta: dict) -> str:
     image = f"/assets/img/img_{slug}/{slug}.png"
     lines = [
         "---",
-        f"title: {meta['title']}",
+        f"title: {json.dumps(meta['title'])}",
         "layout: post",
     ]
     if meta.get("released"):
         lines.append(f"released: {meta['released']}")
     if meta.get("creators"):
-        lines.append(f"creators: {meta['creators']}")
+        lines.append(f"creators: {json.dumps(meta['creators'])}")
     lines += [
         "pwned: true",
         "tags:",
@@ -108,7 +108,7 @@ def build_frontmatter(meta: dict) -> str:
         f"  - diff/{meta['diff']}",
         "category:",
         "  - HTB",
-        f"description: {meta.get('description', '')}",
+        f"description: {json.dumps(meta.get('description', ''))}",
         f"image: {image}",
         "cssclasses:",
         "  - custom_htb",

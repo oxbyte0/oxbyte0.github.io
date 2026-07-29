@@ -6,22 +6,14 @@ layout: compress
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-      (function(){try{
-        var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
-        document.documentElement.style.colorScheme=t;
-        document.documentElement.dataset.theme=t;
-        var a=localStorage.getItem('a11y');
-        if(a){a.split(' ').forEach(function(c){if(c)document.documentElement.classList.add(c);});}
-      }catch(e){}}());
-    </script>
+    <script src="/assets/js/theme-init.js"></script>
 {% seo %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | default: site.time | date: "%s" | relative_url }}">
     <script type="module" src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}"></script>
     {% include head-custom.html %}
   </head>
   <body>
-    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" hidden aria-hidden="true">
       <symbol id="icon-list" viewBox="0 0 16 16">
         <path fill="currentColor" fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
       </symbol>
@@ -113,7 +105,7 @@ layout: compress
           </details>
           {% endif %}
 
-          <hr class="nav-divider nav-toc-divider" id="tocDivider" style="display:none">
+          <hr class="nav-divider nav-toc-divider" id="tocDivider" hidden>
           <ul class="nav-toc" aria-label="Table of contents"></ul>
         </div>
 
@@ -143,6 +135,6 @@ layout: compress
       </main>
     </div>
     <a href="/trap" class="h-trap" tabindex="-1" aria-hidden="true" rel="nofollow noopener">.</a>
-    <noscript><form action="/trap-ns" method="post" aria-hidden="true" style="display:none"><input type="text" name="url"><input type="submit" value="go"></form></noscript>
+    <noscript><form action="/trap-ns" method="post" aria-hidden="true" hidden><input type="text" name="url"><input type="submit" value="go"></form></noscript>
   </body>
 </html>

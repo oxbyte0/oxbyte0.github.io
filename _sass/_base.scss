@@ -93,9 +93,7 @@
     html { scroll-behavior: auto !important; }
     #progress { display: none; }
   }
-}
 
-@layer base {
   /* Device-adaptive hooks set by device.js */
   [data-pointer="touch"] {
     --btn-min-h: 44px;
@@ -104,6 +102,4 @@
   [data-network="slow"] img[loading="lazy"] {
     background: var(--c-surface-2);
   }
-  /* search-overlay: position:fixed;inset:0 already fills viewport correctly.
-     min-height:100dvh is redundant and breaks on iOS Safari viewport resize. */
 }

@@ -8,6 +8,7 @@ tags:
   - boxes
   - os/linux
   - diff/easy
+  - type/machine
 category:
   - HTB
 description: Expressway is running isakmp on port 500 UDP, which allows us to retrieve a user and a psk hash which can be cracked to retrieve a password. We then ssh into the target using these credentials and find a vulnerable sudo version and a host which could be configured in the sudoers file. Abusing the host-any privilege we can escalate to root.

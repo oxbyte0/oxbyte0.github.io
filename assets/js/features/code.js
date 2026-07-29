@@ -36,14 +36,10 @@ export function initCode() {
       }
 
       function fallback() {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-        document.body.appendChild(ta);
-        ta.focus(); ta.select();
-        try { document.execCommand('copy'); showOk(); }
-        catch { btn.textContent = '!'; setTimeout(() => { btn.innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16"><use href="#icon-copy"></use></svg>'; }, 1500); }
-        finally { document.body.removeChild(ta); }
+        btn.textContent = '✗';
+        setTimeout(() => {
+          btn.innerHTML = '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16"><use href="#icon-copy"></use></svg>';
+        }, 1500);
       }
 
       navigator.clipboard ? navigator.clipboard.writeText(text).then(showOk).catch(fallback) : fallback();

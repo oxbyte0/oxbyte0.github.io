@@ -80,7 +80,7 @@ serve: convert fonts
 
 deploy:
 	@if [ -z "$(MSG)" ]; then bash scripts/blog deploy; else \
-	  git add -A -- ':!.env' ':!.env.*' ':!*.key' && git commit -m "$(MSG)" && git push origin main; fi
+	  git add -A -- ':!.env' ':!.env.*' ':!*.key' ':!_site' ':!vendor' ':!.sass-cache' ':!.jekyll-cache' && git commit -m "$(MSG)" && git push origin main; fi
 
 open:
 	@bash scripts/blog open

@@ -7,6 +7,7 @@ pwned: true
 tags:
   - os/windows
   - diff/medium
+  - type/machine
 category:
   - HTB
 description: TombWatcher is yet another assumed breach scenario, staring with Henry's credentials. Henry is able to set an SPN for Alfred so we kerberoast him. Alfred can, through a long chain of ACLs, gain access to John, our user. Using John we enumerate deleted objects and are able to restore a deleted account called cert_admin. Cert_admin can perform ESC15 which we use to gain access as Administrator.

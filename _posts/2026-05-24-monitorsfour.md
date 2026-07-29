@@ -8,6 +8,7 @@ tags:
   - boxes
   - os/windows
   - diff/easy
+  - type/machine
 category:
   - HTB
 description: Monitors Four is running a network solutions website with a cacti subdomain. The main website is vulnerable to information disclosure via a user endpoint with a token parameter. We're able to crack the admin hash and login to view the changelog of the system. We're also able to reuse the same password for the marcus user on cacti and utilize a file write CVE to gain RCE. We're then able to exploit a vulnerable version of docker wherein the api is accessible from any container. We create a new container with the root directory mounted and are able to send several exec commands to gain complete root access to the host's drive.

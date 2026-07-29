@@ -93,14 +93,19 @@ export function initShare() {
   });
 }
 
+/* ── Print button ── */
+export function initPrint() {
+  document.getElementById('print-btn')?.addEventListener('click', () => window.print());
+}
+
 /* ── Giscus theme sync ── */
 export function initGiscus() {
   document.addEventListener('theme-changed', e => {
     const frame = document.querySelector('iframe.giscus-frame');
     if (!frame) return;
     const theme = e.detail.light
-      ? 'https://oxbyte.blog/assets/css/giscus-light.css'
-      : 'https://oxbyte.blog/assets/css/giscus.css';
+      ? `${window.location.origin}/assets/css/giscus-light.css`
+      : `${window.location.origin}/assets/css/giscus.css`;
     frame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
   });
 }

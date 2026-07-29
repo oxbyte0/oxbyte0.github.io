@@ -98,6 +98,38 @@ export function initPrint() {
   document.getElementById('print-btn')?.addEventListener('click', () => window.print());
 }
 
+/* ── Giscus lazy loader — reads config from data-attrs on #giscus-host ── */
+export function initGiscusLoader() {
+  const host = document.getElementById('giscus-host');
+  if (!host) return;
+  const d = host.dataset;
+  let done = false;
+  function load() {
+    if (done) return; done = true;
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.setAttribute('data-repo',             d.repo || '');
+    s.setAttribute('data-repo-id',          d.repoId || '');
+    s.setAttribute('data-category',         d.category || 'Announcements');
+    s.setAttribute('data-category-id',      d.categoryId || '');
+    s.setAttribute('data-mapping',          d.mapping || 'pathname');
+    s.setAttribute('data-strict',           d.strict || '1');
+    s.setAttribute('data-reactions-enabled',d.reactions || '1');
+    s.setAttribute('data-emit-metadata',    d.emitMetadata || '0');
+    s.setAttribute('data-input-position',   d.inputPosition || 'top');
+    s.setAttribute('data-theme',            d.theme || 'noborder_dark');
+    s.setAttribute('data-lang',             d.lang || 'en');
+    s.setAttribute('crossorigin', 'anonymous');
+    s.async = true;
+    host.appendChild(s);
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((e, o) => {
+      if (e[0].isIntersecting) { o.disconnect(); load(); }
+    }, { rootMargin: '300px 0px' }).observe(host);
+  } else { load(); }
+}
+
 /* ── Giscus theme sync ── */
 export function initGiscus() {
   document.addEventListener('theme-changed', e => {

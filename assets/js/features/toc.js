@@ -9,7 +9,7 @@ export function initToc() {
   const headings = [...body.querySelectorAll('h1, h2, h3')];
   if (!headings.length) return;
 
-  if (divider) divider.style.display = '';
+  if (divider) divider.hidden = false;
 
   const slugCount = {};
   const frag = document.createDocumentFragment();

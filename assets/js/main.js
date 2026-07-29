@@ -3,7 +3,7 @@ import { initA11y }   from './lib/a11y.js';
 import { initNav }    from './lib/nav.js';
 import { initDeviceAdaptation } from './features/device.js';
 import {
-  initProgress, initBackToTop, initShare, initGiscus, initPrint,
+  initProgress, initBackToTop, initShare, initGiscus, initGiscusLoader, initPrint,
   initPwa, initWebP, initBotDetect, initViewTransitions, initSpeculationRules,
   initSkeletons, initLazyImages
 } from './features/misc.js';
@@ -27,6 +27,7 @@ idle(() => {
   initShare();
   initPrint();
   initGiscus();
+  initGiscusLoader();
   initPwa();
   initBotDetect();
   initSpeculationRules();

@@ -3,7 +3,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="format-detection" content="telephone=no,date=no,email=no,address=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
 
 <!-- Preload main.js: the stylesheet is already linked in template.html above this include,
@@ -54,8 +54,8 @@
 <link rel="dns-prefetch" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com">
 {% endif %}
 
-<!-- Self-hosted font CSS — async load to avoid render-blocking -->
-<link rel="stylesheet" href="/assets/fonts/fonts.css" media="print" onload="this.media='all'">
+<!-- Self-hosted font CSS — media=print so it doesn't block; theme-init.js swaps to all -->
+<link id="fonts-css" rel="stylesheet" href="/assets/fonts/fonts.css" media="print">
 <noscript><link rel="stylesheet" href="/assets/fonts/fonts.css"></noscript>
 
 {% include head-custom-google-analytics.html %}

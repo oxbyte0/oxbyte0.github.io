@@ -19,7 +19,7 @@
   }
 
   .nav-scroll {
-    flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+    flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overflow-anchor: none;
     scrollbar-width: thin; scrollbar-color: var(--c-muted) transparent;
     overscroll-behavior: contain;
   }

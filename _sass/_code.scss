@@ -48,7 +48,7 @@
   pre.highlight {
     margin: var(--sp-2) 0; background: var(--c-code-bg); border: 1px solid var(--c-border);
     border-radius: var(--r-md); position: relative; padding: 0;
-    overflow-x: auto; overflow-y: auto; max-height: 32em;
+    overflow-x: auto; overflow-y: auto; max-height: 32em; overflow-anchor: none;
     scrollbar-width: thin; scrollbar-color: var(--c-muted) transparent;
 
     &::before {

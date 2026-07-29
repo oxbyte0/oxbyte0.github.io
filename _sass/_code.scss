@@ -5,7 +5,7 @@
   .rouge-table { border-collapse: collapse; margin: 0; min-width: 100%; width: max-content; }
   .rouge-table td { padding: 0; border: none; vertical-align: top; }
   td.rouge-gutter.gl { padding: 5px 8px 5px 10px; width: 1%; white-space: nowrap; text-align: right; position: sticky; left: 0; z-index: 2; background: var(--c-code-bg); }
-  td.rouge-gutter pre.lineno { padding: 0; margin: 0; background: none; border: none; font-size: 11px; line-height: 1.6; color: var(--c-muted); user-select: none; -webkit-user-select: none; }
+  td.rouge-gutter pre.lineno { padding: 0; margin: 0; background: none; border: none; font-size: clamp(12px, 0.75vw + 7px, 14px); line-height: 1.6; color: var(--c-muted); user-select: none; -webkit-user-select: none; }
   td.rouge-code { padding: 5px 10px 7px 8px; }
   td.rouge-code pre { padding: 0; margin: 0; background: none; border: none; overflow: visible; min-width: 0; white-space: pre; font-size: clamp(12px, 0.75vw + 7px, 14px); line-height: 1.6; }
 

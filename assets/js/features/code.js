@@ -1,4 +1,19 @@
+// Firefox restores scrollable descendants' scroll offset on reload; re-zero it.
+function resetScrollPositions() {
+  document.querySelectorAll('pre.highlight').forEach(pre => {
+    pre.scrollTop = 0;
+    pre.scrollLeft = 0;
+  });
+}
+
 export function initCode() {
+  resetScrollPositions();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(resetScrollPositions).catch(() => {});
+  }
+  window.addEventListener('load', resetScrollPositions, { once: true });
+  requestAnimationFrame(() => requestAnimationFrame(resetScrollPositions));
+
   document.querySelectorAll('pre.highlight').forEach(pre => {
     pre.setAttribute('tabindex', '0');
     pre.setAttribute('role', 'region');

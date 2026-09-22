@@ -77,7 +77,9 @@ layout: compress
               <button class="htb-diff" data-diff="insane" aria-label="Insane only">I</button>
             </div>
             <ul class="nav-htb-list" id="htbList">
-              {% assign htb_sorted = site.categories.HTB | sort: "title" %}
+              {% assign htb_sorted = site.categories.HTB %}
+              {% unless htb_sorted %}{% assign htb_sorted = "" | split: "," %}{% endunless %}
+              {% assign htb_sorted = htb_sorted | sort: "title" %}
               {% for post in htb_sorted %}
                 {% assign diff = "" %}
                 {% assign htype = "machine" %}

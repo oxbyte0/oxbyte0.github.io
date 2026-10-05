@@ -25,8 +25,6 @@ export function initTheme() {
     html.style.colorScheme = light ? 'dark' : 'light';
     safeStorage('theme', light ? 'dark' : 'light');
     sync();
-    /* Notify giscus of theme change */
-    document.dispatchEvent(new CustomEvent('theme-changed', { detail: { light: !light } }));
   });
 
   return { isLight: () => html.style.colorScheme === 'light' };

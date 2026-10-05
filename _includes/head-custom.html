@@ -3,7 +3,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="format-detection" content="telephone=no,date=no,email=no,address=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://gc.zgo.at; style-src 'self'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
 
 <!-- Preload main.js: the stylesheet is already linked in template.html above this include,
@@ -29,11 +29,10 @@
 <link rel="preload" as="image" href="{{ page.image }}" fetchpriority="high">
 {% endif %}
 
-<!-- Third-party preconnects: only GoatCounter and Giscus are always needed.
+<!-- Third-party preconnects: only GoatCounter is always needed.
      HTB S3 preconnect is gated to post pages to avoid wasted handshakes on
      the home/archive pages that never load S3 images. -->
 <link rel="preconnect" href="https://gc.zgo.at">
-<link rel="preconnect" href="https://giscus.app" crossorigin>
 {% if page.layout == 'post' or page.date %}
 <link rel="preconnect" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com" crossorigin>
 {% endif %}
@@ -46,7 +45,6 @@
 
 <!-- dns-prefetch fallback for browsers that do not support preconnect -->
 <link rel="dns-prefetch" href="https://gc.zgo.at">
-<link rel="dns-prefetch" href="https://giscus.app">
 {% if page.layout == 'post' or page.date %}
 <link rel="dns-prefetch" href="https://htb-mp-prod-public-storage.s3.eu-central-1.amazonaws.com">
 {% endif %}

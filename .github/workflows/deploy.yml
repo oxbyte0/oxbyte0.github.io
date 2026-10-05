@@ -90,14 +90,6 @@ jobs:
           fi
           echo "OK: No Google Fonts CDN references"
 
-      - name: Warn on static giscus script tags
-        run: |
-          if grep -rq 'src="https://giscus\.app/client\.js"' _layouts/ _includes/; then
-            echo "WARN: Static giscus script in HTML — prefer IntersectionObserver injection"
-          else
-            echo "OK: Giscus loaded via JS (no static fingerprint)"
-          fi
-
   lint-config:
     name: Validate Config
     runs-on: ubuntu-latest

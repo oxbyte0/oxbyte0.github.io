@@ -7,7 +7,7 @@ Live at **[oxbyte.blog](https://oxbyte.blog)**
 
 ## Overview
 
-Static blog built with Jekyll and hosted on GitHub Pages. The pipeline auto-fetches HTB machine metadata, converts images to WebP/AVIF, purges unused CSS, subsets and self-hosts fonts, then deploys through a 5-stage CI pipeline. No CDN dependencies at runtime except Giscus (comments) and GoatCounter (analytics) — both optional.
+Static blog built with Jekyll and hosted on GitHub Pages. The pipeline auto-fetches HTB machine metadata, converts images to WebP/AVIF, purges unused CSS, subsets and self-hosts fonts, then deploys through a 5-stage CI pipeline. No third-party runtime dependencies except GoatCounter (analytics, optional) — all other JS/CSS is self-hosted.
 
 ---
 
@@ -26,7 +26,6 @@ Static blog built with Jekyll and hosted on GitHub Pages. The pipeline auto-fetc
 | Image pipeline | CI converts PNG/JPG → WebP + AVIF, compresses originals, serves `<picture>` with fallback |
 | Font pipeline | CI downloads Google Fonts, subsets to latin, self-hosts with MD5-named files. `make fonts` mirrors this locally |
 | PurgeCSS | CI strips unused CSS selectors from the built `style.css` |
-| Giscus comments | GitHub Discussions-based comments, lazy-loaded when post scrolls into view |
 | GoatCounter analytics | Privacy-respecting, cookie-free. Disabled when not configured |
 | Print / PDF export | Post layout has a hidden print header/footer; "export pdf" button triggers `window.print()` |
 | Accessibility | Reduce-motion, high-contrast toggles; WCAG touch targets on mobile; `aria-*` throughout |
@@ -42,7 +41,7 @@ Jekyll (Ruby 3.3)
 │   ├── compress.html   — Liquid HTML minifier (layout wrapper)
 │   ├── template.html   — Shell: nav, search overlay, SVG sprite, progress bar
 │   ├── default.html    — Used by non-post pages (index, archive)
-│   └── post.html       — Post body: meta, tags, share buttons, related posts, comments
+│   └── post.html       — Post body: meta, tags, share buttons, related posts
 ├── _includes/
 │   ├── head-custom.html          — Security headers, preloads, preconnects, analytics
 │   ├── seo-extra.html            — OG tags, JSON-LD BreadcrumbList + BlogPosting / WebSite
@@ -277,7 +276,7 @@ url: "https://oxbyte.blog"
 lang: en-US
 timezone: UTC
 
-# ── Analytics / comments ──────────────────────────────────────────────────
+# ── Analytics ─────────────────────────────────────────────────────────────
 # Injected by CI (deploy.yml) — leave blank here; set in repo secrets
 google_analytics:          # GA4 measurement ID (G-XXXXXXX)
 goatcounter:               # GoatCounter subdomain (e.g. oxbyte → oxbyte.goatcounter.com)
@@ -295,21 +294,6 @@ plugins:
   - jekyll-seo-tag
   - jekyll-feed
   - jekyll-sitemap
-
-# ── Giscus comments ───────────────────────────────────────────────────────
-# Enable GitHub Discussions on this repo, then go to https://giscus.app
-# and fill in the values it gives you.
-giscus:
-  repo: "oxbyte0/oxbyte.github.io"
-  repo_id: "..."          # from giscus.app
-  category: "Announcements"
-  category_id: "..."      # from giscus.app
-  mapping: pathname
-  strict: "1"
-  reactions: "1"
-  emit_metadata: "0"
-  input_position: top
-  theme: noborder_dark
 
 # ── Jekyll build ──────────────────────────────────────────────────────────
 markdown: kramdown
@@ -454,8 +438,8 @@ The hook runs `scripts/validate_posts.py` before every commit and blocks if any 
 | Hosting | GitHub Pages |
 | Ruby | 3.3.8 |
 | Syntax highlighting | Rouge (server-side) |
-| Search | Fuse.js 7.x (client-side, SRI-pinned) |
-| Comments | Giscus (GitHub Discussions) |
+| Search | Fuse.js (self-hosted) |
+| Comments | none |
 | Analytics | GoatCounter |
 | CSS architecture | SCSS + CSS @layer |
 | JS | Vanilla ES modules (no bundler) |

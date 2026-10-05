@@ -103,20 +103,3 @@ layout: template
   {{ _related_html }}
 </div>
 {% endif %}
-
-{% if site.giscus.repo and site.giscus.repo != "" and site.giscus.repo_id != "" %}
-<div class="giscus-wrapper" id="giscus-host"
-  data-repo="{{ site.giscus.repo }}"
-  data-repo-id="{{ site.giscus.repo_id }}"
-  data-category="{{ site.giscus.category | default: 'Announcements' }}"
-  data-category-id="{{ site.giscus.category_id }}"
-  data-mapping="{{ site.giscus.mapping | default: 'pathname' }}"
-  data-strict="{{ site.giscus.strict | default: '1' }}"
-  data-reactions="{{ site.giscus.reactions | default: '1' }}"
-  data-emit-metadata="{{ site.giscus.emit_metadata | default: '0' }}"
-  data-input-position="{{ site.giscus.input_position | default: 'top' }}"
-  data-theme="{{ site.giscus.theme | default: 'noborder_dark' }}"
-  data-lang="en">
-  <p class="posts-category">comments</p>
-</div>
-{% endif %}

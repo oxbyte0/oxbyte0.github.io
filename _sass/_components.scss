@@ -148,8 +148,6 @@
   p.view a:hover { color: var(--c-accent); }
 
   .related-posts { margin-top: var(--sp-6); }
-  .giscus-wrapper { margin-top: var(--sp-6); padding-top: var(--sp-5); border-top: 1px solid var(--c-border); .posts-category { margin-bottom: var(--sp-4); } }
-  .giscus, .giscus-frame { width: 100%; border: none; border-radius: var(--r-lg); min-height: 120px; color-scheme: light dark; }
 
   /* ── Honeypot ── */
   .h-trap { opacity: 0; position: absolute; width: 1px; height: 1px; overflow: hidden; pointer-events: none; user-select: none; }

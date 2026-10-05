@@ -25,10 +25,11 @@ export function initSearch(navState) {
       .then(r => r.json())
       .then(posts => {
         posts = posts.filter(p => p.url && !p.url.includes('/c4n4ry'));
+        // Self-hosted (was cdn.jsdelivr.net/npm/fuse.js@7.2.0) — drops the
+        // exact-version CDN URL from page source/network, no SRI needed
+        // for a same-origin file.
         const s = document.createElement('script');
-        s.src         = 'https://cdn.jsdelivr.net/npm/fuse.js@7.2.0/dist/fuse.min.js';
-        s.integrity   = 'sha384-fjX7DeaZ/XFhVUVbuJ4tJCCRWoC6LtyhHqvsNRsJBcfs1VksovPjnUUGM3+Ii9st';
-        s.crossOrigin = 'anonymous';
+        s.src         = '/assets/js/vendor/fuse.min.js';
         s.async       = true;
         s.onload = () => {
           try {

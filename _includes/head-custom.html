@@ -3,17 +3,14 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="format-detection" content="telephone=no,date=no,email=no,address=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; style-src 'self' https://giscus.app; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at https://giscus.app; frame-src https://giscus.app; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
 <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
 
 <!-- Preload main.js: the stylesheet is already linked in template.html above this include,
      so no duplicate CSS preload is needed — only the module entry point benefits from a hint -->
 <link rel="modulepreload" href="/assets/js/main.js">
 {% if page.layout == 'post' %}
-<link rel="modulepreload"
-  href="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs"
-  integrity="sha384-yZWNsk5z9bx9EvlwQD4KlZVm61Q2nI6tUxRpkBSslKIGzs48C2QIyYJqRAPKroQs"
-  crossorigin="anonymous">
+<link rel="modulepreload" href="/assets/js/vendor/mermaid/mermaid.esm.min.mjs">
 {% endif %}
 
 <!-- Self-hosted fonts: preload the CSS first, then two representative woff2 files

@@ -1,5 +1,8 @@
-import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs';
-// integrity="sha384-yZWNsk5z9bx9EvlwQD4KlZVm61Q2nI6tUxRpkBSslKIGzs48C2QIyYJqRAPKroQs"
+// Self-hosted (was cdn.jsdelivr.net/npm/mermaid@10.9.3) — static ES module
+// imports have no integrity attribute, so a CDN fetch here was unverifiable
+// at the browser level; vendoring also drops the exact-version CDN URL that
+// fingerprinting tools (Wappalyzer etc.) read straight out of page source.
+import mermaid from './vendor/mermaid/mermaid.esm.min.mjs';
 mermaid.initialize({
   startOnLoad: false,
   theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'default' : 'dark'

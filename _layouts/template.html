@@ -8,7 +8,9 @@ layout: compress
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% assign _ti_v = site.github.build_revision | default: site.time | date: "%s" %}
     <script src="{{ "/assets/js/theme-init.js?v=" | append: _ti_v | relative_url }}"></script>
-{% seo %}
+{% capture _seo_block %}{% seo %}{% endcapture %}
+{% capture _generator_tag %}<meta name="generator" content="Jekyll v{{ jekyll.version }}" />{% endcapture %}
+{{ _seo_block | replace: _generator_tag, "" }}
     {% assign _css_v = site.github.build_revision | default: site.time | date: "%s" %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: _css_v | relative_url }}">
     <script type="module" src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}"></script>

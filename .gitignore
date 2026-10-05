@@ -7,7 +7,7 @@ assets/img/**/*.webp
 .jekyll-cache/
 .jekyll-metadata
 _site/
-vendor/
+/vendor/
 # Gemfile.lock committed (app, not library — ensures reproducible builds)
 .bundle/
 __pycache__/

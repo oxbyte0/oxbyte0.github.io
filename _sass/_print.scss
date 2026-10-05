@@ -9,17 +9,32 @@
     .wrapper { display: block !important; padding: 0 !important; }
     a { color: #111 !important; text-decoration: underline !important; }
     a[href]::after { content: " (" attr(href) ")"; font-size: 8pt; color: #666; }
+    a[href^="#"]::after { content: none !important; } /* in-page anchors are meaningless once nav/TOC is hidden */
     h1, h2, h3 { page-break-after: avoid; color: #000 !important; }
-    pre, img, table { page-break-inside: avoid; }
+    img, table { page-break-inside: avoid; }
     pre, code { font-size: 9pt !important; color: #111 !important; background: #f8f8f8 !important; border: 1px solid #e0e0e0 !important; }
-    pre.highlight { border: 1px solid #e0e0e0 !important; background: #f8f8f8 !important; padding: 0 !important; }
+
+    /* Code blocks are scroll-capped on screen (max-height + overflow-y/x: auto) —
+       print can't scroll, so without resetting these, anything past 32em tall or
+       past the page width is silently cut off instead of printed. Let content
+       flow across pages and wrap long lines instead of clipping them. */
+    pre.highlight { border: 1px solid #e0e0e0 !important; background: #f8f8f8 !important; padding: 0 !important; max-height: none !important; overflow: visible !important; }
     pre.highlight::before { display: none !important; height: 0 !important; }
     pre.highlight.collapsed code { display: block !important; }
-    pre.highlight code { background: #f8f8f8 !important; color: #111 !important; padding: 8pt !important; overflow: visible !important; }
+    pre.highlight code { background: #f8f8f8 !important; color: #111 !important; padding: 8pt !important; overflow: visible !important; white-space: pre-wrap !important; word-break: break-word !important; }
+    pre, pre code, td.rouge-code pre { white-space: pre-wrap !important; overflow: visible !important; word-break: break-word !important; }
     .rouge-table { background: #f8f8f8 !important; }
-    td.rouge-gutter.gl { position: static !important; background: #f0f0f0 !important; border-right: 1px solid #e0e0e0 !important; }
+    /* Hidden rather than just un-stuck: once code wraps for print, a logical
+       line can span multiple visual rows, so per-line numbers would no
+       longer line up with their code — misleading is worse than absent. */
+    td.rouge-gutter.gl { display: none !important; }
     td.rouge-code { background: #f8f8f8 !important; }
     td.rouge-code pre { background: none !important; color: #111 !important; border: none !important; }
+
+    /* Mermaid diagrams: max-width:none on screen (for pan/zoom) overflows the
+       printed page width unless reset. */
+    .mermaid { page-break-inside: avoid; }
+    .mermaid svg { max-width: 100% !important; width: 100% !important; height: auto !important; }
     .highlight .k, .highlight .kd, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kt, .highlight .kv, .highlight .kc { color: #333 !important; font-weight: bold !important; }
     .highlight .s, .highlight .s1, .highlight .s2, .highlight .sd, .highlight .se { color: #555 !important; }
     .highlight .c, .highlight .c1, .highlight .cm, .highlight .cs, .highlight .cd { color: #888 !important; }

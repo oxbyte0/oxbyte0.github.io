@@ -95,7 +95,24 @@ export function initShare() {
 
 /* ── Print button ── */
 export function initPrint() {
-  document.getElementById('print-btn')?.addEventListener('click', () => window.print());
+  document.getElementById('print-btn')?.addEventListener('click', async () => {
+    /* Mermaid diagrams render async (lazy-loaded module) — if a diagram
+       hasn't finished by click time, printing now bakes raw mermaid
+       syntax or blank space into the PDF instead of the rendered SVG. */
+    if (document.querySelector('.mermaid, .language-mermaid, pre.mermaid')) {
+      const deadline = Date.now() + 3000;
+      while (!window.__mermaidReady && Date.now() < deadline) {
+        await new Promise(r => setTimeout(r, 50));
+      }
+      if (window.__mermaidReady) {
+        await Promise.race([
+          window.__mermaidReady,
+          new Promise(r => setTimeout(r, Math.max(0, deadline - Date.now()))),
+        ]);
+      }
+    }
+    window.print();
+  });
 }
 
 /* ── Giscus lazy loader — reads config from data-attrs on #giscus-host ── */

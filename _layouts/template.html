@@ -8,7 +8,8 @@ layout: compress
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="/assets/js/theme-init.js"></script>
 {% seo %}
-    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: site.github.build_revision | default: site.time | date: "%s" | relative_url }}">
+    {% assign _css_v = site.github.build_revision | default: site.time | date: "%s" %}
+    <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: _css_v | relative_url }}">
     <script type="module" src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}"></script>
     {% include head-custom.html %}
   </head>
@@ -59,6 +60,7 @@ layout: compress
 
           <details class="nav-htb">
             <summary>htb <span class="nav-htb-count" id="htbCount">{{ site.categories.HTB.size }}</span></summary>
+            {% if site.categories.HTB.size >= 6 %}
             <div class="htb-type-tabs" role="tablist" aria-label="Content type filter">
               <button class="htb-type active" data-type="" role="tab" aria-selected="true">all</button>
               <button class="htb-type" data-type="machine" role="tab" aria-selected="false">machines</button>
@@ -77,6 +79,7 @@ layout: compress
               <button class="htb-diff" data-diff="hard"   aria-label="Hard only">H</button>
               <button class="htb-diff" data-diff="insane" aria-label="Insane only">I</button>
             </div>
+            {% endif %}
             <ul class="nav-htb-list" id="htbList">
               {% assign htb_sorted = site.categories.HTB %}
               {% unless htb_sorted %}{% assign htb_sorted = "" | split: "," %}{% endunless %}

@@ -1,5 +1,6 @@
 title: oxbyte
 description: "HackTheBox machine writeups, CTF solutions, and offensive security research — retired boxes, AD attacks, web exploitation."
+tagline: "Full exploitation chains, not spoiler dumps — enumeration through root, one retired box at a time."
 url: "https://oxbyte.blog"
 lang: en-US
 timezone: UTC

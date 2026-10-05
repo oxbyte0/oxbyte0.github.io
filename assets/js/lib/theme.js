@@ -12,7 +12,7 @@ export function initTheme() {
   function sync() {
     const light = html.style.colorScheme === 'light';
     html.dataset.theme = light ? 'light' : 'dark';
-    if (icon)  icon.textContent  = light ? '☽' : '☀';
+    if (icon)  icon.querySelector('use')?.setAttribute('href', light ? '#icon-moon' : '#icon-sun');
     if (label) label.textContent = light ? 'dark mode' : 'light mode';
     btn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
     if (tc) tc.setAttribute('content', light ? '#f6f6f6' : '#060606');

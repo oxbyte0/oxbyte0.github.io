@@ -62,6 +62,11 @@
   table { width: 100%; border-collapse: collapse; margin: var(--sp-3) 0; font-size: 13px; }
   /* Post body tables scroll horizontally on phones (HTB scan output etc.) */
   .post-body table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+  /* Prose measure: cap at 75ch so wide desktop viewports don't stretch
+     paragraphs past a readable line length — code/tables/images stay
+     full-width since long terminal output benefits from the room. */
+  .post-body > p, .post-body > ul, .post-body > ol, .post-body > blockquote { max-width: 75ch; }
   th, td { text-align: left; padding: var(--sp-1) var(--sp-2); border-bottom: 1px solid var(--c-border); }
   th { color: var(--c-head); font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.10em; border-bottom-color: var(--c-border-2); }
 

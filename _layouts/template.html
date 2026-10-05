@@ -28,6 +28,28 @@ layout: compress
       <symbol id="icon-check" viewBox="0 0 16 16">
         <path fill="currentColor" d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
       </symbol>
+      <symbol id="icon-sun" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="3.5" fill="currentColor"/>
+        <g fill="currentColor">
+          <rect x="7.25" y="0"    width="1.5" height="2.5" rx="0.75"/>
+          <rect x="7.25" y="13.5" width="1.5" height="2.5" rx="0.75"/>
+          <rect x="0"    y="7.25" width="2.5" height="1.5" rx="0.75"/>
+          <rect x="13.5" y="7.25" width="2.5" height="1.5" rx="0.75"/>
+          <rect x="2.25" y="2.25" width="1.5" height="2.5" rx="0.75" transform="rotate(45 3 3.5)"/>
+          <rect x="12.25" y="2.25" width="1.5" height="2.5" rx="0.75" transform="rotate(-45 13 3.5)"/>
+          <rect x="2.25" y="11.25" width="1.5" height="2.5" rx="0.75" transform="rotate(-45 3 12.5)"/>
+          <rect x="12.25" y="11.25" width="1.5" height="2.5" rx="0.75" transform="rotate(45 13 12.5)"/>
+        </g>
+      </symbol>
+      <symbol id="icon-moon" viewBox="0 0 16 16">
+        <path fill="currentColor" d="M8 1a7 7 0 1 0 6.93 8.07A5.5 5.5 0 0 1 8 1Z"/>
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 16 16">
+        <path fill="currentColor" fill-rule="evenodd" d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+      </symbol>
+      <symbol id="icon-chevron-up" viewBox="0 0 16 16">
+        <path fill="currentColor" fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6Z"/>
+      </symbol>
     </svg>
     <div id="progress" aria-hidden="true"></div>
     <div id="navOverlay" class="nav-overlay" aria-hidden="true"></div>
@@ -41,7 +63,9 @@ layout: compress
       </div>
     </div>
 
-    <button id="backToTop" class="back-to-top" aria-label="Back to top" hidden>↑</button>
+    <button id="backToTop" class="back-to-top" aria-label="Back to top" hidden>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><use href="#icon-chevron-up"></use></svg>
+    </button>
 
     <div class="wrapper">
       <nav id="sidebar" aria-label="Site navigation">
@@ -55,7 +79,7 @@ layout: compress
           </ul>
 
           <button class="search-toggle" id="searchToggle" aria-label="Search posts">
-            <span>⌕ search</span><kbd class="search-shortcut">Ctrl+K</kbd>
+            <span><svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16"><use href="#icon-search"></use></svg> search</span><kbd class="search-shortcut">Ctrl+K</kbd>
           </button>
 
           <details class="nav-htb">
@@ -117,7 +141,7 @@ layout: compress
 
         <div class="nav-bottom">
           <button id="themeToggle" class="theme-toggle" aria-label="Switch theme">
-            <span class="theme-icon">☀</span>
+            <svg class="theme-icon" aria-hidden="true" width="13" height="13" viewBox="0 0 16 16"><use href="#icon-sun"></use></svg>
             <span class="theme-label">light mode</span>
           </button>
           <div class="a11y-row" role="group" aria-label="Accessibility options">

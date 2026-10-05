@@ -10,7 +10,15 @@ layout: compress
     <script src="{{ "/assets/js/theme-init.js?v=" | append: _ti_v | relative_url }}"></script>
 {% capture _seo_block %}{% seo %}{% endcapture %}
 {% capture _generator_tag %}<meta name="generator" content="Jekyll v{{ jekyll.version }}" />{% endcapture %}
-{{ _seo_block | replace: _generator_tag, "" }}
+{% assign _seo_block = _seo_block | replace: _generator_tag, "" %}
+{% assign _seo_block = _seo_block | replace: "<!-- End Jekyll SEO tag -->", "" %}
+{% assign _seo_begin_parts = _seo_block | split: "<!-- Begin Jekyll SEO tag v" %}
+{% if _seo_begin_parts.size > 1 %}
+  {% assign _seo_after_version = _seo_begin_parts[1] | split: " -->" %}
+  {% assign _seo_rest = _seo_after_version | slice: 1, _seo_after_version.size | join: " -->" %}
+  {% assign _seo_block = _seo_begin_parts[0] | append: _seo_rest %}
+{% endif %}
+{{ _seo_block }}
     {% assign _css_v = site.github.build_revision | default: site.time | date: "%s" %}
     <link rel="stylesheet" href="{{ "/assets/css/style.css?v=" | append: _css_v | relative_url }}">
     <script type="module" src="/assets/js/main.js?v={{ site.github.build_revision | default: site.time | date: '%s' }}"></script>

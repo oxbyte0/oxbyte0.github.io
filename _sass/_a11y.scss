@@ -1,4 +1,16 @@
 @layer a11y {
+  .skip-link {
+    position: fixed; top: 10px; left: 10px;
+    z-index: var(--z-skip-link);
+    background: var(--c-surface-3); color: var(--c-head);
+    border: 1px solid var(--c-border-2); border-radius: var(--r-md);
+    padding: var(--sp-2) var(--sp-3);
+    font-family: 'Martian Mono', monospace; font-size: 12px; text-decoration: none;
+    transform: translateY(-150%); transition: transform var(--t-fast);
+
+    &:focus-visible { transform: translateY(0); }
+  }
+
   .reduce-motion {
     *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.05s !important; }
     html { scroll-behavior: auto !important; }

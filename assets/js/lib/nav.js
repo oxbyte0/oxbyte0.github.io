@@ -29,6 +29,15 @@ export function initNav() {
     window.scrollTo(0, y);
   }
 
+  const isOpen = () => sidebar.classList.contains('open');
+
+  /* Off-canvas on mobile must leave the accessibility tree when closed —
+     a CSS transform alone still leaves its links tab-focusable and its
+     <h1> competing with #phoneHeader's. */
+  function syncInert() {
+    sidebar.inert = mobileQuery.matches && !isOpen();
+  }
+
   function openNav() {
     sidebar.classList.add('open');
     overlay.classList.add('open');
@@ -36,6 +45,7 @@ export function initNav() {
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Close navigation');
     toggle.querySelector('use')?.setAttribute('href', '#icon-xmark');
+    syncInert();
   }
 
   function closeNav() {
@@ -45,9 +55,10 @@ export function initNav() {
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open navigation');
     toggle.querySelector('use')?.setAttribute('href', '#icon-list');
+    syncInert();
   }
 
-  const isOpen = () => sidebar.classList.contains('open');
+  syncInert();
 
   toggle.addEventListener('click', () => isOpen() ? closeNav() : openNav());
   overlay.addEventListener('click', closeNav);
@@ -58,6 +69,7 @@ export function initNav() {
 
   mobileQuery.addEventListener('change', e => {
     if (!e.matches && isOpen()) closeNav();
+    else syncInert();
   });
 
   /* Platform shortcut labels */

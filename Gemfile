@@ -8,7 +8,7 @@ gem "jekyll",         "~> 4.4"
 gem "webrick",        "~> 1.9"
 gem "jekyll-sitemap", "~> 1.4"
 gem "jekyll-feed",    "~> 0.17"
-gem "jekyll-seo-tag", "~> 2.8"
+gem "jekyll-seo-tag", "~> 2.9"
 
 # Transitive deps pinned above jekyll's own floor — CVE-2026-54904/54905/54906
 # (concurrent-ruby) and CVE-2026-54696 (json) were unpatched in what jekyll

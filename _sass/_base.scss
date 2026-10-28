@@ -2,11 +2,13 @@
   *, *::before, *::after { box-sizing: border-box; }
 
   :focus-visible {
-    outline: 2px solid var(--c-blue);
+    outline: 2px solid var(--c-accent);
     outline-offset: 2px;
     border-radius: var(--r-sm);
   }
   :focus:not(:focus-visible) { outline: none; }
+
+  ::selection { background: var(--c-accent-muted); color: var(--c-head); }
 
   html {
     scroll-behavior: smooth;
@@ -47,7 +49,7 @@
   hr { border: none; border-top: 1px solid var(--c-border); margin: var(--sp-5) 0; }
 
   a { color: var(--c-accent); text-decoration: none; }
-  a:hover { color: var(--c-blue); text-decoration: underline; text-decoration-color: var(--c-blue); text-underline-offset: 3px; }
+  a:hover { color: var(--c-accent-deep); text-decoration: underline; text-decoration-color: var(--c-accent-deep); text-underline-offset: 3px; }
   h1 a, h2 a { color: var(--c-head); }
   h1 a:hover, h2 a:hover { color: var(--c-accent); text-decoration: none; }
   a small { font-size: 11px; color: var(--c-muted); margin-top: -0.3em; display: block; }
@@ -79,15 +81,18 @@
     background: var(--c-surface-2); border: 1px solid var(--c-border);
     border-left: 3px solid var(--c-muted); border-radius: 0 var(--r-md) var(--r-md) 0;
 
-    &.success { border-left-color: var(--c-green); }
-    &.error   { border-left-color: var(--c-red); }
-    &.warning { border-left-color: var(--c-yellow); }
-    &.info    { border-left-color: var(--c-blue); }
+    /* Severity differentiated by border weight (urgent = deep/active red) and
+       icon glyph; icon color always uses the AA-safe --c-accent/--c-success
+       so the glyph itself stays readable regardless of severity. */
+    &.success { border-left-color: var(--c-success); }
+    &.error   { border-left-color: var(--c-accent-deep); }
+    &.warning { border-left-color: var(--c-accent-active); }
+    &.info    { border-left-color: var(--c-accent); }
 
-    &.success::before { content:"✓"; font-size:14px; color:var(--c-green); margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
-    &.error::before   { content:"✕"; font-size:14px; color:var(--c-red);   margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
-    &.warning::before { content:"⚠"; font-size:14px; color:var(--c-yellow); margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
-    &.info::before    { content:"ℹ"; font-size:14px; color:var(--c-blue);  margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
+    &.success::before { content:"✓"; font-size:14px; color:var(--c-success); margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
+    &.error::before   { content:"✕"; font-size:14px; color:var(--c-accent);  margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
+    &.warning::before { content:"⚠"; font-size:14px; color:var(--c-accent); margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
+    &.info::before    { content:"ℹ"; font-size:14px; color:var(--c-accent); margin:auto 0; padding:4px 10px 4px 0; flex-shrink:0; font-style:normal; }
 
     p { margin: auto 0; padding: var(--sp-1) 0; flex-grow: 1; font-style: inherit; }
   }

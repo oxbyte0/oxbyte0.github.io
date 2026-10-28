@@ -56,8 +56,8 @@
     /* ── Reading progress color shift ── */
     @supports (animation-timeline: scroll()) {
       @keyframes progress-color {
-        0%   { background: rgba(255,255,255,0.3); }
-        60%  { background: rgba(255,255,255,0.6); }
+        0%   { background: rgba(239,68,68,0.25); }
+        60%  { background: rgba(239,68,68,0.65); }
         100% { background: var(--c-accent); }
       }
       #progress {
@@ -69,7 +69,7 @@
     .nav-pages a, .nav-htb-list a, .nav-toc a {
       transition: color 90ms ease, transform 90ms ease;
     }
-    .nav-pages a:hover { color: var(--c-blue); transform: translateX(2px); }
+    .nav-pages a:hover { color: var(--c-accent-deep); transform: translateX(2px); }
 
     .theme-icon { display: inline-block; transition: transform 200ms ease; }
     .theme-toggle:active .theme-icon { transform: rotate(180deg) scale(0.85); }

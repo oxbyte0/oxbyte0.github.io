@@ -7,8 +7,8 @@ layout: null
   "description": {{ site.description | jsonify }},
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060609",
-  "theme_color": "#060609",
+  "background_color": "#0a0808",
+  "theme_color": "#0a0808",
   "categories": ["security", "technology"],
   "icons": [
     {

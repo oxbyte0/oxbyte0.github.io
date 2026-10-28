@@ -15,7 +15,7 @@ export function initTheme() {
     if (icon)  icon.querySelector('use')?.setAttribute('href', light ? '#icon-moon' : '#icon-sun');
     if (label) label.textContent = light ? 'dark mode' : 'light mode';
     btn.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
-    if (tc) tc.setAttribute('content', light ? '#f6f6f6' : '#060606');
+    if (tc) tc.setAttribute('content', light ? '#f6f6f6' : '#0a0808');
   }
 
   sync();

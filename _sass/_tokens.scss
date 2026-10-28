@@ -4,16 +4,25 @@
 @layer tokens {
   :root {
     color-scheme: dark;
-    --c-bg:        #060606; --c-surface:   #0c0c0c;
-    --c-surface-2: #131313; --c-surface-3: #1a1a1a;
+    /* Warm near-black red background ladder. */
+    --c-bg:        #0a0808; --c-surface:   #120d0d;
+    --c-surface-2: #1a1312; --c-surface-3: #241818;
     --c-border:    rgba(255,255,255,0.08); --c-border-2: rgba(255,255,255,0.15);
-    --c-text:      #9e9e9e; --c-muted:     #8a8a8a;
-    --c-head:      #e4e4e4; --c-accent:    #f4f4f4;
-    --c-accent-dim: rgba(255,255,255,0.06); --c-accent-glow: rgba(255,255,255,0.14);
-    --c-code-bg:   #040404;
-    --c-green:  #c8c8c8; --c-red:    #f2f2f2;
-    --c-yellow: #a0a0a0; --c-blue:   #8ab4f8; /* actual blue for OS badges */
-    --c-orange: #b8b8b8;
+    --c-text:      #9e9494; --c-muted:     #8a8080;
+    --c-head:      #ece4e4;
+    /* --c-bg's luminance is ~0.0026 — of the 4 spec reds, only #ef4444 clears
+       4.5:1 text contrast against it (dc2626 lands at 4.13, b91c1c at 3.06,
+       7f1d1d at 1.99). So --c-accent (the only shade used for resting text,
+       links, icons, focus rings) is the one AA-safe member per theme; the
+       other three are reserved for non-text uses (borders/hover/washes),
+       which only need to clear the 3:1 non-text-contrast minimum. */
+    --c-accent:        #ef4444;
+    --c-accent-deep:   #dc2626; /* hover transitions, large/bold text, non-text borders */
+    --c-accent-active: #b91c1c; /* :active press, warning/info borders */
+    --c-accent-muted:  #7f1d1d; /* oxblood — background washes/dividers only, never text or borders */
+    --c-accent-dim:  rgba(239,68,68,0.08); --c-accent-glow: rgba(239,68,68,0.28);
+    --c-code-bg:   #070505;
+    --c-success:   #5fa374; /* sole non-red hue — admonition success, explicitly allowed as an exception */
 
     /* ── Fluid spacing — scales from 320px to 1600px viewport ── */
     --space-unit: clamp(3.5px, 0.35vw + 2px, 6.5px);
@@ -61,21 +70,21 @@
 
   @supports (color: light-dark(#000, #fff)) {
     :root {
-      --c-bg:        light-dark(#f6f6f6, #060606);
-      --c-surface:   light-dark(#ffffff, #0c0c0c);
-      --c-surface-2: light-dark(#f0f0f0, #131313);
-      --c-surface-3: light-dark(#e8e8e8, #1a1a1a);
+      --c-bg:        light-dark(#f6f6f6, #0a0808);
+      --c-surface:   light-dark(#ffffff, #120d0d);
+      --c-surface-2: light-dark(#f0f0f0, #1a1312);
+      --c-surface-3: light-dark(#e8e8e8, #241818);
       --c-border:    light-dark(rgba(0,0,0,0.09),  rgba(255,255,255,0.08));
       --c-border-2:  light-dark(rgba(0,0,0,0.16),  rgba(255,255,255,0.15));
-      --c-text:      light-dark(#5a5a5a, #9e9e9e);
-      --c-muted:     light-dark(#717171, #8a8a8a);
-      --c-head:      light-dark(#111111, #e4e4e4);
-      --c-accent:    light-dark(#000000, #f4f4f4);
-      --c-accent-dim:  light-dark(rgba(0,0,0,0.06),  rgba(255,255,255,0.06));
-      --c-accent-glow: light-dark(rgba(0,0,0,0.14),  rgba(255,255,255,0.14));
-      --c-green:  light-dark(#2a6a3a, #c8c8c8); --c-red:    light-dark(#8a1a1a, #f2f2f2);
-      --c-yellow: light-dark(#606020, #a0a0a0); --c-blue:   light-dark(#1a4a8a, #8ab4f8);
-      --c-orange: light-dark(#505050, #b8b8b8);
+      --c-text:      light-dark(#5a5555, #9e9494);
+      --c-muted:     light-dark(#716a6a, #8a8080);
+      --c-head:      light-dark(#111111, #ece4e4);
+      /* #b91c1c on the light bg clears 6.0:1; #ef4444 on the dark bg clears
+         5.3:1 — same reasoning as the dark block above, mirrored per theme. */
+      --c-accent:      light-dark(#b91c1c, #ef4444);
+      --c-accent-dim:  light-dark(rgba(185,28,28,0.06), rgba(239,68,68,0.08));
+      --c-accent-glow: light-dark(rgba(185,28,28,0.14), rgba(239,68,68,0.28));
+      --c-success: light-dark(#2f6a44, #5fa374);
     }
   }
 }

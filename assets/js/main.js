@@ -4,7 +4,7 @@ import { initNav }    from './lib/nav.js';
 import { initDeviceAdaptation } from './features/device.js';
 import {
   initProgress, initBackToTop, initShare, initPrint,
-  initPwa, initWebP, initBotDetect, initViewTransitions, initSpeculationRules,
+  initPwa, initWebP, initBotDetect, initSpeculationRules,
   initSkeletons, initLazyImages
 } from './features/misc.js';
 
@@ -17,7 +17,6 @@ initTheme();
 const navState = initNav();
 initA11y();
 initProgress();
-initViewTransitions(navState);
 initSkeletons();
 idle(initBackToTop);
 

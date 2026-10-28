@@ -163,38 +163,6 @@ export function initBotDetect() {
   }
 }
 
-/* ── View Transitions ── */
-export function initViewTransitions(navState) {
-  if (!document.startViewTransition) return;
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a[href]');
-    if (!a) return;
-    let href;
-    try { href = new URL(a.href, location); } catch { return; }
-    if (href.origin !== location.origin) return;
-    if (href.hash && href.pathname === location.pathname) return;
-
-    /* Bug fix: skip view transition if nav is open — nav has CSS close transition
-       that would race with the view transition capture, causing visual artifacts */
-    if (navState?.isOpen?.()) {
-      navState.closeNav();
-      /* Let nav close animation finish (t-slow ≈ 280ms) before navigating */
-      e.preventDefault();
-      const raw   = getComputedStyle(document.documentElement).getPropertyValue('--t-slow').trim();
-    const tSlow = raw.endsWith('ms') ? parseFloat(raw)
-                : raw.endsWith('s')  ? parseFloat(raw) * 1000
-                : parseFloat(raw) || 280;
-      setTimeout(() => {
-        document.startViewTransition(() => { location.href = href.toString(); });
-      }, tSlow);
-      return;
-    }
-
-    e.preventDefault();
-    document.startViewTransition(() => { location.href = href.toString(); });
-  });
-}
-
 /* ── Speculation Rules (prerender next pages) ── */
 export function initSpeculationRules() {
   if (!('speculationrules' in HTMLScriptElement.prototype)) return;

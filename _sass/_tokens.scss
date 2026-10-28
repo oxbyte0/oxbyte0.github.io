@@ -33,14 +33,12 @@
     --sp-5: calc(var(--space-unit) * 6.8);
     --sp-6: calc(var(--space-unit) * 9.2);
     --sp-7: calc(var(--space-unit) * 13.5);
-    --sp-8: calc(var(--space-unit) * 18);
 
     /* ── Fluid border-radius ── */
     --r-base: clamp(2px, 0.22vw + 1px, 4.5px);
     --r-sm:  var(--r-base);
     --r-md:  calc(var(--r-base) * 2.2);
     --r-lg:  calc(var(--r-base) * 3.8);
-    --r-xl:  calc(var(--r-base) * 6);
 
     /* ── Fluid timing ── */
     --t-fast: clamp(70ms, 0.06s, 100ms) ease;

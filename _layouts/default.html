@@ -9,6 +9,24 @@ layout: template
   <p class="masthead-word">{{ site.title }}</p>
   <p class="masthead-tag">{{ site.tagline | default: site.description }}</p>
   <p class="masthead-stat">{% if site.categories.HTB %}{{ site.categories.HTB.size }} machine{% if site.categories.HTB.size != 1 %}s{% endif %} pwned{% endif %}{% if site.categories.HTB and site.posts.size > site.categories.HTB.size %} &middot; {{ site.posts.size | minus: site.categories.HTB.size }} other posts{% endif %} &middot; {{ site.time | date: "%Y-%m-%d" }}</p>
+  <div class="masthead-decor" aria-hidden="true">
+    <svg class="decor-shape decor-cube" viewBox="0 0 100 100" width="76" height="76" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M50 10 L90 30 L50 50 L10 30 Z"/>
+      <path d="M10 30 L50 50 L50 90 L10 70 Z"/>
+      <path d="M90 30 L50 50 L50 90 L90 70 Z"/>
+    </svg>
+    <svg class="decor-shape decor-node" viewBox="0 0 100 100" width="58" height="58" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M50 15 L80.3 32.5 L80.3 67.5 L50 85 L19.7 67.5 L19.7 32.5 Z"/>
+      <path d="M50 15 L50 50 M80.3 32.5 L50 50 M80.3 67.5 L50 50 M50 85 L50 50 M19.7 67.5 L50 50 M19.7 32.5 L50 50"/>
+      <circle cx="50" cy="50" r="4"/>
+    </svg>
+    <svg class="decor-shape decor-lock" viewBox="0 0 100 100" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="20" y="45" width="60" height="40" rx="6"/>
+      <path d="M35 45 V30 A15 15 0 0 1 65 30 V40"/>
+      <circle cx="50" cy="62" r="5"/>
+      <path d="M50 67 L50 76"/>
+    </svg>
+  </div>
 </header>
 {% endif %}
 

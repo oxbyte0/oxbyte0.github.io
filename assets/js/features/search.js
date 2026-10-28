@@ -110,4 +110,6 @@ export function initSearch(navState) {
     if (e.key === 'Escape' && !overlay.hidden) { closeSearch(); return; }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); overlay.hidden ? openSearch() : closeSearch(); }
   });
+
+  return { open: openSearch };
 }

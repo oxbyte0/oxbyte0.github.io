@@ -28,14 +28,14 @@ export function initA11y() {
     const mode   = btn.dataset.a11y;
     const active = html.classList.contains(mode);
     if (active) btn.classList.add('active');
-    btn.setAttribute('aria-pressed', String(active));
+    btn.setAttribute('aria-checked', String(active));
     btn.setAttribute('role', 'switch');
 
     btn.addEventListener('click', () => {
       html.classList.toggle(mode);
       const on = html.classList.contains(mode);
       btn.classList.toggle('active', on);
-      btn.setAttribute('aria-pressed', String(on));
+      btn.setAttribute('aria-checked', String(on));
       save();
     });
   });

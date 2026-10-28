@@ -34,16 +34,25 @@ idle(() => {
 
 const searchToggle = document.getElementById('searchToggle');
 if (searchToggle) {
-  let searchLoaded = false;
+  let searchApi = null;
   const loadSearch = () => {
-    if (searchLoaded) return;
-    searchLoaded = true;
-    import('./features/search.js').then(m => m.initSearch(navState)).catch(() => {});
+    if (searchApi) return Promise.resolve(searchApi);
+    return import('./features/search.js')
+      .then(m => (searchApi = m.initSearch(navState)))
+      .catch(() => null);
   };
   searchToggle.addEventListener('mouseenter', loadSearch, { once: true });
   searchToggle.addEventListener('touchstart',  loadSearch, { once: true, passive: true });
   document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') loadSearch();
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'k') return;
+    // First Ctrl+K lazy-loads search.js, which registers its own keydown
+    // listener for every press after this one — but that registration
+    // happens asynchronously, after this exact keypress has already
+    // finished propagating, so without an explicit .open() call here the
+    // very first press loads the module silently and shows nothing; the
+    // user has to press Ctrl+K a second time before anything visibly opens.
+    e.preventDefault();
+    loadSearch().then(api => api?.open());
   }, { once: true });
 }
 

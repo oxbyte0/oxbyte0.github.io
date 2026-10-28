@@ -23,6 +23,13 @@
     --c-text: #ffffff; --c-muted: #cccccc; --c-head: #ffffff; --c-accent: #ffffff;
     section { border-width: 2px !important; }
     a { text-decoration: underline !important; }
+
+    /* --c-border-2 at 0.55 alpha composited over this mode's black surface
+       flattens to ~#8c8c8c — only 3.36:1 against the white --c-head text
+       these .active buttons use. A solid, much darker background fixes it. */
+    .a11y-btn.active, .htb-type.active, .htb-sort.active, .htb-diff.active {
+      background: #404040 !important;
+    }
   }
 
   @media (prefers-contrast: more) {
@@ -30,6 +37,9 @@
       --c-bg: #000; --c-surface: #000; --c-surface-2: #111;
       --c-border: rgba(255,255,255,0.35); --c-border-2: rgba(255,255,255,0.55);
       --c-text: #fff; --c-muted: #ccc; --c-head: #fff; --c-accent: #fff;
+    }
+    .a11y-btn.active, .htb-type.active, .htb-sort.active, .htb-diff.active {
+      background: #404040 !important;
     }
   }
 }

@@ -1,10 +1,14 @@
 
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="DENY">
 <meta name="format-detection" content="telephone=no,date=no,email=no,address=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://gc.zgo.at; style-src 'self'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at; base-uri 'self'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
-<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com https://gc.zgo.at; style-src 'self'; font-src 'self'; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com https://gc.zgo.at; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests;">
+<!-- X-Content-Type-Options, X-Frame-Options, and Permissions-Policy are
+     response-header-only per spec — no browser has ever honored them as
+     <meta http-equiv>, and none plan to. GitHub Pages doesn't let us send
+     custom response headers at all, so there's no way to set these for
+     real on this host. Keeping fake copies here would just be a false
+     positive on anything that checks for them; CSP and Referrer-Policy
+     above are the two directives that actually work via meta. -->
 
 <!-- Preload main.js: the stylesheet is already linked in template.html above this include,
      so no duplicate CSS preload is needed — only the module entry point benefits from a hint -->

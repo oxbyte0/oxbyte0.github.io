@@ -113,7 +113,6 @@
 
   /* ── Homepage masthead ── */
   .home-masthead {
-    position: relative;
     margin-bottom: var(--sp-5);
     padding-bottom: var(--sp-4);
     border-bottom: 1px solid var(--c-border);
@@ -133,34 +132,6 @@
       font-family: 'Martian Mono', monospace; font-size: 10px;
       color: var(--c-muted); letter-spacing: 0.04em; margin: 0;
     }
-
-    /* Decorative wireframe objects — hidden until there's real clearance to the
-       right of the tagline, so they never crowd or sit under text. */
-    .masthead-decor {
-      display: none;
-      pointer-events: none;
-      user-select: none;
-    }
-  }
-
-  @media screen and (min-width: 1100px) {
-    .home-masthead .masthead-decor {
-      display: block;
-      position: absolute;
-      top: 0; right: 0; bottom: 0;
-      width: 200px;
-      perspective: 700px;
-      color: var(--c-muted);
-      z-index: -1; /* behind masthead text even if the shapes' horizontal offset drifts under it at narrower widths within this breakpoint */
-    }
-    .home-masthead .masthead-decor .decor-shape {
-      position: absolute;
-      transform-style: preserve-3d;
-      opacity: 0.4;
-    }
-    .home-masthead .decor-cube { top: 2%;  right: 6%; }
-    .home-masthead .decor-node { top: 48%; right: 32%; opacity: 0.3; }
-    .home-masthead .decor-lock { top: 62%; right: -4%; opacity: 0.32; }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -169,23 +140,5 @@
       .masthead-tag  { animation: fadeIn 240ms ease both; animation-delay: 30ms; }
       .masthead-stat { animation: fadeIn 280ms ease both; animation-delay: 60ms; }
     }
-    @media screen and (min-width: 1100px) {
-      .home-masthead .decor-cube { animation: float-drift-1 22s ease-in-out infinite; }
-      .home-masthead .decor-node { animation: float-drift-2 26s ease-in-out infinite; animation-delay: -6s; }
-      .home-masthead .decor-lock { animation: float-drift-3 19s ease-in-out infinite; animation-delay: -11s; }
-    }
-  }
-
-  @keyframes float-drift-1 {
-    0%, 100% { transform: translate3d(0, 0, 0)    rotateX(10deg) rotateY(0deg); }
-    50%      { transform: translate3d(0, -14px, 0) rotateX(-8deg) rotateY(180deg); }
-  }
-  @keyframes float-drift-2 {
-    0%, 100% { transform: translate3d(0, 0, 0)   rotateX(-12deg) rotateY(0deg); }
-    50%      { transform: translate3d(0, 10px, 0) rotateX(6deg)   rotateY(-180deg); }
-  }
-  @keyframes float-drift-3 {
-    0%, 100% { transform: translate3d(0, 0, 0)    rotateX(6deg) rotateY(0deg); }
-    50%      { transform: translate3d(0, -9px, 0)  rotateX(-10deg) rotateY(150deg); }
   }
 }

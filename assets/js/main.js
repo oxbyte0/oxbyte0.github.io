@@ -2,6 +2,7 @@ import { initTheme }  from './lib/theme.js';
 import { initA11y }   from './lib/a11y.js';
 import { initNav }    from './lib/nav.js';
 import { initDeviceAdaptation } from './features/device.js';
+import { initBgfx } from './features/bgfx.js';
 import {
   initProgress, initBackToTop, initShare, initPrint,
   initPwa, initWebP, initBotDetect, initSpeculationRules,
@@ -28,6 +29,7 @@ idle(() => {
   initPwa();
   initBotDetect();
   initSpeculationRules();
+  initBgfx();
 });
 
 const searchToggle = document.getElementById('searchToggle');

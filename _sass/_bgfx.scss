@@ -1,0 +1,44 @@
+@layer bgfx {
+  #bgfx {
+    position: fixed; inset: 0; z-index: -1;
+    overflow: hidden; pointer-events: none;
+  }
+
+  .bgfx-drift {
+    position: absolute; inset: -10%; /* oversized so drift never exposes an edge */
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 25%, rgba(220,38,38,0.08), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 80% 75%, rgba(127,29,29,0.10), transparent 70%);
+  }
+
+  .bgfx-grain {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    svg { display: block; width: 100%; height: 100%; }
+  }
+
+  .bgfx-spot {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(239,68,68,0.10), transparent 32%);
+    opacity: 0;
+    transition: opacity 400ms ease;
+    &.active { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bgfx-drift { animation: bgfx-drift 26s ease-in-out infinite alternate; }
+    @keyframes bgfx-drift {
+      from { transform: translate3d(0, 0, 0); }
+      to   { transform: translate3d(2%, -2%, 0); }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bgfx-spot { display: none; } /* JS also never attaches listeners in this case */
+  }
+
+  :root[data-theme="light"] #bgfx { display: none; } /* void/grain treatment is a dark-theme device */
+}

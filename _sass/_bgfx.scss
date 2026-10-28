@@ -78,4 +78,12 @@
   @media (prefers-reduced-data: reduce) {
     .bgfx-grain, .bgfx-drift { display: none; }
   }
+
+  /* High contrast is a request for zero decorative noise, not just bigger
+     numbers — a red-tinted atmosphere running under it defeats the point
+     whether the user asked for it with the manual toggle or the OS does. */
+  .high-contrast #bgfx { display: none; }
+  @media (prefers-contrast: more) {
+    #bgfx { display: none; }
+  }
 }

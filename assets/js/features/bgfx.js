@@ -1,6 +1,7 @@
 /* ── Cursor spotlight — two CSS vars only, all visuals live in _bgfx.scss ── */
 export function initBgfx() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (matchMedia('(hover: none), (pointer: coarse)').matches) return; /* touch: no cursor to track */
   const spot = document.querySelector('.bgfx-spot');
   if (!spot) return;
 

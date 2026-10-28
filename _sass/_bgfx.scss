@@ -28,8 +28,22 @@
     &.active { opacity: 1; }
   }
 
+  /* ── Light theme — same layers, red pulled back so it stays delicate on a near-white surface ── */
+  :root[data-theme="light"] {
+    .bgfx-drift {
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 25%, rgba(185,28,28,0.05),  transparent 70%),
+        radial-gradient(ellipse 55% 45% at 80% 75%, rgba(127,29,29,0.045), transparent 70%);
+    }
+    .bgfx-grain { opacity: 0.035; }
+    .bgfx-spot  { background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(185,28,28,0.07), transparent 32%); }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
-    .bgfx-drift { animation: bgfx-drift 26s ease-in-out infinite alternate; }
+    .bgfx-drift {
+      animation: bgfx-drift 26s ease-in-out infinite alternate;
+      will-change: transform; /* scoped to the motion-allowed case only */
+    }
     @keyframes bgfx-drift {
       from { transform: translate3d(0, 0, 0); }
       to   { transform: translate3d(2%, -2%, 0); }
@@ -40,5 +54,28 @@
     .bgfx-spot { display: none; } /* JS also never attaches listeners in this case */
   }
 
-  :root[data-theme="light"] #bgfx { display: none; } /* void/grain treatment is a dark-theme device */
+  /* Coarse/no-hover pointers have no cursor to track — CSS is the source of
+     truth here, not just the JS touch guard, since some hybrid laptops fire
+     synthetic mousemove on tap. */
+  @media (hover: none), (pointer: coarse) {
+    .bgfx-spot { display: none; }
+  }
+
+  /* Small screens: lighter grain, slower drift, no spotlight — independent of
+     pointer type, so a zoomed-out desktop window at this width still gets it. */
+  @media screen and (max-width: 768px) {
+    .bgfx-grain { opacity: 0.04; }
+    :root[data-theme="light"] .bgfx-grain { opacity: 0.028; }
+    .bgfx-spot { display: none; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .bgfx-drift { animation-duration: 42s; }
+    }
+  }
+
+  /* Data-saver mode: skip the grain's one-time SVG filter raster and the
+     drift gradients entirely. Unsupported browsers just ignore this block. */
+  @media (prefers-reduced-data: reduce) {
+    .bgfx-grain, .bgfx-drift { display: none; }
+  }
 }

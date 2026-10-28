@@ -20,7 +20,7 @@
     --c-accent-deep:   #dc2626; /* hover transitions, large/bold text, non-text borders */
     --c-accent-active: #b91c1c; /* :active press, warning/info borders */
     --c-accent-muted:  #7f1d1d; /* oxblood — background washes/dividers only, never text or borders */
-    --c-accent-dim:  rgba(239,68,68,0.08); --c-accent-glow: rgba(239,68,68,0.28);
+    --c-accent-dim:  rgba(239,68,68,0.08); --c-accent-glow: rgba(239,68,68,0.20);
     --c-code-bg:   #070505;
     --c-success:   #5fa374; /* sole non-red hue — admonition success, explicitly allowed as an exception */
 
@@ -83,7 +83,7 @@
          5.3:1 — same reasoning as the dark block above, mirrored per theme. */
       --c-accent:      light-dark(#b91c1c, #ef4444);
       --c-accent-dim:  light-dark(rgba(185,28,28,0.06), rgba(239,68,68,0.08));
-      --c-accent-glow: light-dark(rgba(185,28,28,0.14), rgba(239,68,68,0.28));
+      --c-accent-glow: light-dark(rgba(185,28,28,0.12), rgba(239,68,68,0.20));
       --c-success: light-dark(#2f6a44, #5fa374);
     }
   }

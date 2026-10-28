@@ -29,7 +29,7 @@
     li { margin: 0; }
     a { display: block; font-size: 12px; padding: 3px 0; color: var(--c-text); text-decoration: none; }
     a:hover { color: var(--c-accent-deep); text-decoration: none; }
-    a.active-page { color: var(--c-accent); font-weight: 500; }
+    a.active-page { color: var(--c-accent); font-weight: 500; text-decoration: underline; text-decoration-color: var(--c-accent); text-underline-offset: 3px; }
   }
 
   .nav-htb {
@@ -60,7 +60,7 @@
       color: var(--c-text); overflow: hidden; text-overflow: ellipsis;
       white-space: nowrap; text-decoration: none;
       &:hover { color: var(--c-accent-deep); text-decoration: none; }
-      &.active-page { color: var(--c-accent); font-weight: 500; }
+      &.active-page { color: var(--c-accent); font-weight: 500; text-decoration: underline; text-decoration-color: var(--c-accent); text-underline-offset: 3px; }
     }
   }
 

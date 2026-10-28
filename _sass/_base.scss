@@ -63,7 +63,11 @@
 
   table { width: 100%; border-collapse: collapse; margin: var(--sp-3) 0; font-size: 13px; }
   /* Post body tables scroll horizontally on phones (HTB scan output etc.) */
-  .post-body table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+  /* :not(.rouge-table) — Rouge's own code-block table already scrolls via its
+     pre.highlight ancestor, which code.js gives tabindex="0"/role="region";
+     this rule applying to it too made that scroll region un-focusable
+     (axe: scrollable-region-focusable) without actually adding anything. */
+  .post-body table:not(.rouge-table) { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 
   /* Prose measure: cap at 75ch so wide desktop viewports don't stretch
      paragraphs past a readable line length — code/tables/images stay

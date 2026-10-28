@@ -52,7 +52,7 @@ layout: template
   </button>
   <a class="share-btn" href="https://x.com/intent/post?text={{ tweet_msg | url_encode }}" target="_blank" rel="noopener noreferrer">share on x</a>
   <a class="share-btn" href="https://www.reddit.com/submit?url={{ post_url | url_encode }}&title={{ page.title | url_encode }}" target="_blank" rel="noopener noreferrer">reddit</a>
-  <button class="share-btn" id="print-btn" aria-label="Export as PDF">export pdf</button>
+  <button class="share-btn" id="print-btn">export pdf</button>
 </div>
 
 {% comment %} BAD-05 fix: single-pass related posts — removed redundant first loop {% endcomment %}

@@ -1,0 +1,24 @@
+{
+  "name": "oxbyte-qa",
+  "private": true,
+  "version": "1.0.0",
+  "description": "QA harness for oxbyte.blog — Lighthouse CI, Playwright + axe-core, Pa11y-CI, visual regression, security headers.",
+  "scripts": {
+    "install:browsers": "playwright install --with-deps chromium firefox webkit",
+    "lhci": "lhci autorun",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:update-snapshots": "playwright test --update-snapshots",
+    "pa11y": "pa11y-ci --config pa11yci.config.json",
+    "headers": "security-headers https://oxbyte.blog --format table --output reports/security-headers.txt && security-headers https://oxbyte.blog --format json --output reports/security-headers.json",
+    "sitespeed": "bash sitespeed/run.sh",
+    "qa:all": "npm run lhci && npm run test && npm run pa11y && npm run headers"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.1",
+    "@trustyourwebsite/security-headers": "^1.2.0",
+    "pa11y-ci": "^5.0.0"
+  }
+}

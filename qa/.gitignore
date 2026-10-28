@@ -1,0 +1,7 @@
+node_modules/
+reports/
+.lighthouseci/
+test-results/
+playwright-report/
+*.webm
+*-actual.png

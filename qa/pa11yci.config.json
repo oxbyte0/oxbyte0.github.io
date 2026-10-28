@@ -1,0 +1,18 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "wait": 500,
+    "chromeLaunchConfig": {
+      "executablePath": "/usr/bin/google-chrome",
+      "args": ["--no-sandbox"]
+    },
+    "ignore": []
+  },
+  "urls": [
+    "https://oxbyte.blog/",
+    "https://oxbyte.blog/archive/",
+    "https://oxbyte.blog/VariaType/",
+    "https://oxbyte.blog/about/"
+  ]
+}

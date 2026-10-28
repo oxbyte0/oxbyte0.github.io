@@ -1,0 +1,7 @@
+{
+  "timings": {
+    "largestContentfulPaint": 2500,
+    "firstContentfulPaint": 1800,
+    "cumulativeLayoutShift": 0.1
+  }
+}

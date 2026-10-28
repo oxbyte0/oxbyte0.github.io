@@ -130,7 +130,7 @@
   .a11y-btn {
     font-family: 'Martian Mono', monospace; font-size: 10px; text-transform: uppercase;
     letter-spacing: 0.04em; color: var(--c-muted); background: none;
-    border: 1px solid var(--c-border); border-radius: var(--r-sm); padding: 2px 5px; cursor: pointer;
+    border: 1px solid var(--c-border); border-radius: var(--r-sm); padding: 7px 5px; cursor: pointer; /* was 2px, Lighthouse target-size: 17px rows */
     transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
 
     &:hover { color: var(--c-head); border-color: var(--c-muted); }
@@ -141,7 +141,7 @@
     display: flex; align-items: center; gap: 6px; background: none; border: none;
     color: var(--c-muted); cursor: pointer; font-size: 10px;
     font-family: 'Martian Mono', monospace; letter-spacing: 0.03em;
-    padding: 3px 0; margin-top: 3px; width: 100%; text-align: left;
+    padding: 7px 0; margin-top: 3px; width: 100%; text-align: left; /* was 3px, same target-size fix */
     &:hover { color: var(--c-head); }
   }
 
@@ -160,7 +160,7 @@
     .nav-pages a, .nav-htb summary    { min-height: 44px; display: flex; align-items: center; padding: 0 4px; }
     .nav-htb-list a                    { min-height: 36px; display: flex; align-items: center; padding: 0 0 0 4px; }
     .htb-type, .htb-sort, .htb-diff   { padding: 6px 10px; font-size: 11px; }
-    .a11y-btn                          { padding: 6px 8px; }
+    .a11y-btn                          { padding: 7px 8px; }
   }
 
   :root[data-theme="light"] nav { box-shadow: none; }
